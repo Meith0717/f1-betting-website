@@ -1,10 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Flask App</title>
-</head>
-<body>
-    <h1>Welcome to Flask App</h1>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="welcome-container">
+    <h1>Welcome to Intimacy</h1>
+    
+    <div class="welcome-message">
+        <p>A secure authentication system with admin features.</p>
+    </div>
+    
+    <div class="auth-actions">
+        <a href="{{ url_for('auth.login') }}" class="action-button login-button">
+            Login
+        </a>
+        <a href="{{ url_for('auth.register') }}" class="action-button register-button">
+            Register
+        </a>
+    </div>
+</div>
+
+<style>
+    .welcome-container {
+        max-width: 600px;
+        margin: 50px auto;
+        text-align: center;
+        padding: 30px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .welcome-message {
+        margin: 20px 0;
+        color: #666;
+        font-size: 18px;
+    }
+    
+    .auth-actions {
+        margin-top: 30px;
+    }
+    
+    .action-button {
+        display: inline-block;
+        padding: 12px 30px;
+        margin: 0 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    
+    .login-button {
+        background-color: #007bff;
+    }
+    
+    .login-button:hover {
+        background-color: #0056b3;
+    }
+    
+    .register-button {
+        background-color: #28a745;
+    }
+    
+    .register-button:hover {
+        background-color: #1e7e34;
+    }
+</style>
+{% endblock %}

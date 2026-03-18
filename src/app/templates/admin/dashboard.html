@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+
+<div class="admin-nav">
+    <a href="{{ url_for('admin.manage_users') }}">Manage Users</a>
+</div>
+
+<div class="stats">
+    <h3>System Statistics</h3>
+    <p>Total users: {{ users|length }}</p>
+    <p>Admin users: {{ users|selectattr('is_admin')|list|length }}</p>
+    <p>Regular users: {{ users|rejectattr('is_admin')|list|length }}</p>
+</div>
+
+<div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <a href="{{ url_for('admin.manage_users') }}" class="action-button">
+        Manage Users
+    </a>
+</div>
+
+<style>
+    .admin-nav {
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    
+    .stats {
+        background-color: white;
+        padding: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .quick-actions {
+        background-color: white;
+        padding: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .action-button {
+        display: inline-block;
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+    
+    .action-button:hover {
+        background-color: #218838;
+    }
+</style>
+{% endblock %}

@@ -1,10 +1,16 @@
 from flask import Flask
 
+
 def create_app():
     app = Flask(__name__)
-    
-    # Import and register blueprints
-    from . import routes
-    app.register_blueprint(routes.bp)
-    
+
+    # Configure secret key for session
+    app.config["SECRET_KEY"] = "dev-key"
+
+    # Import and register blueprints from requests package
+    from .requests import main_bp, auth_bp, admin_bp
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
+
     return app

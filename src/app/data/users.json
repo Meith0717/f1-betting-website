@@ -1,0 +1,18 @@
+{
+  "users": {
+    "thierry": {
+      "password": "pbkdf2_sha256$a3926f7a67462d1a6e704dfdc633fa3e$83ecc6aa2de7f1c1c799f6c05986b260ae3e248d6e6b89b75abc90e983be6ded",
+      "email": "thierry@example.com",
+      "created_at": "2026-03-18T23:44:37.209439",
+      "last_login": "2026-03-19T00:04:14.138917",
+      "is_admin": false
+    },
+    "Gwen": {
+      "password": "pbkdf2_sha256$676ba2cce25d6a62ab3d07f73ce94ab1$40220d13a3bad0cd5c04b4b006cd6c101a67063814d5ebd57e38407e2b8b02bc",
+      "email": "Gwen@example.com",
+      "created_at": "2026-03-18T23:47:31.235875",
+      "last_login": "2026-03-18T23:47:37.344231",
+      "is_admin": false
+    }
+  }
+}

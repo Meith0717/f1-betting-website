@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>User Management</h1>
+
+<div class="admin-nav">
+    <a href="{{ url_for('admin.admin_dashboard') }}">Dashboard</a>
+</div>
+
+<table class="user-table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Created</th>
+            <th>Last Login</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for username, user_data in users.items() %}
+        <tr>
+            <td>{{ username }}</td>
+            <td>{{ user_data.email }}</td>
+            <td>{{ user_data.created_at }}</td>
+            <td>{{ user_data.last_login if user_data.last_login else 'Never' }}</td>
+            <td>
+                {% if user_data.is_admin %}
+                ✓ Admin
+                {% else %}
+                ✗ Regular
+                {% endif %}
+            </td>
+            <td>
+                {% if not user_data.is_admin %}
+                <form method="POST" action="{{ url_for('admin.promote_user', username=username) }}" style="display: inline;">
+                    <button type="submit" class="promote-btn">Promote</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('admin.demote_user', username=username) }}" style="display: inline;">
+                    <button type="submit" class="demote-btn">Demote</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .user-table th, .user-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    .user-table th {
+        background-color: #f2f2f2;
+    }
+    .user-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .promote-btn {
+        background-color: #28a745;
+        color: white;
+    }
+    .demote-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}
