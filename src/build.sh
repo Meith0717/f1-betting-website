@@ -3,7 +3,7 @@
 set -e # exit on any error 
 
 VENV_DIR=".venv"
-APP_FILE="src/run.py"
+APP_FILE="run.py"
 
 echo "▶ Checking for Python 3..."
 python3 --version
