@@ -82,7 +82,7 @@ function initializeCountdown() {
         }
     }
 }
-=======
+
 // Session Countdown Timer
 function initializeCountdown() {
     const countdownElement = document.getElementById('session-countdown');
@@ -154,68 +154,6 @@ function updateCountdown(targetDate, element, isInline = false) {
 document.addEventListener('DOMContentLoaded', initializeCountdown);
 </script>
 
-<style>
-/* Next session card styles */
-.next-session-card {
-    background-color: #e3f2fd;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-left: 4px solid #2196F3;
-}
 
-.next-session-card h2 {
-    color: #0d47a1;
-    margin-bottom: 15px;
-}
-
-.session-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-}
-
-.session-detail {
-    background-color: white;
-    padding: 10px;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* Countdown timer styles */
-.countdown-timer {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-}
-
-.countdown-timer-inline {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 0.9em;
-    margin-left: 10px;
-    vertical-align: middle;
-}
-
-.countdown-loading {
-    color: #666;
-    font-style: italic;
-}
-
-.countdown-unavailable {
-    color: #999;
-}
-
-.countdown-active {
-    color: #d32f2f;
-    background-color: #ffebee;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.countdown-expired {
-    color: #388e3c;
-    font-weight: bold;
-}
-</style>
 
 {% endblock %}
