@@ -13,10 +13,28 @@ class RaceDataManager:
         # Set default timezone to UTC for race data
         self.utc_timezone = pytz.UTC
         try:
-            # Try to get user's local timezone
-            self.local_timezone = pytz.timezone('Europe/Paris')  # Default fallback
-        except:
+            # Try to get user's local timezone from environment or system
+            import tzlocal
+            self.local_timezone = tzlocal.get_localzone()
+        except (ImportError, Exception):
+            # Fallback to UTC if tzlocal not available or other errors
             self.local_timezone = pytz.timezone('UTC')
+
+    def _get_race_datetime(self, race: Dict) -> Optional[datetime]:
+        """Helper method to get datetime for a race"""
+        try:
+            if 'time' in race:
+                return datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M")
+            elif race.get('sessions') and len(race['sessions']) > 0:
+                first_session = race['sessions'][0]
+                session_time = first_session.get('time', '00:00')
+                return datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M")
+            elif 'date' in race:
+                # Fallback to race date with default time for races without sessions
+                return datetime.strptime(f"{race['date']} 00:00", "%Y-%m-%d %H:%M")
+        except (ValueError, KeyError):
+            return None
+        return None
     
     def ensure_data_file_exists(self):
         """Ensure the races.json file exists with default data"""
@@ -85,31 +103,17 @@ class RaceDataManager:
         
         upcoming_races = []
         for race in races:
-            # Use the first session's date/time if race time is not available
-            if 'time' in race:
-                race_datetime = datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M:%S")
-            elif race.get('sessions'):
-                first_session = race['sessions'][0]
-                session_time = first_session.get('time', first_session.get('time', '00:00:00'))
-                race_datetime = datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M:%S")
-            else:
+            # Skip canceled races
+            if race.get('canceled'):
                 continue
             
-            if race_datetime > now:
+            race_datetime = self._get_race_datetime(race)
+            if race_datetime and race_datetime > now:
                 upcoming_races.append(race)
         
         # Return the soonest upcoming race
         if upcoming_races:
-            def get_race_sort_key(race):
-                if 'time' in race:
-                    return datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M:%S")
-                elif race.get('sessions'):
-                    first_session = race['sessions'][0]
-                    session_time = first_session.get('time', first_session.get('time', '00:00:00'))
-                    return datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M:%S")
-                return datetime.max
-            
-            return min(upcoming_races, key=get_race_sort_key)
+            return min(upcoming_races, key=lambda race: self._get_race_datetime(race) or datetime.max)
         
         return None
     
@@ -120,10 +124,14 @@ class RaceDataManager:
         
         all_sessions = []
         for race in races:
+            # Skip canceled races
+            if race.get('canceled'):
+                continue
+                
             for session in race.get("sessions", []):
-                # Handle both 'time' and 'time' fields
-                session_time = session.get('time', session.get('time', '00:00:00'))
-                session_datetime = datetime.strptime(f"{session['date']} {session_time}", "%Y-%m-%d %H:%M:%S")
+                # Handle 'time' field
+                session_time = session.get('time', '00:00:00')
+                session_datetime = datetime.strptime(f"{session['date']} {session_time}", "%Y-%m-%d %H:%M")
                 if session_datetime > now:
                     session_with_race_info = session.copy()
                     session_with_race_info["race_name"] = race["name"]
@@ -135,8 +143,8 @@ class RaceDataManager:
         # Return the soonest upcoming session
         if all_sessions:
             return min(all_sessions, key=lambda x: datetime.strptime(
-                f"{x['date']} {x.get('time', x.get('time', '00:00:00'))}", 
-                "%Y-%m-%d %H:%M:%S"
+                f"{x['date']} {x.get('time', '00:00')}", 
+                "%Y-%m-%d %H:%M"
             ))
         
         return None
@@ -183,30 +191,12 @@ class RaceDataManager:
         
         upcoming = []
         for race in races:
-            # Handle both 'time' and missing time fields
-            if 'time' in race:
-                race_datetime = datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M:%S")
-            elif race.get('sessions'):
-                first_session = race['sessions'][0]
-                session_time = first_session.get('time', first_session.get('time', '00:00:00'))
-                race_datetime = datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M:%S")
-            else:
-                continue
-            
-            if race_datetime > now:
+            race_datetime = self._get_race_datetime(race)
+            if race_datetime and race_datetime > now:
                 upcoming.append(race)
         
         # Sort by date and limit
-        def get_race_datetime(race):
-            if 'time' in race:
-                return datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M:%S")
-            elif race.get('sessions'):
-                first_session = race['sessions'][0]
-                session_time = first_session.get('time', first_session.get('time', '00:00:00'))
-                return datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M:%S")
-            return datetime.min
-        
-        upcoming.sort(key=get_race_datetime)
+        upcoming.sort(key=lambda race: self._get_race_datetime(race) or datetime.min)
         return upcoming[:limit]
     
     def get_all_races(self) -> List[Dict]:
@@ -217,7 +207,7 @@ class RaceDataManager:
         """Convert UTC time to local time"""
         try:
             # Parse the UTC datetime
-            utc_time = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M:%S")
+            utc_time = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
             utc_time = self.utc_timezone.localize(utc_time)
             
             # Convert to local timezone
@@ -225,7 +215,7 @@ class RaceDataManager:
             
             return {
                 "utc": f"{date_str} {time_str} UTC",
-                "local": local_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "local": local_time.strftime("%Y-%m-%d %H:%M"),
                 "timezone": str(self.local_timezone),
                 "formatted_local": local_time.strftime("%a, %d %b %Y %H:%M"),
                 "time_only": local_time.strftime("%H:%M"),
@@ -246,15 +236,15 @@ class RaceDataManager:
         race = race.copy()
         
         # Convert race time
-        if 'date' in race and ('time' in race or 'time' in race):
-            race_time = race.get('time', race.get('time', '00:00:00'))
+        if 'date' in race and 'time' in race:
+            race_time = race.get('time', '00:00')
             race['time_info'] = self.convert_utc_to_local(race['date'], race_time)
         
         # Convert session times
         if 'sessions' in race:
             for session in race['sessions']:
-                if 'date' in session and ('time' in session or 'time' in session):
-                    session_time = session.get('time', session.get('time', '00:00:00'))
+                if 'date' in session and 'time' in session:
+                    session_time = session.get('time', '00:00')
                     session['time_info'] = self.convert_utc_to_local(session['date'], session_time)
         
         return race

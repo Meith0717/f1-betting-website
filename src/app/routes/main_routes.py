@@ -19,12 +19,8 @@ def index():
     if next_race:
         next_race = race_data_manager.add_timezone_info_to_race(next_race)
     if next_session:
-        # Next session already has race info, but add timezone to session itself
-        session_with_info = next_session.copy()
-        if 'date' in next_session and ('time' in next_session or 'time' in next_session):
-            session_time = next_session.get('time', next_session.get('time', '00:00:00'))
-            session_with_info['time_info'] = race_data_manager.convert_utc_to_local(next_session['date'], session_time)
-        next_session = session_with_info
+        # Add timezone info to next session
+        next_session = race_data_manager.add_timezone_info_to_race(next_session)
     
     upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
     
@@ -141,42 +137,21 @@ def races():
         race_with_tz = race_data_manager.add_timezone_info_to_race(race)
         races_with_timezone.append(race_with_tz)
         
-        # Classify as upcoming or past
-        try:
-            if 'time' in race:
-                race_datetime = datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M:%S")
-            elif race.get('sessions'):
-                first_session = race['sessions'][0]
-                session_time = first_session.get('time', first_session.get('time_utc', '00:00:00'))
-                race_datetime = datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M:%S")
-            else:
-                continue
-            
+        # Classify as upcoming or past (include canceled races in upcoming if they're future-dated)
+        race_datetime = race_data_manager._get_race_datetime(race)
+        if race_datetime:
             if race_datetime > now:
                 upcoming_races.append(race_with_tz)
             else:
                 past_races.append(race_with_tz)
-        except (ValueError, KeyError):
-            continue
     
     return render_template(
         "races.html",
         upcoming_races=upcoming_races,
         past_races=past_races,
         next_race=race_data_manager.add_timezone_info_to_race(race_data_manager.get_next_race()),
-        next_session=_add_timezone_to_session(race_data_manager.get_next_session())
+        next_session=race_data_manager.add_timezone_info_to_race(race_data_manager.get_next_session())
     )
-
-
-def _add_timezone_to_session(session):
-    """Helper to add timezone info to a session"""
-    if not session:
-        return None
-    session = session.copy()
-    if 'date' in session and ('time' in session or 'time' in session):
-        session_time = session.get('time', session.get('time', '00:00:00'))
-        session['time_info'] = race_data_manager.convert_utc_to_local(session['date'], session_time)
-    return session
 
 @main_bp.route("/update_notifications", methods=["POST"])
 @login_required

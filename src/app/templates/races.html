@@ -6,7 +6,13 @@
 
     {% if next_session %}
     <div class="next-session-card">
-        <h2>🚦 Next Upcoming Session</h2>
+        <h2>🚦 Next Upcoming Session <span id="session-countdown-inline" class="countdown-timer-inline">
+            {% if next_session.time_info and next_session.time_info.iso_format %}
+            <span class="countdown-loading">Loading...</span>
+            {% else %}
+            <span class="countdown-unavailable">--:--:--</span>
+            {% endif %}
+        </span></h2>
         <div class="session-info">
             <div class="session-detail">
                 <strong>Race:</strong> {{ next_session.race_name }}
@@ -27,11 +33,12 @@
                 <strong>Time:</strong> 
                 {% if next_session.time_info %}
                     {{ next_session.time_info.time_only }} {{ next_session.time_info.timezone }}
-                    <br><small>(UTC: {{ next_session.time_info.utc.split()[1] if 'utc' in next_session.time_info else (next_session.get('time', next_session.get('time', 'TBD'))) }})</small>
+                    <br><small>(UTC: {{ next_session.time_info.utc.split()[1] if 'utc' in next_session.time_info else (next_session.get('time', 'N/A')) }})</small>
                 {% else %}
-                    {{ next_session.get('time', next_session.get('time', 'TBD')) }} UTC
+                    {{ next_session.get('time', 'N/A') }} UTC
                 {% endif %}
             </div>
+
         </div>
     </div>
     {% endif %}
@@ -42,9 +49,14 @@
             {% if upcoming_races %}
             <div class="race-list">
                 {% for race in upcoming_races %}
-                <div class="race-card" data-race-id="{{ race.id }}">
+                <div class="race-card" data-race-id="{{ race.id }}" data-canceled="{{ race.canceled|default(false, true) }}">
                     <div class="race-header" style="cursor: pointer;" onclick="toggleRaceCard('{{ race.id }}')">
-                        <h3>{{ race.name }}</h3>
+                        <h3>
+                            {{ race.name }}
+                            {% if race.canceled %}
+                            <span class="canceled-badge">CANCELED</span>
+                            {% endif %}
+                        </h3>
                         <span class="expand-icon">▼</span>
                     </div>
                     <div class="race-details">
@@ -67,11 +79,11 @@
                                     {% elif first_session.time or first_session.time_utc %}
                                         {{ first_session.time or first_session.time_utc }} UTC
                                     {% else %}
-                                        TBD
+                                        N/A
                                     {% endif %}
                                 {% endif %}
                             {% else %}
-                                TBD
+                                N/A
                             {% endif %}
                         </div>
                     </div>
@@ -84,9 +96,9 @@
                             <span class="session-time">
                                 {% if session.time_info %}
                                     {{ session.time_info.formatted_local }} 
-                                    <small>(UTC: {{ session.time_info.utc.split()[1] if 'utc' in session.time_info else (session.get('time', session.get('time', 'TBD'))) }})</small>
+                                    <small>(UTC: {{ session.time_info.utc.split()[1] if 'utc' in session.time_info else (session.get('time', session.get('time', 'N/A'))) }})</small>
                                 {% else %}
-                                    {{ session.date }} at {{ session.get('time', session.get('time', 'TBD')) }} UTC
+                                    {{ session.date }} at {{ session.get('time', session.get('time', 'N/A')) }} UTC
                                 {% endif %}
                             </span>
                         </div>
@@ -119,6 +131,8 @@
             <p>No past races available.</p>
             {% endif %}
         </div>
+
+
     </div>
 </div>
 
@@ -247,6 +261,29 @@
     display: block;
 }
 
+/* Canceled races styling - applied when race.canceled is true */
+.race-card[data-canceled="true"] {
+    border-left: 4px solid #d32f2f;
+    background-color: #ffebee;
+    opacity: 0.9;
+}
+
+.race-card[data-canceled="true"] h3 {
+    color: #d32f2f;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.canceled-badge {
+    background-color: #d32f2f;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -317,6 +354,100 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Initialize session countdown
+    initializeCountdown();
 });
+
+// Session Countdown Timer
+function initializeCountdown() {
+    const countdownElement = document.getElementById('session-countdown-inline');
+    if (!countdownElement) return;
+    
+    // Get the session ISO time from the template
+    const sessionTime = '{{ next_session.time_info.iso_format if next_session and next_session.time_info else "" }}';
+    
+    if (sessionTime) {
+        try {
+            // Parse the ISO time and create countdown
+            const sessionDate = new Date(sessionTime);
+            const now = new Date();
+            
+            // Only show countdown if session is in the future
+            if (sessionDate > now) {
+                updateCountdown(sessionDate, countdownElement, true); // inline format
+                const timer = setInterval(() => updateCountdown(sessionDate, countdownElement, true), 1000);
+                countdownElement.dataset.timerId = timer;
+            } else {
+                countdownElement.innerHTML = '<span class="countdown-expired">Started</span>';
+            }
+        } catch (error) {
+            console.error('Error initializing countdown:', error);
+            countdownElement.innerHTML = '<span class="countdown-unavailable">--:--:--</span>';
+        }
+    }
+}
+
+function updateCountdown(targetDate, element) {
+    const now = new Date();
+    const diff = targetDate - now;
+    
+    if (diff <= 0) {
+        element.innerHTML = '<span class="countdown-expired">Session has started</span>';
+        return;
+    }
+    
+    // Calculate time components
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Format the countdown
+    let countdownText = '';
+    if (days > 0) countdownText += `${days}d `;
+    if (hours > 0 || days > 0) countdownText += `${hours.toString().padStart(2, '0')}:`;
+    countdownText += `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    element.innerHTML = `<span class="countdown-active">${countdownText}</span>`;
+}
 </script>
+
+<style>
+/* Countdown timer styles */
+.countdown-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.countdown-timer-inline {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.countdown-loading {
+    color: #666;
+    font-style: italic;
+}
+
+.countdown-unavailable {
+    color: #999;
+}
+
+.countdown-active {
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.countdown-expired {
+    color: #388e3c;
+    font-weight: bold;
+}
+</style>
+
 {% endblock %}

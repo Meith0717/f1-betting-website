@@ -44,14 +44,16 @@ def demote_user(username):
         flash(f"User {username} not found", "error")
         return redirect(url_for("admin.admin_dashboard"))
 
+    # Only count admins once and reuse the result
     admin_count = _count_admins(users)
+    is_admin_user = users[username].get("is_admin", False)
 
     if admin_count <= 1:
         flash(
             "Cannot demote the last admin user. At least one admin must remain.",
             "error",
         )
-    else:
+    elif is_admin_user:
         users[username]["is_admin"] = False
         save_users(users)
         flash(f"User {username} demoted from admin", "success")
@@ -75,8 +77,9 @@ def delete_user(username):
         flash(f"User {username} not found", "error")
         return redirect(url_for("admin.admin_dashboard"))
 
-    is_admin_user = users[username].get("is_admin", False)
+    # Count admins once and reuse
     admin_count = _count_admins(users)
+    is_admin_user = users[username].get("is_admin", False)
 
     if is_admin_user and admin_count <= 1:
         flash(
