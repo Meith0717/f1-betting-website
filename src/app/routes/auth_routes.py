@@ -6,7 +6,7 @@ from ..utils import (
     hash_password,
     verify_password,
 )
-from ..decorators import admin_required
+from ..decorators import admin_required, login_required
 from datetime import datetime
 
 auth_bp = Blueprint("auth", __name__)
@@ -49,7 +49,7 @@ def login():
 
     return render_template("login.html")
 
-
+@login_required
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     """Handle user registration"""

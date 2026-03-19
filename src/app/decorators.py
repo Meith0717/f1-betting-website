@@ -2,6 +2,27 @@ from flask import flash, redirect, url_for, session
 from functools import wraps
 
 
+def login_required(f):
+    """
+    Decorator to require login for protected routes.
+    
+    Usage:
+        @login_required
+        def protected_route():
+            # Only accessible to logged-in users
+            pass
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check if user is logged in
+        if 'username' not in session:
+            flash('Please login first', 'error')
+            return redirect(url_for('auth.login'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def admin_required(f):
     """
     Decorator to require admin access for protected routes.
@@ -18,7 +39,7 @@ def admin_required(f):
         # Check if user is logged in
         if "username" not in session:
             flash("Please login first", "error")
-            return redirect(url_for("main.login"))
+            return redirect(url_for("auth.login"))
 
         # Import here to avoid circular imports
         from .utils import load_users
