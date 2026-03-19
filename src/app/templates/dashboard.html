@@ -23,16 +23,10 @@
             </span></h2>
             <div class="race-info-grid">
                 <div class="race-info-item">
-                    <strong>Race:</strong> {{ next_session.race_name }}
-                </div>
-                <div class="race-info-item">
                     <strong>Session:</strong> {{ next_session.type }}
                 </div>
                 <div class="race-info-item">
-                    <strong>Circuit:</strong> {{ next_session.circuit }}
-                </div>
-                <div class="race-info-item">
-                    <strong>Country:</strong> {{ next_session.country }}
+                    <strong>Location:</strong> {{ next_session.circuit }}, {{ next_session.country }}
                 </div>
                 <div class="race-info-item">
                     <strong>Date:</strong> {{ next_session.date }}

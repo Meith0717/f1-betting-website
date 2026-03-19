@@ -17,16 +17,10 @@
         </span></h2>
         <div class="session-info">
             <div class="session-detail">
-                <strong>Race:</strong> {{ next_session.race_name }}
-            </div>
-            <div class="session-detail">
                 <strong>Session:</strong> {{ next_session.type }}
             </div>
             <div class="session-detail">
-                <strong>Circuit:</strong> {{ next_session.circuit }}
-            </div>
-            <div class="session-detail">
-                <strong>Country:</strong> {{ next_session.country }}
+                <strong>Location:</strong> {{ next_session.circuit }}, {{ next_session.country }}
             </div>
             <div class="session-detail">
                 <strong>Date:</strong> {{ next_session.date }}
