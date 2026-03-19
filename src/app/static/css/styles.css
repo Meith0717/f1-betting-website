@@ -420,6 +420,57 @@ nav {
     margin-bottom: 5px;
 }
 
+/* Race Card Styles */
+.next-race-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #2196F3;
+}
+
+.next-race-card h2 {
+    color: #1a237e;
+    margin-bottom: 15px;
+}
+
+.race-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.race-info-item {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.race-info-item strong {
+    color: #1a237e;
+}
+
+.race-action {
+    text-align: right;
+}
+
+.view-all-races {
+    color: #2196F3;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.view-all-races:hover {
+    background-color: #e3f2fd;
+    text-decoration: none;
+}
+
 /*****************************
 * Profile
 *****************************/
