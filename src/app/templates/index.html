@@ -6,10 +6,12 @@
     
     {% if next_session %}
     <div class="next-session-card">
-        <h2>🚦 Next F1 Session <span id="session-countdown-inline" class="countdown-timer-inline">
+        <h2>🚦 Next F1 Session <span id="session-countdown-inline" class="countdown-timer-inline" 
             {% if next_session.time_info and next_session.time_info.iso_format %}
+            data-session-time="{{ next_session.time_info.iso_format }}">
             <span class="countdown-loading">Loading...</span>
             {% else %}
+            data-session-time="">
             <span class="countdown-unavailable">--:--:--</span>
             {% endif %}
         </span></h2>
@@ -53,106 +55,6 @@
     </div>
 </div>
 
-<script>
-// Session Countdown Timer
-function initializeCountdown() {
-    const countdownElement = document.getElementById('session-countdown-inline');
-    if (!countdownElement) return;
-    
-    // Get the session ISO time from the template
-    const sessionTime = '{{ next_session.time_info.iso_format if next_session and next_session.time_info else "" }}';
-    
-    if (sessionTime) {
-        try {
-            // Parse the ISO time and create countdown
-            const sessionDate = new Date(sessionTime);
-            const now = new Date();
-            
-            // Only show countdown if session is in the future
-            if (sessionDate > now) {
-                updateCountdown(sessionDate, countdownElement, true); // inline format
-                const timer = setInterval(() => updateCountdown(sessionDate, countdownElement, true), 1000);
-                countdownElement.dataset.timerId = timer;
-            } else {
-                countdownElement.innerHTML = '<span class="countdown-expired">Started</span>';
-            }
-        } catch (error) {
-            console.error('Error initializing countdown:', error);
-            countdownElement.innerHTML = '<span class="countdown-unavailable">--:--:--</span>';
-        }
-    }
-}
-
-// Session Countdown Timer
-function initializeCountdown() {
-    const countdownElement = document.getElementById('session-countdown');
-    if (!countdownElement) return;
-    
-    const loadingSpan = countdownElement.querySelector('.countdown-loading');
-    const unavailableSpan = countdownElement.querySelector('.countdown-unavailable');
-    
-    if (loadingSpan) {
-        // Get the session ISO time from the template
-        const sessionTime = '{{ next_session.time_info.iso_format if next_session and next_session.time_info else "" }}';
-        
-        if (sessionTime) {
-            try {
-                // Parse the ISO time and create countdown
-                const sessionDate = new Date(sessionTime);
-                const now = new Date();
-                
-                // Only show countdown if session is in the future
-                if (sessionDate > now) {
-                    updateCountdown(sessionDate, countdownElement);
-                    const timer = setInterval(() => updateCountdown(sessionDate, countdownElement), 1000);
-                    
-                    // Store timer reference to clean up later
-                    countdownElement.dataset.timerId = timer;
-                } else {
-                    countdownElement.innerHTML = '<span class="countdown-expired">Session has started</span>';
-                }
-            } catch (error) {
-                console.error('Error initializing countdown:', error);
-                countdownElement.innerHTML = '<span class="countdown-unavailable">Countdown unavailable</span>';
-            }
-        }
-    }
-}
-
-function updateCountdown(targetDate, element, isInline = false) {
-    const now = new Date();
-    const diff = targetDate - now;
-    
-    if (diff <= 0) {
-        element.innerHTML = '<span class="countdown-expired">Started</span>';
-        return;
-    }
-    
-    // Calculate time components
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    // Format the countdown
-    let countdownText = '';
-    if (isInline) {
-        // Compact format for inline: HH:MM:SS or DDd HH:MM:SS
-        if (days > 0) countdownText += `${days}d `;
-        countdownText += `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    } else {
-        // Detailed format for full display
-        if (days > 0) countdownText += `${days}d `;
-        if (hours > 0 || days > 0) countdownText += `${hours.toString().padStart(2, '0')}:`;
-        countdownText += `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    
-    element.innerHTML = `<span class="countdown-active">${countdownText}</span>`;
-}
-
-// Initialize countdown when page loads
-document.addEventListener('DOMContentLoaded', initializeCountdown);
-</script>
 
 
 

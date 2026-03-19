@@ -14,16 +14,16 @@ def index():
     next_race = race_data_manager.get_next_race()
     next_session = race_data_manager.get_next_session()
     upcoming_races = race_data_manager.get_upcoming_races(limit=3)
-    
+
     # Add timezone info to races
     if next_race:
         next_race = race_data_manager.add_timezone_info_to_race(next_race)
     if next_session:
         # Add timezone info to next session
         next_session = race_data_manager.add_timezone_info_to_race(next_session)
-    
+
     upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
-    
+
     if "username" in session:
         # Show user dashboard with admin links if applicable
         users = load_users()
@@ -34,7 +34,7 @@ def index():
             users=users,
             next_race=next_race,
             next_session=next_session,
-            upcoming_races=upcoming_races
+            upcoming_races=upcoming_races,
         )
     return render_template("index.html", next_race=next_race, next_session=next_session)
 
@@ -131,12 +131,12 @@ def races():
     upcoming_races = []
     past_races = []
     now = datetime.now()
-    
+
     for race in all_races:
         # Add timezone info to this race
         race_with_tz = race_data_manager.add_timezone_info_to_race(race)
         races_with_timezone.append(race_with_tz)
-        
+
         # Classify as upcoming or past (include canceled races in upcoming if they're future-dated)
         race_datetime = race_data_manager._get_race_datetime(race)
         if race_datetime:
@@ -144,14 +144,19 @@ def races():
                 upcoming_races.append(race_with_tz)
             else:
                 past_races.append(race_with_tz)
-    
+
     return render_template(
         "races.html",
         upcoming_races=upcoming_races,
         past_races=past_races,
-        next_race=race_data_manager.add_timezone_info_to_race(race_data_manager.get_next_race()),
-        next_session=race_data_manager.add_timezone_info_to_race(race_data_manager.get_next_session())
+        next_race=race_data_manager.add_timezone_info_to_race(
+            race_data_manager.get_next_race()
+        ),
+        next_session=race_data_manager.add_timezone_info_to_race(
+            race_data_manager.get_next_session()
+        ),
     )
+
 
 @main_bp.route("/update_notifications", methods=["POST"])
 @login_required
