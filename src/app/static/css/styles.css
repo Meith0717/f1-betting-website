@@ -162,6 +162,11 @@ nav {
     transition: border-color 0.3s;
 }
 
+.form-group input::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
 .form-group input:focus {
     outline: none;
     border-color: #1a237e;
