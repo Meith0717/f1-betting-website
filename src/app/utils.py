@@ -4,7 +4,6 @@ import hashlib
 import secrets
 import tempfile
 import shutil
-from datetime import datetime
 
 
 def load_users():

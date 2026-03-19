@@ -1,69 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="dashboard">
-    <h1>Welcome, {{ username }}!</h1>
-    
-    <div class="dashboard-section">
-        <h2>Your Account</h2>
-        <p>You are logged in as {{ username }}.</p>
-        <p>Last login: {{ users[username].last_login if users[username].last_login else 'First time login' }}</p>
-        <p>Account created: {{ users[username].created_at }}</p>
-    </div>
-    
-    {% if is_admin %}
-    <div class="dashboard-section admin-section">
-        <h2>Admin Access</h2>
-        <p>You have administrative privileges.</p>
-        <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-link">
-            <button class="admin-button">Go to Admin Dashboard</button>
-        </a>
-    </div>
-    {% endif %}
-    
-    <div class="dashboard-actions">
-        <a href="{{ url_for('auth.logout') }}">Logout</a>
-    </div>
-</div>
+<h1>Welcome, {{ username }}!</h1>
 
-<style>
-    .dashboard {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .dashboard-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .admin-section {
-        border-left: 4px solid #007bff;
-    }
-    
-    .admin-button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        margin-top: 10px;
-    }
-    
-    .admin-button:hover {
-        background-color: #0056b3;
-    }
-    
-    .dashboard-actions {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
-    }
-</style>
+<h2>Your Account</h2>
+<p>You are logged in as {{ username }}.</p>
+<p>Last login: {{ users[username].last_login if users[username].last_login else 'First time login' }}</p>
+<p>Account created: {{ users[username].created_at }}</p>
+
+{% if is_admin %}
+<h2>Admin Access</h2>
+<p>You have administrative privileges.</p>
+<p><a href="{{ url_for('admin.admin_dashboard') }}">Go to Admin Dashboard</a></p>
+{% endif %}
+
+<p><a href="{{ url_for('auth.logout') }}">Logout</a></p>
 {% endblock %}
