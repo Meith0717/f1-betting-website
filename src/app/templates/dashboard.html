@@ -3,7 +3,7 @@
 {% block content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1>Welcome to F1 Betting Dashboard, {{ username }}!</h1>
+        <h1>🏎️ Welcome to F1 Betting Platform, {{ username }}!</h1>
         <div class="user-actions">
             <a href="{{ url_for('main.profile') }}" class="profile-button">👤 Profile</a>
             <a href="{{ url_for('auth.logout') }}" class="logout-button">Logout</a>
@@ -11,47 +11,36 @@
     </div>
     
     <div class="dashboard-content">
-        <h2>F1 Betting Platform</h2>
-        <p>Welcome to your F1 Betting dashboard.</p>
+        <div class="welcome-card">
+            <h2>🎉 Welcome to Your Dashboard</h2>
+            <p>This is your F1 Betting Platform dashboard. Here you'll be able to:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>🏁 Place Bets</h3>
+                    <p>Bet on your favorite F1 races and drivers</p>
+                </div>
+                <div class="feature-item">
+                    <h3>📊 Track Results</h3>
+                    <p>Monitor your betting history and performance</p>
+                </div>
+                <div class="feature-item">
+                    <h3>💰 Manage Account</h3>
+                    <p>Update your profile and preferences</p>
+                </div>
+            </div>
+            
+            <div class="coming-soon">
+                <h3>🚀 Upcoming Features:</h3>
+                <ul>
+                    <li>🏎️ Live F1 Race Betting</li>
+                    <li>📈 Betting History & Statistics</li>
+                    <li>💳 Account Balance & Transactions</li>
+                    <li>🏆 Leaderboards & Achievements</li>
+                    <li>📅 Upcoming Race Schedule & Odds</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
-
-<style>
-.dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #eee;
-}
-
-.user-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.profile-button, .logout-button {
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.profile-button {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.logout-button {
-    background-color: #f44336;
-    color: white;
-}
-</style>
 {% endblock %}

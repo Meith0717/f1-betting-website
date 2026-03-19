@@ -2,21 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Flask App{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}F1 Betting Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <nav>
-        {% if 'username' in session %}
-            Logged in as {{ session['username'] }} |
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
-            {% if session.get('is_admin') %}
-                | <a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
+        <div class="nav-left">
+            🏎️ F1 Betting Platform
+        </div>
+        <div class="nav-right">
+            {% if 'username' in session %}
+                <span class="logged-in-user">👤 {{ session['username'] }}</span>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+                {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin.admin_dashboard') }}">Admin</a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
             {% endif %}
-        {% else %}
-            <a href="{{ url_for('auth.login') }}">Login</a> | <a href="{{ url_for('auth.register') }}">Register</a>
-        {% endif %}
+        </div>
     </nav>
     
-    {% block content %}{% endblock %}
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

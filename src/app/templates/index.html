@@ -1,12 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Welcome to Intimacy</h1>
-
-<p>A secure authentication system with admin features.</p>
-
-<div class="auth-actions">
-    <a href="{{ url_for('auth.login') }}">Login</a> |
-    <a href="{{ url_for('auth.register') }}">Register</a>
+<div class="welcome-section">
+    <h1>🏎️ Welcome to F1 Betting Platform</h1>
+    
+    <div class="welcome-card">
+        <p>Experience the thrill of Formula 1 betting with our secure and user-friendly platform.</p>
+        
+        <div class="feature-highlights">
+            <div class="feature">
+                <h3>🔒 Secure Authentication</h3>
+                <p>State-of-the-art security for your account and transactions</p>
+            </div>
+            <div class="feature">
+                <h3>🏆 Admin Features</h3>
+                <p>Comprehensive user management for administrators</p>
+            </div>
+            <div class="feature">
+                <h3>📧 Email Notifications</h3>
+                <p>Stay updated with optional email alerts</p>
+            </div>
+        </div>
+        
+        <div class="auth-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn-primary">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn-secondary">Register</a>
+        </div>
+    </div>
 </div>
 {% endblock %}

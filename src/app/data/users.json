@@ -1,19 +1,35 @@
 {
   "users": {
     "Thierry": {
-      "password": "pbkdf2_sha256$a639f85e5734a7ff06cf4f16612707d2$4715ea95572ee2270825b9fac4c7d25eab0f015b3667c94f1a2957a5f8e40d74",
+      "password": "pbkdf2_sha256$cb66e1f3101c98cb2aa60b9ebc99a389$246730036a020ed72d46c1dc17d879b3afaeae23a8510607e9af7cf5173437c2",
       "email": null,
       "email_notifications": false,
-      "created_at": "2026-03-19T13:28:11.732038",
-      "last_login": "2026-03-19T13:32:28.786353",
+      "created_at": "2026-03-19T13:39:24.331175",
+      "last_login": "2026-03-19T14:06:50.388040",
       "is_admin": true
     },
     "Gwen": {
-      "password": "pbkdf2_sha256$ce4698974e320e49f1a6be230d949fc1$79f46cc83ae420ea5f6188be870fee2f0c0bf0b9fc0590fe2e9053410b617d32",
+      "password": "pbkdf2_sha256$63695eefb4fa349cc2f20075dbc6b5cc$a34d7abfa9f5bb75296669b8e29bf0a4e6a14b2efa5e69906acae584afdd4a9f",
       "email": null,
       "email_notifications": false,
-      "created_at": "2026-03-19T13:32:13.881122",
-      "last_login": "2026-03-19T13:34:16.490881",
+      "created_at": "2026-03-19T13:40:52.214322",
+      "last_login": "2026-03-19T13:47:02.822621",
+      "is_admin": false
+    },
+    "Neal": {
+      "password": "pbkdf2_sha256$88d2a7f4c9a8cd18d5b6a72989739179$5c23367f315dc5ee0a3b7d8cbf4561ee9e0bf077f8b379cc28e60f75df820670",
+      "email": null,
+      "email_notifications": false,
+      "created_at": "2026-03-19T13:41:16.314140",
+      "last_login": null,
+      "is_admin": false
+    },
+    "Nic": {
+      "password": "pbkdf2_sha256$a9d8ae9646e08ecb3bb28d4d26a73553$08d86b6311e9ae10df9160ac0f408366df4568dd21bbdae0da99d1d556d9f8b2",
+      "email": null,
+      "email_notifications": false,
+      "created_at": "2026-03-19T13:41:30.881419",
+      "last_login": null,
       "is_admin": false
     }
   }
