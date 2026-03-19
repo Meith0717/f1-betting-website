@@ -8,14 +8,17 @@ from ..utils import (
 )
 from ..decorators import admin_required, login_required
 from datetime import datetime
+import os
 
 auth_bp = Blueprint("auth", __name__)
+
+# Registration password configuration - can be set via environment variable
+REGISTRATION_PASSWORD = os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     """Handle user login with session management"""
-    # Ensure there's at least one admin user
     users = ensure_first_admin()
 
     if request.method == "POST":
@@ -23,31 +26,25 @@ def login():
         password = request.form.get("password")
 
         if username in users and verify_password(users[username]["password"], password):
+            # Set up session
             session["username"] = username
-            # Store admin status in session (ensure field exists)
-            if "is_admin" not in users[username]:
-                users[username]["is_admin"] = False
-                save_users(users)
-            session["is_admin"] = users[username]["is_admin"]
-            # Update last login time
+            session["is_admin"] = users[username].get("is_admin", False)
+
+            # Update user data
             users[username]["last_login"] = datetime.now().isoformat()
 
-            # Migrate plaintext passwords to hashed on successful login
-            password_needs_hashing = not users[username]["password"].startswith(
-                "pbkdf2_sha256$"
-            )
-            if password_needs_hashing:
+            # Migrate plaintext passwords
+            if not users[username]["password"].startswith("pbkdf2_sha256$"):
                 users[username]["password"] = hash_password(password)
 
-            # Always save after successful login
             save_users(users)
-
             flash("Login successful!", "success")
             return redirect(url_for("main.index"))
         else:
             flash("Invalid username or password", "error")
 
     return render_template("login.html")
+
 
 @login_required
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -56,27 +53,37 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        reg_password = request.form.get("registration_password")
 
+        users = load_users()
+        is_first_user = len(users) == 0
+
+        # Validate inputs
         if not username or not password:
             flash("Username and password are required", "error")
+        elif not is_first_user and not reg_password:
+            flash("Registration password is required", "error")
+        elif not is_first_user and reg_password != REGISTRATION_PASSWORD:
+            flash("Invalid registration password", "error")
+        elif username in users:
+            flash("Username already exists", "error")
         else:
-            users = load_users()
-            if username in users:
-                flash("Username already exists", "error")
-            else:
-                # Store user with robust structure and hashed password
-                users[username] = {
-                    "password": hash_password(password),
-                    "email": f"{username}@example.com",  # Internal email, not shown to users
-                    "created_at": datetime.now().isoformat(),
-                    "last_login": None,
-                    "is_admin": False,  # Default to non-admin (first user will be promoted by ensure_first_admin)
-                }
-                save_users(users)
-                flash("Registration successful! Please login.", "success")
-                return redirect(url_for("auth.login"))
+            # Create new user
+            users[username] = {
+                "password": hash_password(password),
+                "email": None,
+                "email_notifications": False,
+                "created_at": datetime.now().isoformat(),
+                "last_login": None,
+                "is_admin": False,
+            }
+            save_users(users)
+            flash("Registration successful! Please login.", "success")
+            return redirect(url_for("auth.login"))
 
-    return render_template("register.html")
+    return render_template(
+        "register.html", require_registration_password=len(load_users()) > 0
+    )
 
 
 @auth_bp.route("/logout")

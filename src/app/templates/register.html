@@ -20,6 +20,12 @@
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" required>
   </div>
+  {% if require_registration_password %}
+  <div>
+    <label for="registration_password">Registration Password:</label>
+    <input type="password" id="registration_password" name="registration_password" required>
+  </div>
+  {% endif %}
   <button type="submit">Register</button>
 </form>
 

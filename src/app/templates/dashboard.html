@@ -1,18 +1,57 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Welcome, {{ username }}!</h1>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome to F1 Betting Dashboard, {{ username }}!</h1>
+        <div class="user-actions">
+            <a href="{{ url_for('main.profile') }}" class="profile-button">👤 Profile</a>
+            <a href="{{ url_for('auth.logout') }}" class="logout-button">Logout</a>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <h2>F1 Betting Platform</h2>
+        <p>Welcome to your F1 Betting dashboard.</p>
+    </div>
+</div>
 
-<h2>Your Account</h2>
-<p>You are logged in as {{ username }}.</p>
-<p>Last login: {{ users[username].last_login if users[username].last_login else 'First time login' }}</p>
-<p>Account created: {{ users[username].created_at }}</p>
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-{% if is_admin %}
-<h2>Admin Access</h2>
-<p>You have administrative privileges.</p>
-<p><a href="{{ url_for('admin.admin_dashboard') }}">Go to Admin Dashboard</a></p>
-{% endif %}
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eee;
+}
 
-<p><a href="{{ url_for('auth.logout') }}">Logout</a></p>
+.user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.profile-button, .logout-button {
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.profile-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.logout-button {
+    background-color: #f44336;
+    color: white;
+}
+</style>
 {% endblock %}

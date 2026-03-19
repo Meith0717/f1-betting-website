@@ -1,15 +1,296 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Admin Dashboard</h1>
+<div class="admin-dashboard">
+    <h1>📊 Admin Dashboard</h1>
 
-<p><a href="{{ url_for('admin.manage_users') }}">Manage Users</a></p>
+    <div class="admin-section">
+        <h2>System Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <p class="stat-number">{{ users|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Admin Users</h3>
+                <p class="stat-number">{{ users|selectattr('is_admin')|list|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Regular Users</h3>
+                <p class="stat-number">{{ users|rejectattr('is_admin')|list|length }}</p>
+            </div>
+        </div>
+    </div>
 
-<h3>System Statistics</h3>
-<p>Total users: {{ users|length }}</p>
-<p>Admin users: {{ users|selectattr('is_admin')|list|length }}</p>
-<p>Regular users: {{ users|rejectattr('is_admin')|list|length }}</p>
+    <div class="admin-section">
+        <h2>🔐 Registration Settings</h2>
+        <div class="registration-info">
+            <p><strong>Current Registration Password:</strong></p>
+            <p class="registration-password">{{ registration_password }}</p>
+            <p class="info-text">
+                <small>This password is required for new user registrations (except the first user).<br>
+                You can change it by setting the <code>REGISTRATION_PASSWORD</code> environment variable.</small>
+            </p>
+        </div>
+    </div>
 
-<h3>Quick Actions</h3>
-<p><a href="{{ url_for('admin.manage_users') }}">Manage Users</a></p>
+    <div class="admin-section">
+        <h2>👥 User Management</h2>
+        
+        <div class="user-table-container">
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th>Admin</th>
+                        <th>Notifications</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for username, user_data in users.items() %}
+                    <tr>
+                        <td>{{ username }}</td>
+                        <td>{% if user_data.email %}{{ user_data.email }}{% else %}<em>None</em>{% endif %}</td>
+                        <td>{{ user_data.created_at }}</td>
+                        <td>{{ user_data.last_login if user_data.last_login else 'Never' }}</td>
+                        <td>
+                            {% if user_data.is_admin %}
+                            <span class="admin-badge">👑 Admin</span>
+                            {% else %}
+                            <span class="regular-badge">👤 Regular</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user_data.email_notifications %}
+                            ✅ Enabled
+                            {% else %}
+                            ❌ Disabled
+                            {% endif %}
+                        </td>
+                        <td class="action-cell">
+                            {% if not user_data.is_admin %}
+                            <form method="POST" action="{{ url_for('admin.promote_user', username=username) }}" class="action-form">
+                                <button type="submit" class="promote-button" title="Promote to admin">👑</button>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{{ url_for('admin.demote_user', username=username) }}" class="action-form">
+                                <button type="submit" class="demote-button" title="Demote from admin">👤</button>
+                            </form>
+                            {% endif %}
+                            <!-- Delete button - prevent admins from deleting themselves -->
+                            {% if username != session['username'] %}
+                            <form method="POST" action="{{ url_for('admin.delete_user', username=username) }}" class="action-form" onsubmit="return confirm('Are you sure you want to delete user {{ username }}? This cannot be undone.');">
+                                <button type="submit" class="delete-button" title="Delete user">🗑️</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+            <a href="{{ url_for('main.profile') }}" class="action-button secondary">← Back to Profile</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stats-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.registration-info {
+    background-color: #fff9c4;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.registration-password {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2196F3;
+    background-color: #e3f2fd;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 10px 0;
+}
+
+.info-text {
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.info-text code {
+    background-color: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.action-button {
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    text-align: center;
+}
+
+.action-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.action-button:hover {
+    background-color: #0d8bf2;
+}
+
+.action-button.secondary {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.action-button.secondary:hover {
+    background-color: #e0e0e0;
+}
+
+/* User Table Styles */
+.user-table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.user-table th,
+.user-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.user-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.user-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.admin-badge {
+    background-color: #2196F3;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.regular-badge {
+    background-color: #4CAF50;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.action-cell {
+    white-space: nowrap;
+}
+
+.action-form {
+    display: inline;
+    margin: 0 2px;
+}
+
+.promote-button,
+.demote-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.promote-button:hover {
+    background-color: #e3f2fd;
+}
+
+.demote-button:hover {
+    background-color: #e8f5e9;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #f44336;
+}
+
+.delete-button:hover {
+    background-color: #ffebee;
+}
+</style>
 {% endblock %}

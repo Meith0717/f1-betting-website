@@ -88,11 +88,10 @@ def ensure_first_admin():
     """Ensure there's at least one admin user (first user becomes admin)"""
     users = load_users()
 
-    # If no users exist, this is first run - make first user admin
     if not users:
         return users
 
-    # If users exist but no admins, make the first user admin
+    # Promote first user to admin if no admins exist
     if not any(user.get("is_admin", False) for user in users.values()):
         first_username = next(iter(users.keys()))
         users[first_username]["is_admin"] = True
