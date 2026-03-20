@@ -35,7 +35,7 @@ def index():
         user_rank = next((i + 1 for i, (username, _) in enumerate(sorted_users) if username == current_username), None)
         
         return render_template(
-            "user/dashboard.html",
+            "user/overview.html",
             username=session["username"],
             is_admin=session.get("is_admin", False),
             users=users,
