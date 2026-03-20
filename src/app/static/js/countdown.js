@@ -1,17 +1,10 @@
-/**
- * F1 Betting Platform - Countdown Timer
- * Handles real-time countdown for next F1 sessions
- */
-
-/**
- * Initialize countdown timer for next session
- */
+// Session Countdown Timer
 function initializeCountdown() {
     const countdownElement = document.getElementById('session-countdown-inline');
     if (!countdownElement) return;
     
     // Get the session ISO time from the template
-    const sessionTime = countdownElement.getAttribute('data-session-time');
+    const sessionTime = countdownElement.dataset.sessionTime || '';
     
     if (sessionTime) {
         try {
@@ -34,12 +27,6 @@ function initializeCountdown() {
     }
 }
 
-/**
- * Update countdown display
- * @param {Date} targetDate - Target date/time
- * @param {HTMLElement} element - Element to update
- * @param {boolean} isInline - Whether to use inline format
- */
 function updateCountdown(targetDate, element, isInline = false) {
     const now = new Date();
     const diff = targetDate - now;
@@ -71,34 +58,5 @@ function updateCountdown(targetDate, element, isInline = false) {
     element.innerHTML = `<span class="countdown-active">${countdownText}</span>`;
 }
 
-/**
- * Race card toggle functionality
- */
-function toggleRaceCard(raceId) {
-    const raceCard = document.querySelector(`.race-card[data-race-id="${raceId}"]`);
-    if (raceCard) {
-        raceCard.classList.toggle('expanded');
-        
-        const icon = raceCard.querySelector('.expand-icon');
-        if (icon) {
-            icon.textContent = raceCard.classList.contains('expanded') ? '▲' : '▼';
-        }
-    }
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize countdown timer
-    initializeCountdown();
-    
-    // Set up race card toggle handlers
-    document.querySelectorAll('.race-header, .expand-icon').forEach(element => {
-        element.addEventListener('click', function() {
-            const raceCard = this.closest('.race-card');
-            if (raceCard) {
-                const raceId = raceCard.getAttribute('data-race-id');
-                toggleRaceCard(raceId);
-            }
-        });
-    });
-});
+// Initialize countdown when page loads
+document.addEventListener('DOMContentLoaded', initializeCountdown);

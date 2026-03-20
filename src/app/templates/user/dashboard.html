@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome to F1 Betting Platform, {{ username }}!</h1>
+        <div class="user-actions">
+            <a href="{{ url_for('main.profile') }}" class="btn btn-primary">Profile</a>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        {% if next_session %}
+        <div class="card next-session-card">
+            <div class="card-header">
+                <h3>Next Session: {{ next_session.race_name }}</h3>
+                <span id="session-countdown-inline" class="countdown-timer" data-session-time="{{ next_session.time_info.iso_format if next_session and next_session.time_info else '' }}">
+                    {% if next_session.time_info and next_session.time_info.iso_format %}
+                    <span class="countdown-loading">Loading...</span>
+                    {% else %}
+                    <span class="countdown-unavailable">--:--:--</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="race-detail"><strong>Session:</strong> {{ next_session.type }}</div>
+                <div class="race-detail"><strong>Circuit:</strong> {{ next_session.circuit }}</div>
+                <div class="race-detail"><strong>Country:</strong> {{ next_session.country }}</div>
+                <div class="race-detail"><strong>Date:</strong> {{ next_session.date }}</div>
+                <div class="race-detail"><strong>Time:</strong> 
+                    {% if next_session.time_info %}
+                        {{ next_session.time_info.time_only }} ({{ next_session.time_info.timezone }})
+                        <small>(UTC: {{ next_session.time_info.utc.split()[1] if 'utc' in next_session.time_info else (next_session.get('time', 'N/A')) }})</small>
+                    {% else %}
+                        {{ next_session.get('time', 'N/A') }} UTC
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.races') }}" class="btn btn-secondary">View All Races</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="stats-container">
+            <div class="card stat-card">
+                <h3 class="card-title">Your Score</h3>
+                <div class="card-value">{{ users[username].score }}</div>
+                <p class="card-description">Current competition score</p>
+            </div>
+
+            <div class="card stat-card">
+                <h3 class="card-title">Your Rank</h3>
+                <div class="card-value">{{ user_rank }}</div>
+                <p class="card-description">Out of {{ users|length }} users</p>
+            </div>
+        </div>
+
+        <div class="card leaderboard-card">
+            <h2 class="card-title">Leaderboard</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Username</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for username, user_data in sorted_users %}
+                        <tr class="{% if username == session['username'] %}current-user{% endif %}">
+                            <td>{{ loop.index }}</td>
+                            <td>{{ username }}</td>
+                            <td>{{ user_data.score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+
+{% endblock %}

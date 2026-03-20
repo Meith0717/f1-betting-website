@@ -14,29 +14,38 @@ def index():
     next_race = race_data_manager.get_next_race()
     next_session = race_data_manager.get_next_session()
     upcoming_races = race_data_manager.get_upcoming_races(limit=3)
-
+    
     # Add timezone info to races
     if next_race:
         next_race = race_data_manager.add_timezone_info_to_race(next_race)
     if next_session:
         # Add timezone info to next session
         next_session = race_data_manager.add_timezone_info_to_race(next_session)
-
+    
     upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
-
+    
     if "username" in session:
         # Show user dashboard with admin links if applicable
         users = load_users()
+        # Create sorted users list for leaderboard
+        sorted_users = sorted(users.items(), key=lambda x: x[1].get('score', 0), reverse=True)
+        
+        # Find current user's rank
+        current_username = session["username"]
+        user_rank = next((i + 1 for i, (username, _) in enumerate(sorted_users) if username == current_username), None)
+        
         return render_template(
-            "dashboard.html",
+            "user/dashboard.html",
             username=session["username"],
             is_admin=session.get("is_admin", False),
             users=users,
+            sorted_users=sorted_users,
+            user_rank=user_rank,
             next_race=next_race,
             next_session=next_session,
-            upcoming_races=upcoming_races,
+            upcoming_races=upcoming_races
         )
-    return render_template("index.html", next_race=next_race, next_session=next_session)
+    return render_template("welcome.html")
 
 
 @main_bp.route("/profile")
@@ -45,7 +54,7 @@ def profile():
     """Show user profile page"""
     users = load_users()
     return render_template(
-        "profile.html",
+        "user/profile.html",
         username=session["username"],
         is_admin=session.get("is_admin", False),
         users=users,
@@ -78,7 +87,7 @@ def change_password():
             flash("Password changed successfully!", "success")
             return redirect(url_for("main.profile"))
 
-    return render_template("change_password.html", username=session["username"])
+    return render_template("user/change_password.html", username=session["username"])
 
 
 @main_bp.route("/change_email", methods=["GET", "POST"])
@@ -116,7 +125,7 @@ def change_email():
 
     users = load_users()
     return render_template(
-        "change_email.html",
+        "user/change_email.html",
         username=session["username"],
         current_user=users[session["username"]],
     )
@@ -131,12 +140,12 @@ def races():
     upcoming_races = []
     past_races = []
     now = datetime.now()
-
+    
     for race in all_races:
         # Add timezone info to this race
         race_with_tz = race_data_manager.add_timezone_info_to_race(race)
         races_with_timezone.append(race_with_tz)
-
+        
         # Classify as upcoming or past (include canceled races in upcoming if they're future-dated)
         race_datetime = race_data_manager._get_race_datetime(race)
         if race_datetime:
@@ -144,19 +153,12 @@ def races():
                 upcoming_races.append(race_with_tz)
             else:
                 past_races.append(race_with_tz)
-
+    
     return render_template(
-        "races.html",
+        "races/list.html",
         upcoming_races=upcoming_races,
-        past_races=past_races,
-        next_race=race_data_manager.add_timezone_info_to_race(
-            race_data_manager.get_next_race()
-        ),
-        next_session=race_data_manager.add_timezone_info_to_race(
-            race_data_manager.get_next_session()
-        ),
-    )
-
+        past_races=past_races#
+                )
 
 @main_bp.route("/update_notifications", methods=["POST"])
 @login_required

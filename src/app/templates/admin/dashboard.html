@@ -2,23 +2,31 @@
 
 {% block content %}
 <div class="admin-dashboard">
-    <h1>📊 F1 Betting Admin Dashboard</h1>
+    <div class="admin-header">
+        <h1>📊 F1 Betting Admin Dashboard</h1>
+        <a href="{{ url_for('main.profile') }}" class="back-button">Back to Profile</a>
+    </div>
 
     <div class="admin-section">
         <h2>System Statistics</h2>
         <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Users</h3>
-                <p class="stat-number">{{ users|length }}</p>
+            <div class="card stat-card">
+                <h3 class="card-title text-dark">Total Users</h3>
+                <p class="card-value text-dark">{{ users|length }}</p>
             </div>
-            <div class="stat-card">
-                <h3>Admin Users</h3>
-                <p class="stat-number">{{ users|selectattr('is_admin')|list|length }}</p>
+            <div class="card stat-card">
+                <h3 class="card-title text-dark">Admin Users</h3>
+                <p class="card-value text-dark">{{ users|selectattr('is_admin')|list|length }}</p>
             </div>
-            <div class="stat-card">
-                <h3>Regular Users</h3>
-                <p class="stat-number">{{ users|rejectattr('is_admin')|list|length }}</p>
+            <div class="card stat-card">
+                <h3 class="card-title text-dark">Regular Users</h3>
+                <p class="card-value text-dark">{{ users|rejectattr('is_admin')|list|length }}</p>
             </div>
+            <div class="card stat-card">
+                <h3 class="card-title text-dark">Total Score</h3>
+                <p class="card-value text-dark">{{ total_points }}</p>
+            </div>
+
         </div>
     </div>
 
@@ -27,9 +35,12 @@
         <div class="registration-info">
             <p><strong>Current Registration Password:</strong></p>
             <p class="registration-password">{{ registration_password }}</p>
+            <form method="POST" action="{{ url_for('admin.change_registration_password') }}" class="registration-form">
+                <button type="submit" class="generate-password-button" title="Generate new registration password">🔄 Generate New Password</button>
+            </form>
             <p class="info-text">
                 <small>This password is required for new user registrations (except the first user).<br>
-                You can change it by setting the <code>REGISTRATION_PASSWORD</code> environment variable.</small>
+                Click the button above to generate a new random registration password.</small>
             </p>
         </div>
     </div>
@@ -37,12 +48,19 @@
     <div class="admin-section">
         <h2>👥 User Management</h2>
         
+        <div class="action-buttons">
+            <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form" onsubmit="return confirm('Are you sure you want to reset ALL user points to 0? This cannot be undone.');">
+                <button type="submit" class="action-button" style="background-color: #f44336;">🔄 Reset All Points to 0</button>
+            </form>
+        </div>
+        
         <div class="user-table-container">
             <table class="user-table">
                 <thead>
                     <tr>
                         <th>Username</th>
                         <th>Email</th>
+                        <th>Points</th>
                         <th>Created</th>
                         <th>Last Login</th>
                         <th>Admin</th>
@@ -55,6 +73,7 @@
                     <tr>
                         <td>{{ username }}</td>
                         <td>{% if user_data.email %}{{ user_data.email }}{% else %}<em>None</em>{% endif %}</td>
+                        <td>{{ user_data.score }} 🎯</td>
                         <td>{{ user_data.created_at }}</td>
                         <td>{{ user_data.last_login if user_data.last_login else 'Never' }}</td>
                         <td>
@@ -92,13 +111,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-    </div>
-    
-    <div class="admin-section">
-        <h2>Quick Actions</h2>
-        <div class="action-buttons">
-            <a href="{{ url_for('main.profile') }}" class="action-button secondary">← Back to Profile</a>
         </div>
     </div>
 </div>

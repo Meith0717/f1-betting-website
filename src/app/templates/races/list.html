@@ -2,44 +2,10 @@
 
 {% block content %}
 <div class="races-container">
-    <h1>🏎️ F1 Race Calendar</h1>
-
-    {% if next_session %}
-    <div class="next-race-card">
-        <h2>🚦 Next F1 Session <span id="session-countdown-inline" class="countdown-timer-inline" 
-            {% if next_session.time_info and next_session.time_info.iso_format %}
-            data-session-time="{{ next_session.time_info.iso_format }}">
-            <span class="countdown-loading">Loading...</span>
-            {% else %}
-            data-session-time="">
-            <span class="countdown-unavailable">--:--:--</span>
-            {% endif %}
-        </span></h2>
-        <div class="race-info-grid">
-            <div class="race-info-item">
-                <strong>Session:</strong> {{ next_session.type }}
-            </div>
-            <div class="race-info-item">
-                <strong>Location:</strong> {{ next_session.circuit }}, {{ next_session.country }}
-            </div>
-            <div class="race-info-item">
-                <strong>Date:</strong> {{ next_session.date }}
-            </div>
-            <div class="race-info-item">
-                <strong>Time:</strong> 
-                {% if next_session.time_info %}
-                    {{ next_session.time_info.time_only }} ({{ next_session.time_info.timezone }})
-                    <span class="utc-time" title="Original UTC time">
-                        (UTC: {{ next_session.time_info.utc.split()[1] if 'utc' in next_session.time_info else (next_session.get('time', 'N/A')) }})
-                    </span>
-                {% else %}
-                    {{ next_session.get('time', 'N/A') }} UTC
-                {% endif %}
-            </div>
-        </div>
+    <div class="races-header">
+        <h1>🏎️ F1 Race Calendar</h1>
+        <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
     </div>
-    {% endif %}
-
     <div class="races-sections">
         <div class="races-section">
             <h2>📅 Upcoming Races</h2>
@@ -57,9 +23,10 @@
                         <span class="expand-icon">▼</span>
                     </div>
                     <div class="race-details">
-                        <div class="race-detail"><strong>Location:</strong> {{ race.circuit }}, {{ race.country }}</div>
-                        <div class="race-detail"><strong>Date:</strong> {{ race.date }}</div>
-                        <div class="race-detail"><strong>Time:</strong> 
+                        <div class="race-detail"><strong>🌍 Country:</strong> {{ race.country }}</div>
+                        <div class="race-detail"><strong>🏁 Circuit:</strong> {{ race.circuit }}</div>
+                        <div class="race-detail"><strong>📅 Race Date:</strong> {{ race.date }}</div>
+                        <div class="race-detail"><strong>⏰ Race Time:</strong> 
                             {% if race.sessions and race.sessions|length > 0 %}
                                 {% set race_session = race.sessions|selectattr('type', 'equalto', 'Race')|first %}
                                 {% if race_session and race_session.time_info %}
@@ -88,9 +55,9 @@
                         <div class="sessions-header">🏁 Race Weekend Sessions</div>
                         {% for session in race.sessions %}
                         <div class="session-item">
-                            <span class="session-type">{{ session.type }}</span>
+                            <span class="session-type">📋 {{ session.type }}</span>
                             <span class="session-time">
-                                {% if session.time_info %}
+                                ⏰ {% if session.time_info %}
                                     {{ session.time_info.formatted_local }} 
                                     <small>(UTC: {{ session.time_info.utc.split()[1] if 'utc' in session.time_info else (session.get('time', session.get('time', 'N/A'))) }})</small>
                                 {% else %}
@@ -116,8 +83,9 @@
                 <div class="race-card past-race">
                     <h3>{{ race.name }}</h3>
                     <div class="race-details">
-                        <div class="race-detail"><strong>Location:</strong> {{ race.circuit }}, {{ race.country }}</div>
-                        <div class="race-detail"><strong>Date:</strong> {{ race.date }}</div>
+                        <div class="race-detail"><strong>Country:</strong> {{ race.country }}</div>
+                        <div class="race-detail"><strong>Circuit:</strong> {{ race.circuit }}</div>
+                        <div class="race-detail"><strong>Race Date:</strong> {{ race.date }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -130,4 +98,10 @@
 
     </div>
 </div>
+
+
+
+<script src="{{ url_for('static', filename='js/race_toggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+
 {% endblock %}

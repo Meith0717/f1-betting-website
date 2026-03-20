@@ -3,32 +3,36 @@
     "Thierry": {
       "password": "pbkdf2_sha256$cb66e1f3101c98cb2aa60b9ebc99a389$246730036a020ed72d46c1dc17d879b3afaeae23a8510607e9af7cf5173437c2",
       "email": null,
+      "score": 0,
       "email_notifications": false,
       "created_at": "2026-03-19T13:39:24.331175",
-      "last_login": "2026-03-19T22:33:35.042923",
+      "last_login": "2026-03-20T01:47:45.788010",
       "is_admin": true
     },
     "Gwen": {
-      "password": "pbkdf2_sha256$63695eefb4fa349cc2f20075dbc6b5cc$a34d7abfa9f5bb75296669b8e29bf0a4e6a14b2efa5e69906acae584afdd4a9f",
+      "password": "pbkdf2_sha256$b9dc2fd989dab2d3368b5c868d5cbebe$9998e1e5298fac3e2b43f60d7b32581bffb462a487cda94fec1c08b0875e34b8",
       "email": null,
+      "score": 0,
       "email_notifications": false,
-      "created_at": "2026-03-19T13:40:52.214322",
-      "last_login": "2026-03-19T13:47:02.822621",
+      "created_at": "2026-03-20T00:43:01.709608",
+      "last_login": "2026-03-20T00:43:04.867605",
       "is_admin": false
     },
     "Neal": {
-      "password": "pbkdf2_sha256$88d2a7f4c9a8cd18d5b6a72989739179$5c23367f315dc5ee0a3b7d8cbf4561ee9e0bf077f8b379cc28e60f75df820670",
+      "password": "pbkdf2_sha256$16ccef473748d37495159f5281e7ea62$10510164853cb9c4f44d471c36683d08383a12123095c0d349fe51df7803cdee",
       "email": null,
+      "score": 0,
       "email_notifications": false,
-      "created_at": "2026-03-19T13:41:16.314140",
+      "created_at": "2026-03-20T01:16:43.939227",
       "last_login": null,
       "is_admin": false
     },
     "Nic": {
-      "password": "pbkdf2_sha256$a9d8ae9646e08ecb3bb28d4d26a73553$08d86b6311e9ae10df9160ac0f408366df4568dd21bbdae0da99d1d556d9f8b2",
+      "password": "pbkdf2_sha256$dd61f962c828473c359b69ee49a2b365$c017194b274c21241f35f4f66384d0be01b5d57977d0bb0531e392fc2a8e9aa6",
       "email": null,
+      "score": 0,
       "email_notifications": false,
-      "created_at": "2026-03-19T13:41:30.881419",
+      "created_at": "2026-03-20T01:17:00.427822",
       "last_login": null,
       "is_admin": false
     }

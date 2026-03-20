@@ -12,8 +12,9 @@ import os
 
 auth_bp = Blueprint("auth", __name__)
 
-# Registration password configuration - can be set via environment variable
-REGISTRATION_PASSWORD = os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
+def get_registration_password():
+    """Get the current registration password from environment variable"""
+    return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -43,7 +44,7 @@ def login():
         else:
             flash("Invalid username or password", "error")
 
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
 
 @login_required
@@ -63,7 +64,7 @@ def register():
             flash("Username and password are required", "error")
         elif not is_first_user and not reg_password:
             flash("Registration password is required", "error")
-        elif not is_first_user and reg_password != REGISTRATION_PASSWORD:
+        elif not is_first_user and reg_password != get_registration_password():
             flash("Invalid registration password", "error")
         elif username in users:
             flash("Username already exists", "error")
@@ -72,6 +73,7 @@ def register():
             users[username] = {
                 "password": hash_password(password),
                 "email": None,
+                "score": 0,  # Initialize score to 0
                 "email_notifications": False,
                 "created_at": datetime.now().isoformat(),
                 "last_login": None,
@@ -82,7 +84,7 @@ def register():
             return redirect(url_for("auth.login"))
 
     return render_template(
-        "register.html", require_registration_password=len(load_users()) > 0
+        "auth/register.html", require_registration_password=len(load_users()) > 0
     )
 
 
