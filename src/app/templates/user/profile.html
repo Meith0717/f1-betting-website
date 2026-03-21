@@ -7,34 +7,31 @@
         <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
     </div>
     
-    <div class="overview-section">
-        <h2>📊 Your Overview</h2>
-        <div class="overview-cards">
-            <div class="card">
-                <h3>Account Status</h3>
-                <p>{% if users[username].is_admin %}👑 Administrator{% else %}👤 Regular User{% endif %}</p>
-            </div>
-            
-            <div class="card">
-                <h3>Member Since</h3>
-                <p>📅 {{ users[username].created_at }}</p>
-            </div>
-            
-            <div class="card">
-                <h3>Last Login</h3>
-                <p>🕒 {{ users[username].last_login if users[username].last_login else 'First time login' }}</p>
-            </div>
-        </div>
-    </div>
-    
     <div class="profile-details">
         <div class="profile-section">
-            <h2>👤 Account Information</h2>
-            <p><strong>Username:</strong> {{ username }}</p>
-            <p><strong>Email:</strong> {% if users[username].email %}{{ users[username].email }}{% else %}<em>No email set</em>{% endif %}</p>
-            <p><strong>Account Created:</strong> {{ users[username].created_at }}</p>
-            <p><strong>Last Login:</strong> {{ users[username].last_login if users[username].last_login else 'First time login' }}</p>
-            <p><strong>Account Status:</strong> {% if users[username].is_admin %}Administrator{% else %}Regular User{% endif %}</p>
+            <h2>👤 Your Profile</h2>
+            <div class="profile-info-grid">
+                <div class="profile-info-item">
+                    <strong>Username:</strong>
+                    <span>{{ username }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <strong>Email:</strong>
+                    <span>{% if users[username].email %}{{ users[username].email }}{% else %}<em>Not set</em>{% endif %}</span>
+                </div>
+                <div class="profile-info-item">
+                    <strong>Account Type:</strong>
+                    <span>{% if users[username].is_admin %}👑 Administrator{% else %}👤 Regular User{% endif %}</span>
+                </div>
+                <div class="profile-info-item">
+                    <strong>Member Since:</strong>
+                    <span>📅 {{ users[username].created_at }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <strong>Last Login:</strong>
+                    <span>🕒 {{ users[username].last_login if users[username].last_login else 'First time' }}</span>
+                </div>
+            </div>
         </div>
         
         <div class="profile-section">
