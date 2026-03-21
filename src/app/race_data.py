@@ -380,11 +380,6 @@ class RaceDataManager:
         """Add timezone info to all races"""
         return [self.add_timezone_info_to_race(race) for race in races]
 
-    def get_races_with_timezone_info(self) -> List[Dict]:
-        """Get all races with timezone-converted times"""
-        races = self.get_all_races()
-        return self.add_timezone_info_to_races(races)
-
     def get_canceled_race_ids(self) -> List[str]:
         """Get list of canceled race IDs"""
         try:

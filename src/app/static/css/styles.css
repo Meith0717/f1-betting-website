@@ -561,10 +561,6 @@ auth-footer a {
     font-size: 14px;
 }
 
-/* .race-card:hover {
-    transform: translateY(-1px);
-} */
-
 .race-card h3 {
     color: var(--brand-primary);
     margin-bottom: 0;
@@ -585,16 +581,7 @@ auth-footer a {
 
 
 
-.session-type {
-    font-weight: 600;
-    color: var(--brand-primary);
-}
 
-.session-time {
-    color: var(--brand-accent);
-    font-size: 13px;
-    font-weight: 500;
-}
 
 .past-race {
     opacity: 0.9;
