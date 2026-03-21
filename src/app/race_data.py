@@ -87,43 +87,16 @@ class RaceDataManager:
             default_data = {
                 "races": [
                     {
-                        "id": "bahrain_2024",
-                        "name": "Bahrain Grand Prix",
-                        "country": "Bahrain",
-                        "circuit": "Bahrain International Circuit",
-                        "date": "2024-03-02",
-                        "time": "15:00:00",
+                        "id": "n/a",
+                        "name": "n/a",
+                        "country": "n/a",
+                        "circuit": "n/a",
+                        "date": "2024-01-01",
+                        "time": "00:00:00",
                         "sessions": [
-                            {"type": "FP1", "date": "2024-02-29", "time": "11:30:00"},
-                            {"type": "FP2", "date": "2024-02-29", "time": "15:00:00"},
-                            {"type": "FP3", "date": "2024-03-01", "time": "11:30:00"},
-                            {
-                                "type": "Qualifying",
-                                "date": "2024-03-01",
-                                "time": "15:00:00",
-                            },
-                            {"type": "Race", "date": "2024-03-02", "time": "15:00:00"},
+                            {"type": "n/a", "date": "2024-01-01", "time": "00:00:00"}
                         ],
-                    },
-                    {
-                        "id": "saudi_arabia_2024",
-                        "name": "Saudi Arabian Grand Prix",
-                        "country": "Saudi Arabia",
-                        "circuit": "Jeddah Corniche Circuit",
-                        "date": "2024-03-09",
-                        "time": "17:00:00",
-                        "sessions": [
-                            {"type": "FP1", "date": "2024-03-07", "time": "13:30:00"},
-                            {"type": "FP2", "date": "2024-03-07", "time": "17:00:00"},
-                            {"type": "FP3", "date": "2024-03-08", "time": "13:30:00"},
-                            {
-                                "type": "Qualifying",
-                                "date": "2024-03-08",
-                                "time": "17:00:00",
-                            },
-                            {"type": "Race", "date": "2024-03-09", "time": "17:00:00"},
-                        ],
-                    },
+                    }
                 ]
             }
             self.save_races(default_data)
