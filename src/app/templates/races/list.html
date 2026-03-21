@@ -25,6 +25,18 @@
                     <div class="race-details">
                         <div class="race-detail"><strong>🌍 Country:</strong> {{ race.country }}</div>
                         <div class="race-detail"><strong>🏁 Circuit:</strong> {{ race.circuit }}</div>
+                        {% if race.city %}
+                        <div class="race-detail"><strong>📍 City:</strong> {{ race.city }}</div>
+                        {% endif %}
+                        {% if race.round %}
+                        <div class="race-detail"><strong>🏆 Round:</strong> {{ race.round }}</div>
+                        {% endif %}
+                        {% if race.laps %}
+                        <div class="race-detail"><strong>🏁 Laps:</strong> {{ race.laps }}</div>
+                        {% endif %}
+                        {% if race.circuit_length %}
+                        <div class="race-detail"><strong>📏 Circuit Length:</strong> {{ race.circuit_length }}</div>
+                        {% endif %}
                         <div class="race-detail"><strong>📅 Race Date:</strong> {{ race.date }}</div>
                         <div class="race-detail"><strong>⏰ Race Time:</strong> 
                             {% if race.sessions and race.sessions|length > 0 %}

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from ..utils import load_users, save_users
 from ..decorators import admin_required
+from ..race_data import race_data_manager
 import os
 import secrets
 
@@ -135,6 +136,19 @@ def reset_all_points():
     
     save_users(users)
     flash("All user points have been reset to 0!", "success")
+    
+    return redirect(url_for("admin.admin_dashboard"))
+
+@admin_bp.route("/update-races", methods=["POST"])
+@admin_required
+def update_races():
+    """Update race data from F1 API"""
+    success = race_data_manager.update_races_from_api()
+    
+    if success:
+        flash("Race data updated successfully from F1 API!", "success")
+    else:
+        flash("Failed to update race data from F1 API", "error")
     
     return redirect(url_for("admin.admin_dashboard"))
 

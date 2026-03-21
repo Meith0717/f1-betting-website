@@ -804,7 +804,7 @@ auth-footer a {
     margin: 15px 0;
 }
 
-.generate-password-button {
+.generate-password-button, .update-races-button {
     padding: 8px 16px;
     background-color: var(--warning);
     color: var(--surface);
@@ -813,9 +813,10 @@ auth-footer a {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s;
+    margin-right: 10px;
 }
 
-.generate-password-button:hover {
+.generate-password-button:hover, .update-races-button:hover {
     background-color: var(--warning);
 }
 

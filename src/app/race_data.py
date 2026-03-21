@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import pytz
+import requests
 
 class RaceDataManager:
     """Simple race data manager for F1 sessions"""
@@ -24,11 +25,28 @@ class RaceDataManager:
         """Helper method to get datetime for a race"""
         try:
             if 'time' in race:
-                return datetime.strptime(f"{race['date']} {race['time']}", "%Y-%m-%d %H:%M")
+                # Handle timezone format (e.g., "04:00:00Z") by stripping the timezone
+                time_str = race['time']
+                if 'Z' in time_str:
+                    time_str = time_str.replace('Z', '')
+                if ':' in time_str and len(time_str.split(':')[0]) == 2:
+                    # Already in HH:MM format
+                    time_part = time_str[:5]  # Take first 5 chars (HH:MM)
+                else:
+                    # Handle other formats
+                    time_part = time_str[:5] if len(time_str) >= 5 else time_str
+                return datetime.strptime(f"{race['date']} {time_part}", "%Y-%m-%d %H:%M")
             elif race.get('sessions') and len(race['sessions']) > 0:
                 first_session = race['sessions'][0]
                 session_time = first_session.get('time', '00:00')
-                return datetime.strptime(f"{first_session['date']} {session_time}", "%Y-%m-%d %H:%M")
+                # Handle timezone format
+                if 'Z' in session_time:
+                    session_time = session_time.replace('Z', '')
+                if ':' in session_time and len(session_time.split(':')[0]) == 2:
+                    time_part = session_time[:5]
+                else:
+                    time_part = session_time[:5] if len(session_time) >= 5 else session_time
+                return datetime.strptime(f"{first_session['date']} {time_part}", "%Y-%m-%d %H:%M")
             elif 'date' in race:
                 # Fallback to race date with default time for races without sessions
                 return datetime.strptime(f"{race['date']} 00:00", "%Y-%m-%d %H:%M")
@@ -39,6 +57,17 @@ class RaceDataManager:
     def ensure_data_file_exists(self):
         """Ensure the races.json file exists with default data"""
         if not os.path.exists(self.data_file):
+            # Try to fetch data from API first
+            try:
+                api_data = self.fetch_f1_api_data()
+                if api_data:
+                    transformed_data = self.transform_api_data(api_data)
+                    self.save_races(transformed_data)
+                    return
+            except Exception as e:
+                print(f"Could not fetch from API, using default data: {e}")
+            
+            # Fallback to default data if API fails
             default_data = {
                 "races": [
                     {
@@ -131,7 +160,17 @@ class RaceDataManager:
             for session in race.get("sessions", []):
                 # Handle 'time' field
                 session_time = session.get('time', '00:00:00')
-                session_datetime = datetime.strptime(f"{session['date']} {session_time}", "%Y-%m-%d %H:%M")
+                # Skip sessions with None time
+                if session_time is None:
+                    continue
+                # Handle timezone format (e.g., "04:00:00Z")
+                if 'Z' in session_time:
+                    session_time = session_time.replace('Z', '')
+                if ':' in session_time and len(session_time.split(':')[0]) == 2:
+                    time_part = session_time[:5]  # Take first 5 chars (HH:MM)
+                else:
+                    time_part = session_time[:5] if len(session_time) >= 5 else session_time
+                session_datetime = datetime.strptime(f"{session['date']} {time_part}", "%Y-%m-%d %H:%M")
                 if session_datetime > now:
                     session_with_race_info = session.copy()
                     session_with_race_info["race_name"] = race["name"]
@@ -142,10 +181,25 @@ class RaceDataManager:
         
         # Return the soonest upcoming session
         if all_sessions:
-            return min(all_sessions, key=lambda x: datetime.strptime(
-                f"{x['date']} {x.get('time', '00:00')}", 
-                "%Y-%m-%d %H:%M"
-            ))
+            return min(all_sessions, key=lambda x: self._get_session_datetime(x))
+    
+    def _get_session_datetime(self, session: Dict) -> datetime:
+        """Helper method to get datetime for a session"""
+        try:
+            session_time = session.get('time', '00:00:00')
+            # Skip sessions with None time
+            if session_time is None:
+                return datetime.max
+            # Handle timezone format (e.g., "04:00:00Z")
+            if 'Z' in session_time:
+                session_time = session_time.replace('Z', '')
+            if ':' in session_time and len(session_time.split(':')[0]) == 2:
+                time_part = session_time[:5]  # Take first 5 chars (HH:MM)
+            else:
+                time_part = session_time[:5] if len(session_time) >= 5 else session_time
+            return datetime.strptime(f"{session['date']} {time_part}", "%Y-%m-%d %H:%M")
+        except (ValueError, KeyError):
+            return datetime.max
         
         return None
     
@@ -257,6 +311,119 @@ class RaceDataManager:
         """Get all races with timezone-converted times"""
         races = self.get_all_races()
         return self.add_timezone_info_to_races(races)
+
+    def fetch_f1_api_data(self) -> Optional[Dict]:
+        """Fetch data from F1 API"""
+        try:
+            response = requests.get("https://f1api.dev/api/current", timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"Error fetching F1 API data: {e}")
+            return None
+
+    def transform_api_data(self, api_data: Dict) -> Dict:
+        """Transform F1 API data to our internal format"""
+        races = []
+        
+        for api_race in api_data.get("races", []):
+            # Extract schedule data
+            schedule = api_race.get("schedule", {})
+            
+            # Build sessions list
+            sessions = []
+            
+            # Add FP1 if available
+            if schedule.get("fp1"):
+                sessions.append({
+                    "type": "FP1",
+                    "date": schedule["fp1"]["date"],
+                    "time": schedule["fp1"]["time"]
+                })
+            
+            # Add FP2 if available
+            if schedule.get("fp2"):
+                sessions.append({
+                    "type": "FP2",
+                    "date": schedule["fp2"]["date"],
+                    "time": schedule["fp2"]["time"]
+                })
+            
+            # Add FP3 if available
+            if schedule.get("fp3"):
+                sessions.append({
+                    "type": "FP3",
+                    "date": schedule["fp3"]["date"],
+                    "time": schedule["fp3"]["time"]
+                })
+            
+            # Add Sprint Qualifying if available and has valid data
+            if schedule.get("sprintQualy") and schedule["sprintQualy"]["date"] and schedule["sprintQualy"]["time"]:
+                sessions.append({
+                    "type": "Sprint Qualifying",
+                    "date": schedule["sprintQualy"]["date"],
+                    "time": schedule["sprintQualy"]["time"]
+                })
+            
+            # Add Qualifying
+            if schedule.get("qualy"):
+                sessions.append({
+                    "type": "Qualifying",
+                    "date": schedule["qualy"]["date"],
+                    "time": schedule["qualy"]["time"]
+                })
+            
+            # Add Sprint Race if available and has valid data
+            if schedule.get("sprintRace") and schedule["sprintRace"]["date"] and schedule["sprintRace"]["time"]:
+                sessions.append({
+                    "type": "Sprint Race",
+                    "date": schedule["sprintRace"]["date"],
+                    "time": schedule["sprintRace"]["time"]
+                })
+            
+            # Add Race
+            if schedule.get("race"):
+                sessions.append({
+                    "type": "Race",
+                    "date": schedule["race"]["date"],
+                    "time": schedule["race"]["time"]
+                })
+            
+            # Build race object
+            race = {
+                "id": api_race["raceId"],
+                "name": api_race["raceName"],
+                "country": api_race["circuit"]["country"],
+                "circuit": api_race["circuit"]["circuitName"],
+                "date": schedule["race"]["date"],
+                "time": schedule["race"]["time"],
+                "sessions": sessions,
+                "round": api_race.get("round"),
+                "laps": api_race.get("laps"),
+                "circuit_length": api_race["circuit"].get("circuitLength"),
+                "city": api_race["circuit"].get("city"),
+                "fast_lap": api_race.get("fast_lap", {}).get("fast_lap"),
+                "fast_lap_driver": api_race.get("fast_lap", {}).get("fast_lap_driver_id"),
+                "winner": api_race.get("winner"),
+                "team_winner": api_race.get("teamWinner")
+            }
+            
+            races.append(race)
+        
+        return {"races": races}
+
+    def update_races_from_api(self) -> bool:
+        """Update races from F1 API"""
+        try:
+            api_data = self.fetch_f1_api_data()
+            if api_data:
+                transformed_data = self.transform_api_data(api_data)
+                self.save_races(transformed_data)
+                return True
+            return False
+        except Exception as e:
+            print(f"Error updating races from API: {e}")
+            return False
 
 # Global instance for easy access
 race_data_manager = RaceDataManager()

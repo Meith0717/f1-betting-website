@@ -31,6 +31,19 @@
     </div>
 
     <div class="admin-section">
+        <h2>🏎️ Race Data Management</h2>
+        <div class="race-data-actions">
+            <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
+                <button type="submit" class="update-races-button" title="Update race data from F1 API">🔄 Update Race Data from F1 API</button>
+            </form>
+            <p class="info-text">
+                <small>Click the button above to fetch the latest race schedule and data from the F1 API.<br>
+                This will update all races, sessions, and related information.</small>
+            </p>
+        </div>
+    </div>
+
+    <div class="admin-section">
         <h2>🔐 Registration Settings</h2>
         <div class="registration-info">
             <p><strong>Current Registration Password:</strong></p>
