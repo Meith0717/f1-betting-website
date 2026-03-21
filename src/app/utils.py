@@ -98,6 +98,3 @@ def ensure_first_admin():
         save_users(users)
 
     return users
-
-
-

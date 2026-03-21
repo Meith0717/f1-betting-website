@@ -12,6 +12,7 @@ import os
 
 auth_bp = Blueprint("auth", __name__)
 
+
 def get_registration_password():
     """Get the current registration password from environment variable"""
     return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")

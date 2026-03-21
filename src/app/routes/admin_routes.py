@@ -1,13 +1,24 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    current_app,
+)
 from ..utils import load_users, save_users
 from ..decorators import admin_required
 from ..race_data import race_data_manager
 import os
 import secrets
 
+
 def get_registration_password():
     """Get the current registration password from environment variable"""
     return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
+
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -19,23 +30,25 @@ def admin_dashboard():
     users = load_users()
     # Get registration password from environment or default
     registration_password = get_registration_password()
-    
+
     # Calculate total points
-    total_points = sum(user.get('score', 0) for user in users.values())
-    
+    total_points = sum(user.get("score", 0) for user in users.values())
+
     # Create sorted users list for leaderboard
-    sorted_users = sorted(users.items(), key=lambda x: x[1].get('score', 0), reverse=True)
-    
+    sorted_users = sorted(
+        users.items(), key=lambda x: x[1].get("score", 0), reverse=True
+    )
+
     # Get all races for canceled race management
     races = race_data_manager.get_all_races()
-    
+
     return render_template(
         "admin/dashboard.html",
-        users=users, 
+        users=users,
         registration_password=registration_password,
         total_points=total_points,
         sorted_users=sorted_users,
-        races=races
+        races=races,
     )
 
 
@@ -123,7 +136,7 @@ def change_registration_password():
     new_password = secrets.token_urlsafe(16)
     # Set environment variable (this will only affect current process)
     os.environ["REGISTRATION_PASSWORD"] = new_password
-    
+
     flash(f"Registration password has been changed to: {new_password}", "success")
     return redirect(url_for("admin.admin_dashboard"))
 
@@ -133,28 +146,30 @@ def change_registration_password():
 def reset_all_points():
     """Reset all user points to 0"""
     users = load_users()
-    
+
     # Reset all user scores to 0
     for username, user_data in users.items():
         users[username]["score"] = 0
-    
+
     save_users(users)
     flash("All user points have been reset to 0!", "success")
-    
+
     return redirect(url_for("admin.admin_dashboard"))
+
 
 @admin_bp.route("/update-races", methods=["POST"])
 @admin_required
 def update_races():
     """Update race data from F1 API"""
     success = race_data_manager.update_races_from_api()
-    
+
     if success:
         flash("Race data updated successfully from F1 API!", "success")
     else:
         flash("Failed to update race data from F1 API", "error")
-    
+
     return redirect(url_for("admin.admin_dashboard"))
+
 
 @admin_bp.route("/cancel-race", methods=["POST"])
 @admin_bp.route("/cancel-race/<race_id>", methods=["POST"])
@@ -163,28 +178,29 @@ def cancel_race(race_id=None):
     """Mark a race as canceled"""
     # Get race_id from form if not in URL
     if not race_id:
-        race_id = request.form.get('race_id')
-    
+        race_id = request.form.get("race_id")
+
     if not race_id:
         flash("No race selected", "error")
         return redirect(url_for("admin.admin_dashboard"))
-    
+
     # Get current canceled races
     canceled_ids = race_data_manager.get_canceled_race_ids()
-    
+
     # Add the race to canceled list if not already there
     if race_id not in canceled_ids:
         canceled_ids.append(race_id)
         success = race_data_manager.set_canceled_race_ids(canceled_ids)
-        
+
         if success:
             flash(f"Race {race_id} marked as canceled!", "success")
         else:
             flash(f"Failed to mark race {race_id} as canceled", "error")
     else:
         flash(f"Race {race_id} is already marked as canceled", "info")
-    
+
     return redirect(url_for("admin.admin_dashboard"))
+
 
 @admin_bp.route("/uncancel-race", methods=["POST"])
 @admin_bp.route("/uncancel-race/<race_id>", methods=["POST"])
@@ -193,28 +209,29 @@ def uncancel_race(race_id=None):
     """Remove canceled status from a race"""
     # Get race_id from form if not in URL
     if not race_id:
-        race_id = request.form.get('race_id')
-    
+        race_id = request.form.get("race_id")
+
     if not race_id:
         flash("No race selected", "error")
         return redirect(url_for("admin.admin_dashboard"))
-    
+
     # Get current canceled races
     canceled_ids = race_data_manager.get_canceled_race_ids()
-    
+
     # Remove the race from canceled list if present
     if race_id in canceled_ids:
         canceled_ids.remove(race_id)
         success = race_data_manager.set_canceled_race_ids(canceled_ids)
-        
+
         if success:
             flash(f"Race {race_id} marked as active!", "success")
         else:
             flash(f"Failed to mark race {race_id} as active", "error")
     else:
         flash(f"Race {race_id} is not marked as canceled", "info")
-    
+
     return redirect(url_for("admin.admin_dashboard"))
+
 
 def _count_admins(users):
     """Helper function to count admin users"""

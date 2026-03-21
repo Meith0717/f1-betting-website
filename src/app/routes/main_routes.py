@@ -14,26 +14,35 @@ def index():
     next_race = race_data_manager.get_next_race()
     next_session = race_data_manager.get_next_session()
     upcoming_races = race_data_manager.get_upcoming_races(limit=3)
-    
+
     # Add timezone info to races
     if next_race:
         next_race = race_data_manager.add_timezone_info_to_race(next_race)
     if next_session:
         # Add timezone info to next session
         next_session = race_data_manager.add_timezone_info_to_race(next_session)
-    
+
     upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
-    
+
     if "username" in session:
         # Show user dashboard with admin links if applicable
         users = load_users()
         # Create sorted users list for leaderboard
-        sorted_users = sorted(users.items(), key=lambda x: x[1].get('score', 0), reverse=True)
-        
+        sorted_users = sorted(
+            users.items(), key=lambda x: x[1].get("score", 0), reverse=True
+        )
+
         # Find current user's rank
         current_username = session["username"]
-        user_rank = next((i + 1 for i, (username, _) in enumerate(sorted_users) if username == current_username), None)
-        
+        user_rank = next(
+            (
+                i + 1
+                for i, (username, _) in enumerate(sorted_users)
+                if username == current_username
+            ),
+            None,
+        )
+
         return render_template(
             "user/overview.html",
             username=session["username"],
@@ -43,7 +52,7 @@ def index():
             user_rank=user_rank,
             next_race=next_race,
             next_session=next_session,
-            upcoming_races=upcoming_races
+            upcoming_races=upcoming_races,
         )
     return render_template("welcome.html")
 
@@ -140,12 +149,12 @@ def races():
     upcoming_races = []
     past_races = []
     now = datetime.now()
-    
+
     for race in all_races:
         # Add timezone info to this race
         race_with_tz = race_data_manager.add_timezone_info_to_race(race)
         races_with_timezone.append(race_with_tz)
-        
+
         # Classify as upcoming or past (include canceled races in upcoming if they're future-dated)
         race_datetime = race_data_manager._get_race_datetime(race)
         if race_datetime:
@@ -153,12 +162,11 @@ def races():
                 upcoming_races.append(race_with_tz)
             else:
                 past_races.append(race_with_tz)
-    
+
     return render_template(
-        "races/list.html",
-        upcoming_races=upcoming_races,
-        past_races=past_races#
-                )
+        "races/list.html", upcoming_races=upcoming_races, past_races=past_races  #
+    )
+
 
 @main_bp.route("/update_notifications", methods=["POST"])
 @login_required
