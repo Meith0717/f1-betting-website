@@ -44,6 +44,51 @@
     </div>
 
     <div class="admin-section">
+        <h2>🚫 Cancelled Race Management</h2>
+        <div class="canceled-races-management">
+            <div class="cancel-action-box">
+                <h3>🚫 Cancel a Race</h3>
+                <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form">
+                    <select name="race_id" id="race-select" class="race-select-dropdown" required>
+                        <option value="" disabled selected>Select a race to cancel...</option>
+                        {% for race in races %}
+                        {% if not race.canceled %}
+                        <option value="{{ race.id }}">
+                            {{ race.name }} ({{ race.id }})
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="cancel-action-button" id="cancel-button">🚫 Cancel Selected Race</button>
+                </form>
+                <p class="info-text">
+                    <small>Select an active race from the dropdown and click the button to cancel it.</small>
+                </p>
+            </div>
+            <div class="canceled-list-section">
+                <h3>🔄 Reactivate Cancelled Races</h3>
+                {% if races|selectattr('canceled')|list|length > 0 %}
+                <div class="canceled-race-list">
+                    {% for race in races %}
+                    {% if race.canceled %}
+                    <div class="canceled-race-item">
+                        <span class="canceled-race-name">{{ race.name }} ({{ race.id }})</span>
+                        <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="reactivate-form">
+                            <input type="hidden" name="race_id" value="{{ race.id }}">
+                            <button type="submit" class="reactivate-button" title="Reactivate this race">🔄 Reactivate</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="no-canceled-races">No races are currently cancelled.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
         <h2>🔐 Registration Settings</h2>
         <div class="registration-info">
             <p><strong>Current Registration Password:</strong></p>

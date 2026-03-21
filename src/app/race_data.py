@@ -10,6 +10,7 @@ class RaceDataManager:
     
     def __init__(self, data_file: str = None):
         self.data_file = data_file or os.path.join(os.path.dirname(__file__), "data", "races.json")
+        self.canceled_file = os.path.join(os.path.dirname(__file__), "data", "canceled.json")
         self.ensure_data_file_exists()
         # Set default timezone to UTC for race data
         self.utc_timezone = pytz.UTC
@@ -108,10 +109,37 @@ class RaceDataManager:
         """Load races from JSON file"""
         try:
             with open(self.data_file, 'r') as f:
-                return json.load(f)
+                races_data = json.load(f)
+            
+            # Add canceled status from canceled.json
+            races_data = self._add_canceled_status(races_data)
+            
+            return races_data
         except (json.JSONDecodeError, IOError) as e:
             print(f"Error loading races: {e}")
             return {"races": []}
+    
+    def _add_canceled_status(self, races_data: Dict) -> Dict:
+        """Add canceled status to races based on canceled.json"""
+        try:
+            # Load canceled race IDs
+            canceled_race_ids = []
+            if os.path.exists(self.canceled_file):
+                with open(self.canceled_file, 'r') as f:
+                    canceled_data = json.load(f)
+                    canceled_race_ids = canceled_data.get("canceled_race_ids", [])
+            
+            # Add canceled flag to matching races
+            for race in races_data.get("races", []):
+                race["canceled"] = race["id"] in canceled_race_ids
+            
+            return races_data
+        except Exception as e:
+            print(f"Error loading canceled data: {e}")
+            # Add canceled flag as False for all races if there's an error
+            for race in races_data.get("races", []):
+                race["canceled"] = False
+            return races_data
     
     def save_races(self, data: Dict):
         """Save races to JSON file"""
@@ -245,6 +273,10 @@ class RaceDataManager:
         
         upcoming = []
         for race in races:
+            # Skip canceled races
+            if race.get('canceled'):
+                continue
+            
             race_datetime = self._get_race_datetime(race)
             if race_datetime and race_datetime > now:
                 upcoming.append(race)
@@ -311,6 +343,54 @@ class RaceDataManager:
         """Get all races with timezone-converted times"""
         races = self.get_all_races()
         return self.add_timezone_info_to_races(races)
+    
+    def get_canceled_race_ids(self) -> List[str]:
+        """Get list of canceled race IDs"""
+        try:
+            if os.path.exists(self.canceled_file):
+                with open(self.canceled_file, 'r') as f:
+                    canceled_data = json.load(f)
+                    return canceled_data.get("canceled_race_ids", [])
+            return []
+        except Exception as e:
+            print(f"Error loading canceled race IDs: {e}")
+            return []
+    
+    def set_canceled_race_ids(self, race_ids: List[str]) -> bool:
+        """Update the list of canceled race IDs"""
+        try:
+            canceled_data = {
+                "canceled_race_ids": race_ids,
+                "notes": "Add race IDs to this list to mark them as canceled. Race IDs should match the id field from races.json"
+            }
+            with open(self.canceled_file, 'w') as f:
+                json.dump(canceled_data, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"Error saving canceled race IDs: {e}")
+            return False
+    
+    def cancel_race(self, race_id: str) -> bool:
+        """Mark a race as canceled"""
+        if not race_id:
+            return False
+        
+        canceled_ids = self.get_canceled_race_ids()
+        if race_id not in canceled_ids:
+            canceled_ids.append(race_id)
+            return self.set_canceled_race_ids(canceled_ids)
+        return True  # Already canceled
+    
+    def uncancel_race(self, race_id: str) -> bool:
+        """Remove canceled status from a race"""
+        if not race_id:
+            return False
+        
+        canceled_ids = self.get_canceled_race_ids()
+        if race_id in canceled_ids:
+            canceled_ids.remove(race_id)
+            return self.set_canceled_race_ids(canceled_ids)
+        return True  # Already active
 
     def fetch_f1_api_data(self) -> Optional[Dict]:
         """Fetch data from F1 API"""

@@ -26,12 +26,16 @@ def admin_dashboard():
     # Create sorted users list for leaderboard
     sorted_users = sorted(users.items(), key=lambda x: x[1].get('score', 0), reverse=True)
     
+    # Get all races for canceled race management
+    races = race_data_manager.get_all_races()
+    
     return render_template(
         "admin/dashboard.html",
         users=users, 
         registration_password=registration_password,
         total_points=total_points,
-        sorted_users=sorted_users
+        sorted_users=sorted_users,
+        races=races
     )
 
 
@@ -149,6 +153,66 @@ def update_races():
         flash("Race data updated successfully from F1 API!", "success")
     else:
         flash("Failed to update race data from F1 API", "error")
+    
+    return redirect(url_for("admin.admin_dashboard"))
+
+@admin_bp.route("/cancel-race", methods=["POST"])
+@admin_bp.route("/cancel-race/<race_id>", methods=["POST"])
+@admin_required
+def cancel_race(race_id=None):
+    """Mark a race as canceled"""
+    # Get race_id from form if not in URL
+    if not race_id:
+        race_id = request.form.get('race_id')
+    
+    if not race_id:
+        flash("No race selected", "error")
+        return redirect(url_for("admin.admin_dashboard"))
+    
+    # Get current canceled races
+    canceled_ids = race_data_manager.get_canceled_race_ids()
+    
+    # Add the race to canceled list if not already there
+    if race_id not in canceled_ids:
+        canceled_ids.append(race_id)
+        success = race_data_manager.set_canceled_race_ids(canceled_ids)
+        
+        if success:
+            flash(f"Race {race_id} marked as canceled!", "success")
+        else:
+            flash(f"Failed to mark race {race_id} as canceled", "error")
+    else:
+        flash(f"Race {race_id} is already marked as canceled", "info")
+    
+    return redirect(url_for("admin.admin_dashboard"))
+
+@admin_bp.route("/uncancel-race", methods=["POST"])
+@admin_bp.route("/uncancel-race/<race_id>", methods=["POST"])
+@admin_required
+def uncancel_race(race_id=None):
+    """Remove canceled status from a race"""
+    # Get race_id from form if not in URL
+    if not race_id:
+        race_id = request.form.get('race_id')
+    
+    if not race_id:
+        flash("No race selected", "error")
+        return redirect(url_for("admin.admin_dashboard"))
+    
+    # Get current canceled races
+    canceled_ids = race_data_manager.get_canceled_race_ids()
+    
+    # Remove the race from canceled list if present
+    if race_id in canceled_ids:
+        canceled_ids.remove(race_id)
+        success = race_data_manager.set_canceled_race_ids(canceled_ids)
+        
+        if success:
+            flash(f"Race {race_id} marked as active!", "success")
+        else:
+            flash(f"Failed to mark race {race_id} as active", "error")
+    else:
+        flash(f"Race {race_id} is not marked as canceled", "info")
     
     return redirect(url_for("admin.admin_dashboard"))
 
