@@ -171,6 +171,22 @@ def update_races():
     return redirect(url_for("admin.admin_dashboard"))
 
 
+@admin_bp.route("/update-drivers", methods=["POST"])
+@admin_required
+def update_drivers():
+    """Update driver data from F1 API"""
+    success = race_data_manager.update_drivers_from_api()
+
+    if success:
+        flash("Driver data updated successfully from F1 API!", "success")
+    else:
+        flash("Failed to update driver data from F1 API", "error")
+
+    return redirect(url_for("admin.admin_dashboard"))
+
+    return redirect(url_for("admin.admin_dashboard"))
+
+
 @admin_bp.route("/cancel-race", methods=["POST"])
 @admin_bp.route("/cancel-race/<race_id>", methods=["POST"])
 @admin_required

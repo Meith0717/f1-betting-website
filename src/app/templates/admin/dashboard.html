@@ -31,55 +31,79 @@
     </div>
 
     <div class="admin-section">
-        <h2>🏎️ Race Data Management</h2>
-        <div class="race-data-actions">
-            <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
-                <button type="submit" class="update-races-button" title="Update race data from F1 API">🔄 Update Race Data from F1 API</button>
-            </form>
-            <p class="info-text">
-                <small>Click the button above to fetch the latest race schedule and data from the F1 API.<br>
-                This will update all races, sessions, and related information.</small>
-            </p>
+        <h2>🏎️ Race & Driver Data Management</h2>
+        <div class="data-management-actions">
+            <div class="data-action-box">
+                <h3>🏁 Race Data</h3>
+                <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
+                    <button type="submit" class="update-races-button" title="Update race data from F1 API">🔄 Update Race Data</button>
+                </form>
+                <p class="info-text">
+                    <small>Update race schedules and sessions from F1 API</small>
+                </p>
+            </div>
+            
+            <div class="data-action-box">
+                <h3>👥 Driver Data</h3>
+                <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
+                    <button type="submit" class="update-drivers-button" title="Update driver data from F1 API">🔄 Update Driver Data</button>
+                </form>
+                <p class="info-text">
+                    <small>Fetch latest driver information from F1 API</small>
+                </p>
+            </div>
         </div>
     </div>
 
     <div class="admin-section">
         <h2>🚫 Cancelled Race Management</h2>
-        <div class="canceled-races-management">
-            <div class="cancel-action-box">
-                <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form">
-                    <select name="race_id" id="race-select" class="race-select-dropdown" required>
-                        <option value="" disabled selected>Select race to cancel...</option>
-                        {% for race in races %}
-                        {% if not race.canceled %}
-                        <option value="{{ race.id }}">{{ race.name }}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                    <button type="submit" class="cancel-action-button">🚫 Cancel Race</button>
-                </form>
-            </div>
-            
-            <div class="canceled-list-section">
-                <h3>Cancelled Races</h3>
-                {% if races|selectattr('canceled')|list|length > 0 %}
-                <div class="canceled-race-list">
+        <div class="cancel-controls">
+            <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form">
+                <select name="race_id" id="race-select" class="race-select-dropdown" required>
+                    <option value="" disabled selected>Select race to cancel...</option>
                     {% for race in races %}
-                    {% if race.canceled %}
-                    <div class="canceled-race-item">
-                        <span class="canceled-race-name">{{ race.name }}</span>
-                        <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="reactivate-form">
-                            <input type="hidden" name="race_id" value="{{ race.id }}">
-                            <button type="submit" class="reactivate-button">🔄 Reactivate</button>
-                        </form>
-                    </div>
+                    {% if not race.canceled %}
+                    <option value="{{ race.id }}">{{ race.name }}</option>
                     {% endif %}
                     {% endfor %}
-                </div>
-                {% else %}
-                <p class="no-canceled-races">No cancelled races</p>
-                {% endif %}
-            </div>
+                </select>
+                <button type="submit" class="cancel-action-button">🚫 Cancel Race</button>
+            </form>
+        </div>
+        
+        <div class="race-table-container">
+            <table class="race-table">
+                <thead>
+                    <tr>
+                        <th>Race Name</th>
+                        <th>Country</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for race in races %}
+                    {% if race.canceled %}
+                    <tr class="race-canceled">
+                        <td>{{ race.name }}</td>
+                        <td>{{ race.country }}</td>
+                        <td>{{ race.date }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="reactivate-form">
+                                <input type="hidden" name="race_id" value="{{ race.id }}">
+                                <button type="submit" class="reactivate-button" title="Reactivate this race">Reactivate</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% if not races|selectattr('canceled')|list %}
+                    <tr>
+                        <td colspan="4" class="no-canceled-races">No cancelled races found</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 

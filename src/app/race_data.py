@@ -16,6 +16,9 @@ class RaceDataManager:
         self.canceled_file = os.path.join(
             os.path.dirname(__file__), "data", "canceled.json"
         )
+        self.drivers_file = os.path.join(
+            os.path.dirname(__file__), "data", "drivers.json"
+        )
         self.ensure_data_file_exists()
         # Set default timezone to UTC for race data
         self.utc_timezone = pytz.UTC
@@ -563,6 +566,57 @@ class RaceDataManager:
             return False
         except Exception as e:
             print(f"Error updating races from API: {e}")
+            return False
+
+    def fetch_drivers_api_data(self) -> Optional[Dict]:
+        """Fetch drivers data from F1 API"""
+        try:
+            response = requests.get("https://f1api.dev/api/current/drivers", timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"Error fetching drivers from API: {e}")
+            return None
+
+    def save_drivers(self, data: Dict) -> bool:
+        """Save drivers to JSON file"""
+        try:
+            # Ensure data directory exists
+            os.makedirs(os.path.dirname(self.drivers_file), exist_ok=True)
+
+            with open(self.drivers_file, "w") as f:
+                json.dump(data, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"Error saving drivers: {e}")
+            return False
+
+    def load_drivers(self) -> Dict:
+        """Load drivers from JSON file"""
+        try:
+            if not os.path.exists(self.drivers_file):
+                return {"drivers": []}
+            with open(self.drivers_file, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Error loading drivers: {e}")
+            return {"drivers": []}
+
+    def get_all_drivers(self) -> List[Dict]:
+        """Get all drivers"""
+        drivers_data = self.load_drivers()
+        return drivers_data.get("drivers", [])
+
+    def update_drivers_from_api(self) -> bool:
+        """Update drivers from F1 API"""
+        try:
+            api_data = self.fetch_drivers_api_data()
+            if api_data:
+                self.save_drivers(api_data)
+                return True
+            return False
+        except Exception as e:
+            print(f"Error updating drivers from API: {e}")
             return False
 
 
