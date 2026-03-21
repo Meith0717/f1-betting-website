@@ -323,15 +323,23 @@ class RaceDataManager:
     ) -> Dict:
         """Convert UTC time to local time"""
         try:
+            # Handle timezone format (e.g., "04:00:00Z") by stripping the timezone
+            clean_time_str = time_str
+            if "Z" in clean_time_str:
+                clean_time_str = clean_time_str.replace("Z", "")
+            
+            # Handle different time formats - try HH:MM:SS first, then HH:MM
+            time_part = clean_time_str[:8] if len(clean_time_str) >= 8 else clean_time_str[:5]
+            
             # Parse the UTC datetime
-            utc_time = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+            utc_time = datetime.strptime(f"{date_str} {time_part}", "%Y-%m-%d %H:%M:%S")
             utc_time = self.utc_timezone.localize(utc_time)
 
             # Convert to local timezone
             local_time = utc_time.astimezone(self.local_timezone)
 
             return {
-                "utc": f"{date_str} {time_str} UTC",
+                "utc": f"{date_str} {time_part} UTC",
                 "local": local_time.strftime("%Y-%m-%d %H:%M"),
                 "timezone": str(self.local_timezone),
                 "formatted_local": local_time.strftime("%a, %d %b %Y %H:%M"),

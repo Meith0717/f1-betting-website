@@ -1,3 +1,6 @@
 Flask
 Flask-SQLAlchemy
 python-dotenv
+tzlocal
+requests
+pytz

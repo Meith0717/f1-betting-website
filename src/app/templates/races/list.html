@@ -12,71 +12,33 @@
             {% if upcoming_races %}
             <div class="race-list">
                 {% for race in upcoming_races %}
-                <div class="race-card" data-race-id="{{ race.id }}" data-canceled="{{ race.canceled|default(false, true) }}">
-                    <div class="race-header" style="cursor: pointer;" onclick="toggleRaceCard('{{ race.id }}')">
-                        <h3>
-                            {{ race.name }}
-                            {% if race.canceled %}
-                            <span class="canceled-badge">CANCELED</span>
-                            {% endif %}
-                        </h3>
-                        <span class="expand-icon">▼</span>
+                <div class="race-card" data-canceled="{{ race.canceled|default(false, true) }}">
+                    <div class="race-header">
+                        {% if race.canceled %}
+                        <div class="canceled-badge">CANCELED</div>
+                        {% endif %}
+                        <h3>{{ race.name }}</h3>
+                        <div class="race-info-line">
+                            <span class="race-circuit">{{ race.circuit }}</span>
+                            {% if race.city %}<span class="race-city">📍 {{ race.city }}</span>{% endif %}
+                            <span class="race-country">🌍 {{ race.country }}</span>
+                            <span class="race-date">📅 {{ race.date }}</span>
+                        </div>
                     </div>
                     <div class="race-details">
-                        <div class="race-detail"><strong>🌍 Country:</strong> {{ race.country }}</div>
-                        <div class="race-detail"><strong>🏁 Circuit:</strong> {{ race.circuit }}</div>
-                        {% if race.city %}
-                        <div class="race-detail"><strong>📍 City:</strong> {{ race.city }}</div>
-                        {% endif %}
-                        {% if race.round %}
-                        <div class="race-detail"><strong>🏆 Round:</strong> {{ race.round }}</div>
-                        {% endif %}
-                        {% if race.laps %}
-                        <div class="race-detail"><strong>🏁 Laps:</strong> {{ race.laps }}</div>
-                        {% endif %}
-                        {% if race.circuit_length %}
-                        <div class="race-detail"><strong>📏 Circuit Length:</strong> {{ race.circuit_length }}</div>
-                        {% endif %}
-                        <div class="race-detail"><strong>📅 Race Date:</strong> {{ race.date }}</div>
-                        <div class="race-detail"><strong>⏰ Race Time:</strong> 
-                            {% if race.sessions and race.sessions|length > 0 %}
-                                {% set race_session = race.sessions|selectattr('type', 'equalto', 'Race')|first %}
-                                {% if race_session and race_session.time_info %}
-                                    {{ race_session.time_info.time_only }} {{ race_session.time_info.timezone }}
-                                    <small>(UTC: {{ race_session.time or race_session.time_utc }})</small>
-                                {% elif race_session and (race_session.time or race_session.time_utc) %}
-                                    {{ race_session.time or race_session.time_utc }} UTC
-                                {% else %}
-                                    {% set first_session = race.sessions[0] %}
-                                    {% if first_session.time_info %}
-                                        {{ first_session.time_info.time_only }} {{ first_session.time_info.timezone }}
-                                        <small>(UTC: {{ first_session.time or first_session.time_utc }})</small>
-                                    {% elif first_session.time or first_session.time_utc %}
-                                        {{ first_session.time or first_session.time_utc }} UTC
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                {% endif %}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </div>
+                        <!-- Details section kept for potential future use, but currently empty -->
                     </div>
                     
-                    <div class="sessions-container">
-                        <div class="sessions-header">🏁 Race Weekend Sessions</div>
+                    <div class="sessions-line">
                         {% for session in race.sessions %}
-                        <div class="session-item">
-                            <span class="session-type">📋 {{ session.type }}</span>
-                            <span class="session-time">
-                                ⏰ {% if session.time_info %}
-                                    {{ session.time_info.formatted_local }} 
-                                    <small>(UTC: {{ session.time_info.utc.split()[1] if 'utc' in session.time_info else (session.get('time', session.get('time', 'N/A'))) }})</small>
-                                {% else %}
-                                    {{ session.date }} at {{ session.get('time', session.get('time', 'N/A')) }} UTC
-                                {% endif %}
-                            </span>
-                        </div>
+                        <span class="session-inline">
+                            {{ session.type }} 
+                            {% if session.time_info %}
+                                {{ session.time_info.time_only }}
+                            {% else %}
+                                {{ session.time[:5] if session.time else 'N/A' }}
+                            {% endif %}
+                        </span>
                         {% endfor %}
                     </div>
                 </div>
@@ -113,7 +75,6 @@
 
 
 
-<script src="{{ url_for('static', filename='js/race_toggle.js') }}"></script>
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
 
 {% endblock %}

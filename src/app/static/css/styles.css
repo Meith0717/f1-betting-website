@@ -561,9 +561,9 @@ auth-footer a {
     font-size: 14px;
 }
 
-.race-card:hover {
+/* .race-card:hover {
     transform: translateY(-1px);
-}
+} */
 
 .race-card h3 {
     color: var(--brand-primary);
@@ -573,19 +573,7 @@ auth-footer a {
     font-weight: 600;
 }
 
-.expand-icon {
-    font-size: 18px;
-    color: var(--brand-accent);
-    transition: transform 0.2s;
-    margin-left: 10px;
-    flex-shrink: 0;
-    font-weight: bold;
-}
 
-.race-card.expanded .expand-icon {
-    transform: rotate(180deg);
-    color: var(--brand-primary);
-}
 
 .race-details {
     display: grid;
@@ -595,42 +583,7 @@ auth-footer a {
     font-size: 14px;
 }
 
-.sessions-container {
-    display: none;
-    margin-top: 15px;
-    padding: 12px;
-    background-color: var(--surface-variant);
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    animation: slideDown 0.2s ease;
-    overflow: hidden;
-}
 
-.race-card.expanded .sessions-container {
-    display: block;
-}
-
-.sessions-header {
-    font-weight: 600;
-    color: var(--brand-accent);
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--divider);
-    padding-bottom: 6px;
-    font-size: 15px;
-}
-
-.session-item {
-    padding: 8px 0;
-    font-size: 13px;
-    color: var(--text);
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--divider);
-}
-
-.session-item:last-child {
-    border-bottom: none;
-}
 
 .session-type {
     font-weight: 600;
@@ -651,35 +604,73 @@ auth-footer a {
 
 .race-card[data-canceled="true"] {
     border-left: 4px solid var(--error);
-    background-color: var(--error-light);
-    opacity: 0.95;
+    background-color: rgba(231, 76, 60, 0.3); /* Clearly red background */
+    opacity: 1;
     cursor: not-allowed;
+}
+
+.race-card[data-canceled="true"]:hover {
+    transform: none; /* Remove hover effect for canceled cards */
+}
+
+.race-card[data-canceled="true"] .canceled-badge {
+    display: block !important; /* Ensure always visible */
+    opacity: 1 !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
 }
 
 .race-card[data-canceled="true"] h3 {
     color: var(--error);
-    display: flex;
-    align-items: center;
-    gap: 8px;
     font-weight: 600;
-}
-
-.race-card[data-canceled="true"] .expand-icon {
-    display: none;
 }
 
 .race-card[data-canceled="true"] .race-header {
     cursor: not-allowed;
-    border-bottom-color: var(--error-light);
+    border-bottom-color: rgba(231, 76, 60, 0.2);
+    position: relative !important;
+    min-height: 40px; /* Ensure space for badge */
+}
+
+.sessions-line {
+    margin-top: 8px;
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    color: var(--text-light);
+}
+
+.session-inline {
+    font-size: 12px;
+    color: var(--text);
+}
+
+.session-inline::after {
+    content: "•";
+    margin-left: 8px;
+    color: var(--text-lighter);
+}
+
+.session-inline:last-child::after {
+    content: "";
+    margin-left: 0;
 }
 
 .canceled-badge {
     background-color: var(--error);
     color: var(--surface);
-    padding: 3px 6px;
-    border-radius: 3px;
-    font-size: 0.7em;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
     font-weight: bold;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /*****************************
@@ -1119,22 +1110,52 @@ auth-footer a {
 /*****************************
 * Animation
 *****************************/
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+
 
 .race-header {
     display: flex;
-    align-items: center;
-    cursor: pointer;
+    flex-direction: column;
     padding-bottom: 10px;
     margin-bottom: 10px;
     border-bottom: 1px solid var(--divider);
+    gap: 8px;
+    position: relative; /* Ensure positioning context for absolute children */
+}
+
+.race-info-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.race-circuit {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.race-city {
+    color: var(--brand-accent);
+}
+
+.race-country {
+    color: var(--success);
+}
+
+.race-date {
+    color: var(--interactive-hover);
+    font-weight: 500;
+}
+
+.race-info-line span::after {
+    content: "•";
+    margin-left: 12px;
+    color: var(--text-lighter);
+}
+
+.race-info-line span:last-child::after {
+    content: "";
+    margin-left: 0;
 }
