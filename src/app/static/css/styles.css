@@ -567,6 +567,72 @@ auth-footer a {
     flex: 1;
     font-size: 16px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.next-session-card .race-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.next-session-card .race-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.next-session-card .race-header-top h3 {
+    text-align: left;
+    flex: 1;
+    min-width: 0;
+}
+
+.next-session-card .race-actions {
+    flex-shrink: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.next-session-card .race-actions .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.next-session-timer {
+    margin: 8px 0;
+    padding: 8px;
+    background-color: var(--surface-variant);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.next-session-label {
+    font-weight: 600;
+    color: var(--brand-accent);
+}
+
+.next-session-type {
+    font-weight: 600;
+    color: var(--interactive-hover);
+}
+
+.next-session-card .countdown-timer {
+    font-size: 14px;
+    font-weight: normal;
+    color: var(--interactive-hover);
+    background-color: rgba(255, 196, 0, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: auto;
 }
 
 

@@ -12,15 +12,11 @@ def index():
     """Handle the main index route - shows welcome page or user dashboard"""
     # Get next race and session data with timezone info
     next_race = race_data_manager.get_next_race()
-    next_session = race_data_manager.get_next_session()
     upcoming_races = race_data_manager.get_upcoming_races(limit=3)
 
     # Add timezone info to races
     if next_race:
         next_race = race_data_manager.add_timezone_info_to_race(next_race)
-    if next_session:
-        # Add timezone info to next session
-        next_session = race_data_manager.add_timezone_info_to_race(next_session)
 
     upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
 
@@ -51,7 +47,6 @@ def index():
             sorted_users=sorted_users,
             user_rank=user_rank,
             next_race=next_race,
-            next_session=next_session,
             upcoming_races=upcoming_races,
         )
     return render_template("welcome.html")
