@@ -10,11 +10,12 @@
   </div>
 
   <div class="dashboard-content">
-    {% if next_race and next_race.name %}
+    {% if next_session %}
+    {% if next_race %}
     <div class="card next-session-card">
       <div class="race-header">
         <div class="race-header-top">
-          <h3>Next Race Weekend: {{ next_race.name }}</h3>
+          <h3>Next Session: {{ next_session.type }} - {{ next_session.race_name }}</h3>
           <div class="race-actions">
             <a href="{{ url_for('main.races') }}" class="btn btn-secondary"
               >View All Races</a
@@ -22,34 +23,22 @@
           </div>
         </div>
         <div class="race-info-line">
-          <span class="race-circuit">{{ next_race.circuit }}</span>
-          <span class="race-country">🌍 {{ next_race.country }}</span>
-          {% if next_race.sessions and next_race.sessions|length >= 2 %}
-          {% set first_session = next_race.sessions[0] %}
-          {% set last_session = next_race.sessions[-1] %}
-          <span class="race-date">
-            📅 {% if first_session.date and last_session.date %}
-            {{ first_session.date }} - {{ last_session.date }}
-            {% else %}
-            {{ next_race.date }}
-            {% endif %}
-          </span>
-          {% else %}
-          <span class="race-date">📅 {{ next_race.date }}</span>
-          {% endif %}
+          <span class="race-circuit">{{ next_session.circuit }}</span>
+          <span class="race-country">🌍 {{ next_session.country }}</span>
+          <span class="race-date">📅 {{ next_session.date }}</span>
         </div>
       </div>
 
       <!-- Next session with timer -->
       <div class="next-session-timer">
-        <span class="next-session-label">Next session:</span>
-        <span class="next-session-type">{{ next_race.sessions[0].type }}</span>
+        <span class="next-session-label">Session starts in:</span>
+        <span class="next-session-type">{{ next_session.type }}</span>
         <span
           id="session-countdown-inline"
           class="countdown-timer"
-          data-session-time="{% if next_race.sessions[0].time_info %}{{ next_race.sessions[0].time_info.iso_format }}{% endif %}"
+          data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}"
         >
-          {% if next_race.sessions[0].time_info %}
+          {% if next_session.time_info %}
           <span class="countdown-loading">Loading...</span>
           {% else %}
           <span class="countdown-unavailable">--:--:--</span>
@@ -68,6 +57,7 @@
         {% endfor %}
       </div>
     </div>
+    {% endif %}
     {% endif %}
 
     <!-- Active Bets Section - Compact & Unified -->

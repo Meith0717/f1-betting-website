@@ -199,23 +199,13 @@ class RaceDataManager:
                 continue
 
             for session in race.get("sessions", []):
-                # Handle 'time' field
+                # Skip sessions with missing or null data
+                session_date = session.get("date")
                 session_time = session.get("time", "00:00:00")
-                # Skip sessions with None time
-                if session_time is None:
+                if session_date is None or session_time is None:
                     continue
-                # Handle timezone format (e.g., "04:00:00Z")
-                if "Z" in session_time:
-                    session_time = session_time.replace("Z", "")
-                if ":" in session_time and len(session_time.split(":")[0]) == 2:
-                    time_part = session_time[:5]  # Take first 5 chars (HH:MM)
-                else:
-                    time_part = (
-                        session_time[:5] if len(session_time) >= 5 else session_time
-                    )
-                session_datetime = datetime.strptime(
-                    f"{session['date']} {time_part}", "%Y-%m-%d %H:%M"
-                )
+                    
+                session_datetime = self._get_session_datetime(session)
                 if session_datetime > now:
                     session_with_race_info = session.copy()
                     session_with_race_info["race_name"] = race["name"]
@@ -229,6 +219,7 @@ class RaceDataManager:
         # Return the soonest upcoming session
         if all_sessions:
             return min(all_sessions, key=lambda x: self._get_session_datetime(x))
+        return None
 
     def get_race_by_id(self, race_id: str) -> Optional[Dict]:
         """Get race by ID"""
@@ -349,6 +340,14 @@ class RaceDataManager:
     def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:
         """Add timezone info to all races"""
         return [self.add_timezone_info_to_race(race) for race in races]
+
+    def add_timezone_info_to_session(self, session: Dict) -> Dict:
+        """Add timezone-converted time to a session"""
+        session = session.copy()
+        if "date" in session and "time" in session:
+            session_time = session.get("time", "00:00")
+            session["time_info"] = self.convert_utc_to_local(session["date"], session_time)
+        return session
 
     def get_canceled_race_ids(self) -> List[str]:
         """Get list of canceled race IDs"""
