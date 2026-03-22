@@ -37,7 +37,18 @@ function updateCountdown(targetDate, element, isInline = false) {
   const diff = targetDate - now;
 
   if (diff <= 0) {
-    element.innerHTML = '<span class="countdown-expired">Started</span>';
+    // Check if this is a betting countdown timer
+    if (element.id && element.id.startsWith('betting-countdown-')) {
+      element.innerHTML = '⏰ <span class="countdown-expired">Betting closed</span>';
+      console.log('Betting countdown expired, refreshing page...');
+      // Refresh page to update bet status
+      setTimeout(() => {
+        console.log('Refreshing page now...');
+        window.location.reload();
+      }, 2000); // Refresh after 2 seconds to allow user to see the message
+    } else {
+      element.innerHTML = '<span class="countdown-expired">Started</span>';
+    }
     return;
   }
 
@@ -68,13 +79,18 @@ function initializeBettingCountdowns() {
   // Handle both old format [id^="betting-closes-"] and new format [id^="betting-countdown-"]
   const bettingTimers = document.querySelectorAll('[id^="betting-closes-"], [id^="betting-countdown-"]');
   
+  console.log(`Found ${bettingTimers.length} betting timer elements`);
+  
   bettingTimers.forEach(timerElement => {
+    console.log(`Initializing betting timer: ${timerElement.id}`);
     const raceTime = timerElement.dataset.raceTime || "";
     
     if (raceTime) {
       try {
         const raceDate = new Date(raceTime);
         const now = new Date();
+        
+        console.log(`Race date: ${raceDate}, Now: ${now}`);
         
         // Only show countdown if race is in the future
         if (raceDate > now) {
@@ -93,6 +109,8 @@ function initializeBettingCountdowns() {
         timerElement.innerHTML =
           '⏰ <span class="countdown-unavailable">--:--:--</span>';
       }
+    } else {
+      console.warn(`No race time data for timer: ${timerElement.id}`);
     }
   });
 }

@@ -136,7 +136,7 @@
       "country": "Japan",
       "circuit": "Suzuka International Circuit",
       "date": "2026-03-22",
-      "time": "16:58:00Z",
+      "time": "17:18:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -161,7 +161,7 @@
         {
           "type": "Race",
           "date": "2026-03-22",
-          "time": "16:58:00Z"
+          "time": "17:18:00Z"
         }
       ],
       "round": 3,
