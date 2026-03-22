@@ -72,12 +72,12 @@ a:hover {
 
 /* Button variants */
 .btn-primary {
-    background-color: var(--brand-primary);
+    background-color: var(--error); /* Red */
     color: var(--surface);
 }
 
 .btn-primary:hover {
-    background-color: var(--interactive-hover);
+    background-color: var(--interactive-hover); /* Yellow */
 }
 
 .btn-secondary {
@@ -92,7 +92,7 @@ a:hover {
 }
 
 .btn-submit {
-    background-color: var(--brand-primary);
+    background-color: var(--error); /* Red */
     color: var(--surface);
     padding: 12px 24px;
     border: none;
@@ -882,9 +882,32 @@ auth-footer a {
 
 .admin-actions {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     flex-wrap: wrap;
     margin-top: 15px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background-color: var(--surface);
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.setting-item strong {
+    color: var(--text-light);
+}
+
+.setting-item code {
+    background-color: var(--surface-variant);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 13px;
 }
 
 .data-management-actions {
@@ -1072,7 +1095,7 @@ auth-footer a {
 }
 
 .canceled-race-simple .reactivate-button {
-    background-color: var(--success);
+    background-color: var(--error); /* Red */
     color: var(--surface);
     padding: 8px 16px;
     border: none;
@@ -1094,7 +1117,7 @@ auth-footer a {
 }
 
 .reactivate-button::before {
-    content: "🔄";
+    content: "↻"; /* Simpler refresh icon */
     font-size: 14px;
 }
 
@@ -1110,28 +1133,6 @@ auth-footer a {
 
 .reactivate-form {
     margin-left: 10px;
-}
-
-.reactivate-button {
-    padding: 8px 16px;
-    background-color: var(--success);
-    color: var(--surface);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-}
-
-.reactivate-button:hover {
-    background-color: #27ae60;
-}
-
-.no-canceled-races {
-    color: var(--text-light);
-    text-align: center;
-    padding: 20px;
-    font-style: italic;
 }
 
 .race-select-dropdown:focus {
@@ -1153,7 +1154,7 @@ auth-footer a {
 }
 
 .cancel-action-button:hover {
-    background-color: #c0392b;
+    background-color: var(--interactive-hover); /* Yellow */
 }
 
 .uncancel-button {
@@ -1421,4 +1422,13 @@ auth-footer a {
 .race-info-line span:last-child::after {
     content: "";
     margin-left: 0;
+}
+
+/* Reset points button - custom red color */
+.reset-points-button {
+    background-color: #f44336;
+}
+
+.reset-points-button:hover {
+    background-color: var(--interactive-hover);
 }

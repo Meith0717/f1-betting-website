@@ -10,45 +10,71 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 def index():
     """Handle the main index route - shows welcome page or user dashboard"""
+    from flask import current_app
+    
+    current_app.logger.debug("Main index route accessed")
+    
     # Get next race and session data with timezone info
-    next_race = race_data_manager.get_next_race()
-    upcoming_races = race_data_manager.get_upcoming_races(limit=3)
+    try:
+        next_race = race_data_manager.get_next_race()
+        current_app.logger.debug(f"Next race: {next_race['name'] if next_race else 'None'}")
+        
+        upcoming_races = race_data_manager.get_upcoming_races(limit=3)
+        current_app.logger.debug(f"Found {len(upcoming_races)} upcoming races")
 
-    # Add timezone info to races
-    if next_race:
-        next_race = race_data_manager.add_timezone_info_to_race(next_race)
+        # Add timezone info to races
+        if next_race:
+            next_race = race_data_manager.add_timezone_info_to_race(next_race)
+            current_app.logger.debug(f"Added timezone info to next race")
 
-    upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
+        upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
+        current_app.logger.debug(f"Added timezone info to {len(upcoming_races)} upcoming races")
+
+    except Exception as e:
+        current_app.logger.error(f"Error getting race data: {e}")
+        next_race = None
+        upcoming_races = []
 
     if "username" in session:
+        current_app.logger.debug(f"User session found: {session['username']}")
         # Show user dashboard with admin links if applicable
-        users = load_users()
-        # Create sorted users list for leaderboard
-        sorted_users = sorted(
-            users.items(), key=lambda x: x[1].get("score", 0), reverse=True
-        )
+        try:
+            users = load_users()
+            current_app.logger.debug(f"Loaded {len(users)} users for dashboard")
+            
+            # Create sorted users list for leaderboard
+            sorted_users = sorted(
+                users.items(), key=lambda x: x[1].get("score", 0), reverse=True
+            )
 
-        # Find current user's rank
-        current_username = session["username"]
-        user_rank = next(
-            (
-                i + 1
-                for i, (username, _) in enumerate(sorted_users)
-                if username == current_username
-            ),
-            None,
-        )
+            # Find current user's rank
+            current_username = session["username"]
+            user_rank = next(
+                (
+                    i + 1
+                    for i, (username, _) in enumerate(sorted_users)
+                    if username == current_username
+                ),
+                None,
+            )
+            current_app.logger.debug(f"User {current_username} rank: {user_rank}")
 
-        return render_template(
-            "user/overview.html",
-            username=session["username"],
-            is_admin=session.get("is_admin", False),
-            users=users,
-            sorted_users=sorted_users,
-            user_rank=user_rank,
-            next_race=next_race,
-            upcoming_races=upcoming_races,
-        )
+            return render_template(
+                "user/overview.html",
+                username=session["username"],
+                is_admin=session.get("is_admin", False),
+                users=users,
+                sorted_users=sorted_users,
+                user_rank=user_rank,
+                next_race=next_race,
+                upcoming_races=upcoming_races,
+            )
+        except Exception as e:
+            current_app.logger.error(f"Error rendering user dashboard: {e}")
+            flash("Error loading dashboard data", "error")
+            return redirect(url_for("main.index"))
+    
+    current_app.logger.debug("No user session, showing welcome page")
     return render_template("welcome.html")
 
 
@@ -136,6 +162,7 @@ def change_email():
 
 
 @main_bp.route("/races")
+@login_required
 def races():
     """Show all upcoming F1 races"""
     # Get all races and add timezone info

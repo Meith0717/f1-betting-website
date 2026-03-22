@@ -21,13 +21,21 @@ def get_registration_password():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     """Handle user login with session management"""
+    from flask import current_app
+    
+    current_app.logger.debug("Login route accessed")
     users = ensure_first_admin()
+    current_app.logger.debug(f"Loaded {len(users)} users, ensuring first admin")
 
     if request.method == "POST":
+        current_app.logger.debug("Login POST request received")
         username = request.form.get("username")
         password = request.form.get("password")
+        
+        current_app.logger.debug(f"Login attempt for username: {username}")
 
         if username in users and verify_password(users[username]["password"], password):
+            current_app.logger.info(f"Successful login for user: {username}")
             # Set up session
             session["username"] = username
             session["is_admin"] = users[username].get("is_admin", False)
@@ -37,14 +45,17 @@ def login():
 
             # Migrate plaintext passwords
             if not users[username]["password"].startswith("pbkdf2_sha256$"):
+                current_app.logger.warning(f"Migrating plaintext password for user: {username}")
                 users[username]["password"] = hash_password(password)
 
             save_users(users)
             flash("Login successful!", "success")
             return redirect(url_for("main.index"))
         else:
+            current_app.logger.warning(f"Failed login attempt for username: {username}")
             flash("Invalid username or password", "error")
 
+    current_app.logger.debug("Rendering login template")
     return render_template("auth/login.html")
 
 

@@ -31,32 +31,19 @@
     </div>
 
     <div class="admin-section">
-        <h2>🏎️ Race & Driver Data Management</h2>
-        <div class="data-management-actions">
-            <div class="data-action-box">
-                <h3>🏁 Race Data</h3>
-                <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
-                    <button type="submit" class="update-races-button" title="Update race data from F1 API">🔄 Update Race Data</button>
-                </form>
-                <p class="info-text">
-                    <small>Update race schedules and sessions from F1 API</small>
-                </p>
-            </div>
-            
-            <div class="data-action-box">
-                <h3>👥 Driver Data</h3>
-                <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
-                    <button type="submit" class="update-drivers-button" title="Update driver data from F1 API">🔄 Update Driver Data</button>
-                </form>
-                <p class="info-text">
-                    <small>Fetch latest driver information from F1 API</small>
-                </p>
-            </div>
+        <h2>🏎️ Data Management</h2>
+        <div class="admin-actions">
+            <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
+                <button type="submit" class="action-button" title="Update race data from F1 API">Update Races</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
+                <button type="submit" class="action-button" title="Update driver data from F1 API">Update Drivers</button>
+            </form>
         </div>
     </div>
 
     <div class="admin-section">
-        <h2>🚫 Cancelled Race Management</h2>
+        <h2>🚫 Cancelled Races</h2>
         <div class="cancel-controls">
             <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form">
                 <select name="race_id" id="race-select" class="race-select-dropdown" required>
@@ -67,7 +54,7 @@
                     {% endif %}
                     {% endfor %}
                 </select>
-                <button type="submit" class="cancel-action-button">🚫 Cancel Race</button>
+                <button type="submit" class="cancel-action-button">Cancel Race</button>
             </form>
         </div>
         
@@ -108,27 +95,45 @@
     </div>
 
     <div class="admin-section">
-        <h2>🔐 Registration Settings</h2>
-        <div class="registration-info">
-            <p><strong>Current Registration Password:</strong></p>
-            <p class="registration-password">{{ registration_password }}</p>
-            <form method="POST" action="{{ url_for('admin.change_registration_password') }}" class="registration-form">
-                <button type="submit" class="generate-password-button" title="Generate new registration password">🔄 Generate New Password</button>
-            </form>
-            <p class="info-text">
-                <small>This password is required for new user registrations (except the first user).<br>
-                Click the button above to generate a new random registration password.</small>
-            </p>
+        <h2>📝 Application Logs</h2>
+        <div class="log-viewer">
+            {% if log_file_exists %}
+            <div class="log-header">
+                <h3>Recent Log Entries (last 50 lines, newest first)</h3>
+                <div class="log-controls">
+                    <button onclick="toggleLogWrap()" class="log-control-button">Toggle Wrap</button>
+                    <form method="POST" action="{{ url_for('admin.clear_logs') }}" class="clear-logs-form">
+                        <button type="submit" class="log-control-button clear-button" onclick="return confirm('Are you sure you want to clear the log file? This cannot be undone.');">Clear Logs</button>
+                    </form>
+                </div>
+            </div>
+            <div class="log-container" id="logContainer">
+                <pre class="log-content">{{ log_entries|join('') }}</pre>
+            </div>
+            {% else %}
+            <div class="no-logs">
+                <p>No log file found. Logs will appear here once the application generates them.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
-
+    
     <div class="admin-section">
-        <h2>👥 User Management</h2>
-        
-        <div class="action-buttons">
-            <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form" onsubmit="return confirm('Are you sure you want to reset ALL user points to 0? This cannot be undone.');">
-                <button type="submit" class="action-button" style="background-color: #f44336;">🔄 Reset All Points to 0</button>
-            </form>
+        <h2>👥 System Settings</h2>
+        <div class="admin-actions">
+            <div class="setting-item">
+                <strong>Registration Password:</strong>
+                <code class="registration-password">{{ registration_password }}</code>
+                <form method="POST" action="{{ url_for('admin.change_registration_password') }}" class="registration-form">
+                    <button type="submit" class="action-button" title="Generate new registration password">New Password</button>
+                </form>
+            </div>
+            
+            <div class="setting-item">
+                <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form" onsubmit="return confirm('Are you sure you want to reset ALL user points to 0? This cannot be undone.');">
+                    <button type="submit" class="action-button reset-points-button">Reset All Points</button>
+                </form>
+            </div>
         </div>
         
         <div class="user-table-container">
@@ -174,7 +179,7 @@
                             </form>
                             {% else %}
                             <form method="POST" action="{{ url_for('admin.demote_user', username=username) }}" class="action-form">
-                                <button type="submit" class="demote-button" title="Demote from admin">👤</button>
+                                <button type="submit" class="demote-button" title="Demote from admin">Demote</button>
                             </form>
                             {% endif %}
                             <!-- Delete button - prevent admins from deleting themselves -->
@@ -191,4 +196,114 @@
         </div>
     </div>
 </div>
+<script>
+function toggleLogWrap() {
+    const logContainer = document.getElementById('logContainer');
+    const logContent = logContainer.querySelector('.log-content');
+    
+    if (logContainer.classList.contains('wrap')) {
+        logContainer.classList.remove('wrap');
+        logContent.classList.remove('wrap');
+    } else {
+        logContainer.classList.add('wrap');
+        logContent.classList.add('wrap');
+    }
+}
+
+function clearLogs() {
+    if (confirm('Are you sure you want to clear the log file? This cannot be undone.')) {
+        // This function is now handled by the form submission
+        return true;
+    }
+    return false;
+}
+</script>
+
+<style>
+.log-viewer {
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.log-header {
+    background-color: #333;
+    padding: 15px;
+    border-bottom: 1px solid #555;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+}
+
+.log-header h3 {
+    margin: 0;
+    color: #fff;
+}
+
+.log-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.log-control-button {
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.log-control-button:hover {
+    background-color: #0056b3;
+}
+
+.clear-button {
+    background-color: #dc3545;
+}
+
+.clear-button:hover {
+    background-color: #c82333;
+}
+
+.log-container {
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #2d2d2d;
+    padding: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    color: #e0e0e0;
+}
+
+.log-content {
+    margin: 0;
+    white-space: pre-wrap;
+    color: #e0e0e0;
+}
+
+.log-content.wrap {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.no-logs {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    background-color: #f8f9fa;
+}
+
+.clear-logs-form {
+    display: inline;
+    margin: 0;
+}
+</style>
+
 {% endblock %}

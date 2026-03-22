@@ -19,7 +19,6 @@ class RaceDataManager:
         self.drivers_file = os.path.join(
             os.path.dirname(__file__), "data", "drivers.json"
         )
-        self.ensure_data_file_exists()
         # Set default timezone to UTC for race data
         self.utc_timezone = pytz.UTC
         try:
@@ -34,6 +33,9 @@ class RaceDataManager:
     def _get_race_datetime(self, race: Dict) -> Optional[datetime]:
         """Helper method to get datetime for a race"""
         try:
+            from flask import current_app
+            current_app.logger.debug(f"Getting datetime for race: {race.get('name', 'Unknown')}")
+            
             if "time" in race:
                 # Handle timezone format (e.g., "04:00:00Z") by stripping the timezone
                 time_str = race["time"]
@@ -45,9 +47,11 @@ class RaceDataManager:
                 else:
                     # Handle other formats
                     time_part = time_str[:5] if len(time_str) >= 5 else time_str
-                return datetime.strptime(
+                result = datetime.strptime(
                     f"{race['date']} {time_part}", "%Y-%m-%d %H:%M"
                 )
+                current_app.logger.debug(f"Parsed race datetime: {result}")
+                return result
             elif race.get("sessions") and len(race["sessions"]) > 0:
                 first_session = race["sessions"][0]
                 session_time = first_session.get("time", "00:00")
@@ -60,13 +64,18 @@ class RaceDataManager:
                     time_part = (
                         session_time[:5] if len(session_time) >= 5 else session_time
                     )
-                return datetime.strptime(
+                result = datetime.strptime(
                     f"{first_session['date']} {time_part}", "%Y-%m-%d %H:%M"
                 )
+                current_app.logger.debug(f"Parsed session datetime: {result}")
+                return result
             elif "date" in race:
                 # Fallback to race date with default time for races without sessions
-                return datetime.strptime(f"{race['date']} 00:00", "%Y-%m-%d %H:%M")
-        except (ValueError, KeyError):
+                result = datetime.strptime(f"{race['date']} 00:00", "%Y-%m-%d %H:%M")
+                current_app.logger.debug(f"Used fallback datetime: {result}")
+                return result
+        except (ValueError, KeyError) as e:
+            current_app.logger.error(f"Error parsing race datetime: {e}")
             return None
         return None
 
