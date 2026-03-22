@@ -134,7 +134,7 @@ class BettingManager:
                     )
             raise
 
-    def place_bet(self, username: str, race_id: str, bets: List[str]) -> bool:
+    def place_bet(self, username: str, race_id: str, bets: List[str], fastest_lap: str = None) -> bool:
         """
         Place a bet for a user on a specific race.
 
@@ -142,6 +142,7 @@ class BettingManager:
             username: Username placing the bet
             race_id: ID of the race being bet on
             bets: List of 3 driver IDs for positions 1, 2, 3
+            fastest_lap: Driver ID for fastest lap prediction
 
         Returns:
             True if bet was placed successfully, False otherwise
@@ -158,16 +159,28 @@ class BettingManager:
             )
             return False
 
+        if not fastest_lap:
+            self._logger().warning(
+                "Fastest lap not selected for %s on %s", username, race_id
+            )
+            return False
+
         try:
             data = self.load_bets()
 
             data["bets"].setdefault(username, {})
 
-            data["bets"][username][race_id] = {
+            bet_data = {
                 "drivers": bets,
                 "timestamp": self._now_iso(),
                 "status": "active",
             }
+            
+            # Add fastest lap if provided
+            if fastest_lap:
+                bet_data["fastest_lap"] = fastest_lap
+
+            data["bets"][username][race_id] = bet_data
 
             data["races"].setdefault(
                 race_id,
@@ -182,7 +195,7 @@ class BettingManager:
                 data["races"][race_id]["users"].append(username)
 
             self.save_bets(data)
-            self._logger().info("Bet placed: %s on %s - %s", username, race_id, bets)
+            self._logger().info("Bet placed: %s on %s - %s (Fastest Lap: %s)", username, race_id, bets, fastest_lap or "None")
             return True
 
         except Exception as e:

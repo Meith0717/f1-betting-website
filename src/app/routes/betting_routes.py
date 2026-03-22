@@ -143,6 +143,13 @@ def betting_dashboard():
                 drivers_with_short_names.append(driver_short_names.get(driver_id, driver_id))
             bet_data["drivers_short"] = drivers_with_short_names
             
+            # Add fastest lap support (placeholder for future implementation)
+            fastest_lap = bet_data.get("fastest_lap")
+            if fastest_lap:
+                bet_data["fastest_lap_short"] = driver_short_names.get(fastest_lap, fastest_lap)
+            else:
+                bet_data["fastest_lap_short"] = None
+            
             # Convert driver IDs to short names for actual results if available
             if bet_data.get("actual_results"):
                 actual_results_short = []
@@ -182,6 +189,13 @@ def betting_dashboard():
                             for driver_id in bet_data["drivers"]:
                                 drivers_with_short_names.append(driver_short_names.get(driver_id, driver_id))
                             bet_data["drivers_short"] = drivers_with_short_names
+                            
+                            # Add fastest lap support (placeholder for future implementation)
+                            fastest_lap = bet_data.get("fastest_lap")
+                            if fastest_lap:
+                                bet_data["fastest_lap_short"] = driver_short_names.get(fastest_lap, fastest_lap)
+                            else:
+                                bet_data["fastest_lap_short"] = None
                             
                             # Convert driver IDs to short names for actual results if available
                             if bet_data.get("actual_results"):
@@ -256,11 +270,12 @@ def place_bet(race_id):
             position_1 = request.form.get("position_1")
             position_2 = request.form.get("position_2")
             position_3 = request.form.get("position_3")
+            fastest_lap = request.form.get("fastest_lap")
             
             bets = [position_1, position_2, position_3]
             
             # Validate and place bet
-            if betting_manager.place_bet(username, race_id, bets):
+            if betting_manager.place_bet(username, race_id, bets, fastest_lap):
                 flash("Bet placed successfully!", "success")
                 return redirect(url_for("main.index"))
             else:
@@ -316,6 +331,7 @@ def edit_bet(race_id):
             position_1 = request.form.get("position_1")
             position_2 = request.form.get("position_2")
             position_3 = request.form.get("position_3")
+            fastest_lap = request.form.get("fastest_lap")
             
             bets = [position_1, position_2, position_3]
             
@@ -333,7 +349,7 @@ def edit_bet(race_id):
                 betting_manager.save_bets(data)
             
             # Place new bet
-            if betting_manager.place_bet(username, race_id, bets):
+            if betting_manager.place_bet(username, race_id, bets, fastest_lap):
                 flash("Bet updated successfully!", "success")
                 return redirect(url_for("main.index"))
             else:

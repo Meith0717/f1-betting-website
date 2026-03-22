@@ -41,6 +41,7 @@
                 <th class="position-header">1st</th>
                 <th class="position-header">2nd</th>
                 <th class="position-header">3rd</th>
+                <th class="position-header">Fastest Lap</th>
                 <th class="points-header">Points</th>
               </tr>
             </thead>
@@ -61,6 +62,9 @@
                 </td>
                 <td class="position-cell">
                   {{ user_bet.bet.drivers_short[2] if user_bet.bet.drivers_short else user_bet.bet.drivers[2] }}
+                </td>
+                <td class="position-cell">
+                  {{ user_bet.bet.fastest_lap_short if user_bet.bet.fastest_lap_short else (user_bet.bet.fastest_lap if user_bet.bet.fastest_lap else '-') }}
                 </td>
                 <td class="points-cell">
                   {% if user_bet.bet.status == 'resolved' and user_bet.bet.points_awarded %}

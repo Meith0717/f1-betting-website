@@ -27,11 +27,6 @@
           "type": "Qualifying",
           "date": "2026-03-07",
           "time": "05:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-03-08",
-          "time": "04:00:00Z"
         }
       ],
       "round": 1,
@@ -74,16 +69,6 @@
           "time": "03:30:00Z"
         },
         {
-          "type": "FP2",
-          "date": null,
-          "time": null
-        },
-        {
-          "type": "FP3",
-          "date": null,
-          "time": null
-        },
-        {
           "type": "Sprint Qualifying",
           "date": "2026-03-13",
           "time": "07:30:00Z"
@@ -97,11 +82,6 @@
           "type": "Sprint Race",
           "date": "2026-03-14",
           "time": "03:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-03-15",
-          "time": "07:00:00Z"
         }
       ],
       "round": 2,
@@ -135,33 +115,28 @@
       "name": "Formula 1 Aramco Japanese Grand Prix 2026",
       "country": "Japan",
       "circuit": "Suzuka International Circuit",
-      "date": "2026-03-22",
-      "time": "20:31:00Z",
+      "date": "2026-03-29",
+      "time": "05:00:00Z",
       "sessions": [
         {
           "type": "FP1",
-          "date": "2026-03-22",
-          "time": "16:10:00Z"
+          "date": "2026-03-27",
+          "time": "02:30:00Z"
         },
         {
           "type": "FP2",
-          "date": "2026-03-22",
-          "time": "16:15:00Z"
+          "date": "2026-03-27",
+          "time": "06:00:00Z"
         },
         {
           "type": "FP3",
-          "date": "2026-03-22",
-          "time": "16:20:00Z"
+          "date": "2026-03-28",
+          "time": "02:30:00Z"
         },
         {
           "type": "Qualifying",
-          "date": "2026-03-22",
-          "time": "16:25:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-03-22",
-          "time": "20:31:00Z"
+          "date": "2026-03-28",
+          "time": "06:00:00Z"
         }
       ],
       "round": 3,
@@ -200,11 +175,6 @@
           "type": "Qualifying",
           "date": "2026-04-11",
           "time": "16:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-04-12",
-          "time": "15:00:00Z"
         }
       ],
       "round": 4,
@@ -243,11 +213,6 @@
           "type": "Qualifying",
           "date": "2026-04-18",
           "time": "17:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-04-19",
-          "time": "17:00:00Z"
         }
       ],
       "round": 5,
@@ -273,16 +238,6 @@
           "time": "16:30:00Z"
         },
         {
-          "type": "FP2",
-          "date": null,
-          "time": null
-        },
-        {
-          "type": "FP3",
-          "date": null,
-          "time": null
-        },
-        {
           "type": "Sprint Qualifying",
           "date": "2026-05-01",
           "time": "20:30:00Z"
@@ -296,11 +251,6 @@
           "type": "Sprint Race",
           "date": "2026-05-02",
           "time": "16:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-05-03",
-          "time": "20:00:00Z"
         }
       ],
       "round": 6,
@@ -326,16 +276,6 @@
           "time": "17:30:00Z"
         },
         {
-          "type": "FP2",
-          "date": null,
-          "time": null
-        },
-        {
-          "type": "FP3",
-          "date": null,
-          "time": null
-        },
-        {
           "type": "Sprint Qualifying",
           "date": "2026-05-22",
           "time": "21:00:00Z"
@@ -349,11 +289,6 @@
           "type": "Sprint Race",
           "date": "2026-05-23",
           "time": "16:30:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-05-24",
-          "time": "18:00:00Z"
         }
       ],
       "round": 7,
@@ -392,11 +327,6 @@
           "type": "Qualifying",
           "date": "2026-06-06",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-06-07",
-          "time": "13:00:00Z"
         }
       ],
       "round": 8,
@@ -435,11 +365,6 @@
           "type": "Qualifying",
           "date": "2026-06-13",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-06-14",
-          "time": "13:00:00Z"
         }
       ],
       "round": 9,
@@ -478,11 +403,6 @@
           "type": "Qualifying",
           "date": "2026-06-27",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-06-28",
-          "time": "13:00:00Z"
         }
       ],
       "round": 10,
@@ -508,16 +428,6 @@
           "time": "11:30:00Z"
         },
         {
-          "type": "FP2",
-          "date": null,
-          "time": null
-        },
-        {
-          "type": "FP3",
-          "date": null,
-          "time": null
-        },
-        {
           "type": "Sprint Qualifying",
           "date": "2026-07-03",
           "time": "11:30:00Z"
@@ -531,11 +441,6 @@
           "type": "Sprint Race",
           "date": "2026-07-04",
           "time": "10:30:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-07-05",
-          "time": "14:00:00Z"
         }
       ],
       "round": 11,
@@ -574,11 +479,6 @@
           "type": "Qualifying",
           "date": "2026-07-18",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-07-19",
-          "time": "13:00:00Z"
         }
       ],
       "round": 12,
@@ -617,11 +517,6 @@
           "type": "Qualifying",
           "date": "2026-07-25",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-07-26",
-          "time": "13:00:00Z"
         }
       ],
       "round": 13,
@@ -647,16 +542,6 @@
           "time": "10:30:00Z"
         },
         {
-          "type": "FP2",
-          "date": null,
-          "time": null
-        },
-        {
-          "type": "FP3",
-          "date": null,
-          "time": null
-        },
-        {
           "type": "Sprint Qualifying",
           "date": "2026-08-21",
           "time": "14:00:00Z"
@@ -670,11 +555,6 @@
           "type": "Sprint Race",
           "date": "2026-08-22",
           "time": "09:30:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-08-23",
-          "time": "13:00:00Z"
         }
       ],
       "round": 14,
@@ -712,11 +592,6 @@
         {
           "type": "Qualifying",
           "date": "2026-09-05",
-          "time": "13:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-09-06",
           "time": "13:00:00Z"
         }
       ],
@@ -756,11 +631,6 @@
           "type": "Qualifying",
           "date": "2026-09-12",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-09-13",
-          "time": "13:00:00Z"
         }
       ],
       "round": 16,
@@ -799,11 +669,6 @@
           "type": "Qualifying",
           "date": "2026-09-25",
           "time": "12:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-09-26",
-          "time": "11:00:00Z"
         }
       ],
       "round": 17,
@@ -842,11 +707,6 @@
           "type": "Qualifying",
           "date": "2026-10-10",
           "time": "13:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-10-11",
-          "time": "12:00:00Z"
         }
       ],
       "round": 18,
@@ -885,11 +745,6 @@
           "type": "Qualifying",
           "date": "2026-10-24",
           "time": "21:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-10-25",
-          "time": "19:00:00Z"
         }
       ],
       "round": 19,
@@ -928,11 +783,6 @@
           "type": "Qualifying",
           "date": "2026-10-31",
           "time": "21:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-11-01",
-          "time": "20:00:00Z"
         }
       ],
       "round": 20,
@@ -971,11 +821,6 @@
           "type": "Qualifying",
           "date": "2026-11-07",
           "time": "18:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-11-08",
-          "time": "17:00:00Z"
         }
       ],
       "round": 21,
@@ -1013,11 +858,6 @@
         {
           "type": "Qualifying",
           "date": "2026-11-21",
-          "time": "04:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-11-22",
           "time": "04:00:00Z"
         }
       ],
@@ -1057,11 +897,6 @@
           "type": "Qualifying",
           "date": "2026-11-28",
           "time": "18:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-11-29",
-          "time": "16:00:00Z"
         }
       ],
       "round": 23,
@@ -1100,11 +935,6 @@
           "type": "Qualifying",
           "date": "2026-12-05",
           "time": "14:00:00Z"
-        },
-        {
-          "type": "Race",
-          "date": "2026-12-06",
-          "time": "13:00:00Z"
         }
       ],
       "round": 24,

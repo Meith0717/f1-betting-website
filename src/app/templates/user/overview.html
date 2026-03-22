@@ -10,12 +10,11 @@
   </div>
 
   <div class="dashboard-content">
-    {% if next_session %}
     {% if next_race %}
     <div class="card next-session-card">
       <div class="race-header">
         <div class="race-header-top">
-          <h3>Next Session: {{ next_session.type }} - {{ next_session.race_name }}</h3>
+          <h3>{% if next_session %}Next Session: {{ next_session.type }} - {% endif %}{{ next_race.name }}</h3>
           <div class="race-actions">
             <a href="{{ url_for('main.races') }}" class="btn btn-secondary"
               >View All Races</a
@@ -23,12 +22,13 @@
           </div>
         </div>
         <div class="race-info-line">
-          <span class="race-circuit">{{ next_session.circuit }}</span>
-          <span class="race-country">🌍 {{ next_session.country }}</span>
-          <span class="race-date">📅 {{ next_session.date[8:10] }}.{{ next_session.date[5:7] }}.{{ next_session.date[0:4] }}</span>
+          <span class="race-circuit">{{ next_race.circuit }}</span>
+          <span class="race-country">🌍 {{ next_race.country }}</span>
+          <span class="race-date">📅 {{ next_race.date[8:10] }}.{{ next_race.date[5:7] }}.{{ next_race.date[0:4] }}</span>
         </div>
       </div>
 
+      {% if next_session %}
       <!-- Next session with timer -->
       <div class="next-session-timer">
         <span class="next-session-label">Session starts in:</span>
@@ -45,44 +45,28 @@
           {% endif %}
         </span>
       </div>
+      {% endif %}
 
       <!-- All sessions for the race weekend -->
       <div class="sessions-line">
+        {% if next_race.sessions and next_race.sessions|length > 0 %}
         {% for session in next_race.sessions %}
-        {% if session.date and session.time %}
         <span class="session-inline">
           {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) {% if session.time_info %}{{
           session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
         </span>
-        {% endif %}
         {% endfor %}
-      </div>
-      
-      <!-- Betting timer and action row - disappears when bet is active -->
-      {% if betting_manager.can_bet_on_race(next_race.id, username) %}
-      {% set user_bets = betting_manager.get_user_bets(username) %}
-      {% if next_race.id not in user_bets %}
-      <div class="betting-timer-row">
-        <span class="betting-timer-label">Betting closes in:</span>
-        <span
-          id="betting-countdown-{{ next_race.id }}"
-          class="betting-countdown-timer"
-          data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(next_race) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}"
-        >
-          <span class="countdown-loading">Loading...</span>
+        <!-- Add the main race as a session -->
+        <span class="session-inline">
+          Race ({% if next_race.date %}{{ next_race.date[8:10] }}.{{ next_race.date[5:7] }}{% endif %}) {% if next_race.time_info %}{{
+          next_race.time_info.time_only }} {% else %} {{ next_race.time[:5] }} {% endif %}
         </span>
-        <a
-          href="{{ url_for('betting.place_bet', race_id=next_race.id) }}"
-          class="btn btn-primary betting-action-button"
-        >
-          💰 Place Your Bet
-        </a>
+        {% else %}
+        <span class="session-inline">No sessions available</span>
+        {% endif %}
       </div>
-      {% endif %}
-      {% endif %}
 
     </div>
-    {% endif %}
     {% endif %}
 
     <!-- Active Bets Section - Compact & Unified -->

@@ -54,6 +54,13 @@
             </span>
             {% endif %}
             {% endfor %}
+            <!-- Add the main race as a session -->
+            {% if race.date and race.time %}
+            <span class="session-inline">
+              Race ({% if race.date %}{{ race.date[8:10] }}.{{ race.date[5:7] }}{% endif %}) {% if race.time_info %}{{
+              race.time_info.time_only }} {% else %} {{ race.time[:5] }} {% endif %}
+            </span>
+            {% endif %}
           </div>
         </div>
         {% endfor %}
