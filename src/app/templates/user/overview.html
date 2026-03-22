@@ -25,7 +25,7 @@
         <div class="race-info-line">
           <span class="race-circuit">{{ next_session.circuit }}</span>
           <span class="race-country">🌍 {{ next_session.country }}</span>
-          <span class="race-date">📅 {{ next_session.date }}</span>
+          <span class="race-date">📅 {{ next_session.date[8:10] }}.{{ next_session.date[5:7] }}.{{ next_session.date[0:4] }}</span>
         </div>
       </div>
 
@@ -49,11 +49,12 @@
       <!-- All sessions for the race weekend -->
       <div class="sessions-line">
         {% for session in next_race.sessions %}
+        {% if session.date and session.time %}
         <span class="session-inline">
-          {{ session.type }} {% if session.date %}({{ session.date }}) {% endif %}{% if session.time_info %} {{
-          session.time_info.time_only }} {% else %} {{ session.time[:5] if
-          session.time else 'N/A' }} {% endif %}
+          {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) {% if session.time_info %}{{
+          session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
         </span>
+        {% endif %}
         {% endfor %}
       </div>
     </div>

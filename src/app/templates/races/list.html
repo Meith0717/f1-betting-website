@@ -31,9 +31,9 @@
               {% set last_session = race.sessions[-1] %}
               <span class="race-date">
                 📅 {% if first_session.date and last_session.date %}
-                {{ first_session.date }} - {{ last_session.date }}
+                {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }}.{{ first_session.date[0:4] }} - {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
                 {% else %}
-                {{ race.date }}
+                {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
                 {% endif %}
               </span>
               {% else %}
@@ -47,11 +47,12 @@
 
           <div class="sessions-line">
             {% for session in race.sessions %}
+            {% if session.date and session.time %}
             <span class="session-inline">
-              {{ session.type }} {% if session.date %}({{ session.date }}) {% endif %}{% if session.time_info %} {{
-              session.time_info.time_only }} {% else %} {{ session.time[:5] if
-              session.time else 'N/A' }} {% endif %}
+              {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) {% if session.time_info %}{{
+              session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
             </span>
+            {% endif %}
             {% endfor %}
           </div>
         </div>
@@ -82,12 +83,12 @@
               {% set first_session = race.sessions[0] %}
               {% set last_session = race.sessions[-1] %}
               {% if first_session.date and last_session.date %}
-              {{ first_session.date }} - {{ last_session.date }}
+              {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }}.{{ first_session.date[0:4] }} - {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
               {% else %}
-              {{ race.date }}
+              {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
               {% endif %}
               {% else %}
-              {{ race.date }}
+              {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
               {% endif %}
             </div>
           </div>
