@@ -65,7 +65,8 @@ function updateCountdown(targetDate, element, isInline = false) {
 }
 
 function initializeBettingCountdowns() {
-  const bettingTimers = document.querySelectorAll('[id^="betting-closes-"]');
+  // Handle both old format [id^="betting-closes-"] and new format [id^="betting-countdown-"]
+  const bettingTimers = document.querySelectorAll('[id^="betting-closes-"], [id^="betting-countdown-"]');
   
   bettingTimers.forEach(timerElement => {
     const raceTime = timerElement.dataset.raceTime || "";

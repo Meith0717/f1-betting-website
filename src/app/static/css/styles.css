@@ -2417,15 +2417,38 @@ auth-footer a {
     cursor: not-allowed;
 }
 
-/* Betting Action in Next Session Card */
-.next-session-betting-action {
+/* Betting Timer Row - Integrated in Next Session Card */
+.betting-timer-row {
     margin-top: 12px;
+    padding: 8px 0;
+    background-color: var(--surface-light);
+    border-radius: 4px;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-.place-bet-in-card {
+.betting-timer-label {
+    font-size: 13px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.betting-countdown-timer {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    min-width: 80px;
+    text-align: right;
+}
+
+.betting-action-button {
+    margin-left: auto;
+    font-size: 13px;
+    padding: 6px 12px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
+
