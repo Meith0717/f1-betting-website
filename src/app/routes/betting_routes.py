@@ -64,11 +64,16 @@ def place_bet(race_id):
         
         # Get race and driver data
         race = race_data_manager.get_race_by_id(race_id)
+        from flask import current_app
+        current_app.logger.debug(f"Edit bet: Race found: {race is not None}")
         if not race:
+            current_app.logger.error(f"Race not found for ID: {race_id}")
             flash("Race not found", "error")
             return redirect(url_for("betting.betting_dashboard"))
         
+        current_app.logger.debug(f"Edit bet: Race ID from object: {race.get('id', 'NO ID FIELD')}")
         drivers = betting_manager.get_available_drivers_for_race(race_id)
+        current_app.logger.debug(f"Edit bet: Drivers found: {len(drivers)}")
         
         if request.method == "POST":
             # Get selected drivers from form
@@ -160,6 +165,10 @@ def edit_bet(race_id):
         )
         
     except Exception as e:
+        from flask import current_app
+        current_app.logger.error(f"Error editing bet for race {race_id}: {e}")
+        import traceback
+        current_app.logger.error(traceback.format_exc())
         flash("Error editing bet", "error")
         return redirect(url_for("betting.betting_dashboard"))
 

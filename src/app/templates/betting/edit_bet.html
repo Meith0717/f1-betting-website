@@ -59,13 +59,7 @@
             <option
               value="{{ driver.driver_id }}"
               data-name="{{ driver.name }}"
-              {%
-              if
-              existing_bet.drivers[0]=""
-              ="driver.driver_id"
-              %}selected{%
-              endif
-              %}
+              {% if existing_bet.drivers[0] == driver.driver_id %}selected{% endif %}
             >
               #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
             </option>
@@ -86,13 +80,7 @@
             <option
               value="{{ driver.driver_id }}"
               data-name="{{ driver.name }}"
-              {%
-              if
-              existing_bet.drivers[1]=""
-              ="driver.driver_id"
-              %}selected{%
-              endif
-              %}
+              {% if existing_bet.drivers[1] == driver.driver_id %}selected{% endif %}
             >
               #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
             </option>
@@ -113,13 +101,7 @@
             <option
               value="{{ driver.driver_id }}"
               data-name="{{ driver.name }}"
-              {%
-              if
-              existing_bet.drivers[2]=""
-              ="driver.driver_id"
-              %}selected{%
-              endif
-              %}
+              {% if existing_bet.drivers[2] == driver.driver_id %}selected{% endif %}
             >
               #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
             </option>
