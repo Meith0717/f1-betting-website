@@ -11,6 +11,7 @@
 
   <div class="dashboard-content">
     {% if next_race %}
+    {% if next_session %}
     <div class="card next-session-card">
       <div class="race-header">
         <div class="race-header-top">
@@ -66,7 +67,30 @@
         {% endif %}
       </div>
 
+      {% if betting_manager.can_bet_on_race(next_race.id, username) %}
+      {% set user_bets = betting_manager.get_user_bets(username) %}
+      {% if next_race.id not in user_bets %}
+      <div class="betting-timer-row">
+        <span class="betting-timer-label">Betting closes in:</span>
+        <span
+          id="betting-countdown-{{ next_race.id }}"
+          class="betting-countdown-timer"
+          data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(next_race) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}"
+        >
+          <span class="countdown-loading">Loading...</span>
+        </span>
+        <a
+          href="{{ url_for('betting.place_bet', race_id=next_race.id) }}"
+          class="btn btn-primary betting-action-button"
+        >
+          💰 Place Your Bet
+        </a>
+      </div>
+      {% endif %}
+      {% endif %}
+
     </div>
+    {% endif %}
     {% endif %}
 
     <!-- Active Bets Section - Compact & Unified -->

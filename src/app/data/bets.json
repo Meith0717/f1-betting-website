@@ -1,118 +1,19 @@
 {
-  "bets": {
-    "Thierry": {
-      "japanese_2026": {
-        "drivers": [
-          "russell",
-          "antonelli",
-          "leclerc"
-        ],
-        "timestamp": "2026-03-22T21:08:10.714391+00:00",
-        "status": "closed",
-        "fastest_lap": "russell",
-        "closed_at": "2026-03-22T21:15:04.396741+00:00",
-        "closed_by": "system"
-      },
-      "bahrain_2026": {
-        "drivers": [
-          "hamilton",
-          "albon",
-          "colapinto"
-        ],
-        "timestamp": "2026-03-22T21:15:55.459153+00:00",
-        "status": "closed",
-        "fastest_lap": "sainz",
-        "closed_at": "2026-03-22T21:20:01.795794+00:00",
-        "closed_by": "system"
-      }
-    },
-    "Gwen": {
-      "japanese_2026": {
-        "drivers": [
-          "colapinto",
-          "hadjar",
-          "lindblad"
-        ],
-        "timestamp": "2026-03-22T21:12:32.087198+00:00",
-        "status": "closed",
-        "fastest_lap": "gasly",
-        "closed_at": "2026-03-22T21:15:04.396857+00:00",
-        "closed_by": "system"
-      },
-      "bahrain_2026": {
-        "drivers": [
-          "sainz",
-          "hadjar",
-          "albon"
-        ],
-        "timestamp": "2026-03-22T21:16:16.606086+00:00",
-        "status": "closed",
-        "fastest_lap": "lawson",
-        "closed_at": "2026-03-22T21:20:01.795883+00:00",
-        "closed_by": "system"
-      }
-    },
-    "Neal": {
-      "japanese_2026": {
-        "drivers": [
-          "sainz",
-          "bortoleto",
-          "lindblad"
-        ],
-        "timestamp": "2026-03-22T21:12:57.288014+00:00",
-        "status": "closed",
-        "fastest_lap": "russell",
-        "closed_at": "2026-03-22T21:15:04.396951+00:00",
-        "closed_by": "system"
-      },
-      "bahrain_2026": {
-        "drivers": [
-          "bortoleto",
-          "gasly",
-          "lindblad"
-        ],
-        "timestamp": "2026-03-22T21:16:55.386102+00:00",
-        "status": "closed",
-        "fastest_lap": "lawson",
-        "closed_at": "2026-03-22T21:20:01.795956+00:00",
-        "closed_by": "system"
-      }
-    }
-  },
+  "bets": {},
   "races": {
     "australian_2026": {
       "status": "closed",
-      "closed_at": "2026-03-22T20:55:26.760332+00:00",
+      "closed_at": "2026-03-22T22:15:36.186596+00:00",
       "users": []
     },
     "chinese_2026": {
       "status": "closed",
-      "closed_at": "2026-03-22T20:55:26.761289+00:00",
+      "closed_at": "2026-03-22T22:15:36.187423+00:00",
       "users": []
-    },
-    "japanese_2026": {
-      "users": [
-        "Thierry",
-        "Gwen",
-        "Neal"
-      ],
-      "created_at": "2026-03-22T21:08:10.714407+00:00",
-      "status": "closed",
-      "closed_at": "2026-03-22T21:15:04.397036+00:00"
-    },
-    "bahrain_2026": {
-      "users": [
-        "Thierry",
-        "Gwen",
-        "Neal"
-      ],
-      "created_at": "2026-03-22T21:15:55.459174+00:00",
-      "status": "closed",
-      "closed_at": "2026-03-22T21:20:01.796029+00:00"
     }
   },
   "metadata": {
-    "created_at": "2026-03-22T20:55:26.759251+00:00",
+    "created_at": "2026-03-22T22:15:36.185506+00:00",
     "version": "1.0"
   }
 }
