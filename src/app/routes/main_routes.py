@@ -46,6 +46,14 @@ def index():
         next_session = None
         upcoming_races = []
 
+    # Check and close any expired bets (races that have started)
+    try:
+        closed_count = betting_manager.check_and_close_expired_bets()
+        if closed_count > 0:
+            current_app.logger.info(f"Closed bets for {closed_count} races that have started")
+    except Exception as e:
+        current_app.logger.error(f"Error checking expired bets: {e}")
+
     if "username" in session:
         current_app.logger.debug(f"User session found: {session['username']}")
         # Show user dashboard with admin links if applicable

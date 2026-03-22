@@ -2416,3 +2416,16 @@ auth-footer a {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* Betting Action in Next Session Card */
+.next-session-betting-action {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.place-bet-in-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}

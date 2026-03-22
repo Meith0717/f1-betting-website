@@ -57,6 +57,18 @@
         {% endif %}
         {% endfor %}
       </div>
+      
+      <!-- Betting Action - Bottom Right -->
+      {% if betting_manager.can_bet_on_race(next_race.id, username) %}
+      <div class="next-session-betting-action">
+        <a
+          href="{{ url_for('betting.place_bet', race_id=next_race.id) }}"
+          class="btn btn-primary place-bet-in-card"
+        >
+          💰 Place Your Bet
+        </a>
+      </div>
+      {% endif %}
     </div>
     {% endif %}
     {% endif %}
@@ -127,17 +139,10 @@
     {% endfor %} {% else %}
     <div class="no-active-bets">
       <p>You don't have any active bets yet.</p>
-      {% if next_race and betting_manager.can_bet_on_race(next_race.id,
-      username) %}
-      <a
-        href="{{ url_for('betting.place_bet', race_id=next_race.id) }}"
-        class="place-bet-link"
-      >
-        Place a bet on {{ next_race.name }} →
-      </a>
-      {% endif %}
     </div>
-    {% endif %} {% endif %}
+    {% endif %}
+    
+    {% endif %}
 
     <div class="stats-container">
       <div class="card stat-card">

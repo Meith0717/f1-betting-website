@@ -17,6 +17,11 @@ def betting_dashboard():
         from flask import current_app
         current_app.logger.debug("Loading betting dashboard")
         
+        # Check and close any expired bets
+        closed_count = betting_manager.check_and_close_expired_bets()
+        if closed_count > 0:
+            current_app.logger.info(f"Closed bets for {closed_count} races that have started")
+        
         # Get user's bets
         username = session["username"]
         user_bets = betting_manager.get_user_bets(username)
@@ -278,18 +283,20 @@ def edit_bet(race_id):
     try:
         username = session["username"]
         
-        # Get existing bet
+        if betting_manager.is_betting_closed(race_id):
+            flash("You can no longer edit this bet.", "error")
+            return redirect(url_for("main.index"))
+        
         user_bets = betting_manager.get_user_bets(username)
         if race_id not in user_bets:
             flash("Bet not found", "error")
             return redirect(url_for("betting.betting_dashboard"))
-        
+
         existing_bet = user_bets[race_id]
         if existing_bet["status"] != "active":
             flash("Cannot edit a resolved bet", "error")
             return redirect(url_for("betting.betting_dashboard"))
         
-        # Get race and driver data
         race = race_data_manager.get_race_by_id(race_id)
         if not race:
             flash("Race not found", "error")
@@ -352,6 +359,10 @@ def cancel_bet(race_id):
         
         # Remove the bet
         data = betting_manager.load_bets()
+        if betting_manager.is_betting_closed(race_id):
+            flash("You can no longer delete this bet.", "error")
+            return redirect(url_for("main.index"))
+
         if username in data["bets"] and race_id in data["bets"][username]:
             bet_status = data["bets"][username][race_id]["status"]
             if bet_status != "active":
