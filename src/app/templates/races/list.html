@@ -1,79 +1,82 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="races-container">
-    <div class="races-header">
-        <h1>🏎️ F1 Race Calendar</h1>
-        <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
-    </div>
-    <div class="races-sections">
-        <div class="races-section">
-            <h2>📅 Upcoming Races</h2>
-            {% if upcoming_races %}
-            <div class="race-list">
-                {% for race in upcoming_races %}
-                <div class="race-card" data-canceled="{{ race.canceled|default(false, true) }}">
-                    <div class="race-header">
-                        {% if race.canceled %}
-                        <div class="canceled-badge">CANCELED</div>
-                        {% endif %}
-                        <h3>{{ race.name }}</h3>
-                        <div class="race-info-line">
-                            <span class="race-circuit">{{ race.circuit }}</span>
-                            {% if race.city %}<span class="race-city">📍 {{ race.city }}</span>{% endif %}
-                            <span class="race-country">🌍 {{ race.country }}</span>
-                            <span class="race-date">📅 {{ race.date }}</span>
-                        </div>
-                    </div>
-                    <div class="race-details">
-                        <!-- Details section kept for potential future use, but currently empty -->
-                    </div>
-                    
-                    <div class="sessions-line">
-                        {% for session in race.sessions %}
-                        <span class="session-inline">
-                            {{ session.type }} 
-                            {% if session.time_info %}
-                                {{ session.time_info.time_only }}
-                            {% else %}
-                                {{ session.time[:5] if session.time else 'N/A' }}
-                            {% endif %}
-                        </span>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p>No upcoming races scheduled.</p>
+  <div class="races-header">
+    <h1>🏎️ F1 Race Calendar</h1>
+    <a href="{{ url_for('main.index') }}" class="back-button"
+      >Back to Overview</a
+    >
+  </div>
+  <div class="races-sections">
+    <div class="races-section">
+      <h2>📅 Upcoming Races</h2>
+      {% if upcoming_races %}
+      <div class="race-list">
+        {% for race in upcoming_races %}
+        <div
+          class="race-card"
+          data-canceled="{{ race.canceled|default(false, true) }}"
+        >
+          <div class="race-header">
+            {% if race.canceled %}
+            <div class="canceled-badge">CANCELED</div>
             {% endif %}
-        </div>
-
-        <div class="races-section">
-            <h2>🏁 Past Races</h2>
-            {% if past_races %}
-            <div class="race-list">
-                {% for race in past_races %}
-                <div class="race-card past-race">
-                    <h3>{{ race.name }}</h3>
-                    <div class="race-details">
-                        <div class="race-detail"><strong>Country:</strong> {{ race.country }}</div>
-                        <div class="race-detail"><strong>Circuit:</strong> {{ race.circuit }}</div>
-                        <div class="race-detail"><strong>Race Date:</strong> {{ race.date }}</div>
-                    </div>
-                </div>
-                {% endfor %}
+            <h3>{{ race.name }}</h3>
+            <div class="race-info-line">
+              <span class="race-circuit">{{ race.circuit }}</span>
+              {% if race.city %}<span class="race-city">📍 {{ race.city }}</span
+              >{% endif %}
+              <span class="race-country">🌍 {{ race.country }}</span>
+              <span class="race-date">📅 {{ race.date }}</span>
             </div>
-            {% else %}
-            <p>No past races available.</p>
-            {% endif %}
+          </div>
+          <div class="race-details">
+            <!-- Details section kept for potential future use, but currently empty -->
+          </div>
+
+          <div class="sessions-line">
+            {% for session in race.sessions %}
+            <span class="session-inline">
+              {{ session.type }} {% if session.time_info %} {{
+              session.time_info.time_only }} {% else %} {{ session.time[:5] if
+              session.time else 'N/A' }} {% endif %}
+            </span>
+            {% endfor %}
+          </div>
         </div>
-
-
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>No upcoming races scheduled.</p>
+      {% endif %}
     </div>
+
+    <div class="races-section">
+      <h2>🏁 Past Races</h2>
+      {% if past_races %}
+      <div class="race-list">
+        {% for race in past_races %}
+        <div class="race-card past-race">
+          <h3>{{ race.name }}</h3>
+          <div class="race-details">
+            <div class="race-detail">
+              <strong>Country:</strong> {{ race.country }}
+            </div>
+            <div class="race-detail">
+              <strong>Circuit:</strong> {{ race.circuit }}
+            </div>
+            <div class="race-detail">
+              <strong>Race Date:</strong> {{ race.date }}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>No past races available.</p>
+      {% endif %}
+    </div>
+  </div>
 </div>
-
-
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
 

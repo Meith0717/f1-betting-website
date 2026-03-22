@@ -1,0 +1,170 @@
+{% extends 'base.html' %} {% block content %}
+<div class="admin-container">
+  <div class="admin-header">
+    <h1>🏁 Resolve Race Results</h1>
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button"
+      >Back to Admin Dashboard</a
+    >
+  </div>
+
+  <div class="resolve-form-container">
+    <form
+      method="POST"
+      action="{{ url_for('admin.resolve_race') }}"
+      class="resolve-form"
+    >
+      <div class="form-section">
+        <h2>📋 Race Information</h2>
+
+        <div class="form-group">
+          <label for="race_id">Select Race:</label>
+          <select id="race_id" name="race_id" required class="race-select">
+            <option value="" disabled selected>Select a race...</option>
+            {% for race in races %}
+            <option value="{{ race.id }}">
+              {{ race.name }} ({{ race.date }}) - {{ race.country }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>🏆 Actual Race Results</h2>
+        <p class="form-instructions">
+          Enter the actual finishing positions for the top 3 drivers:
+        </p>
+
+        <div class="results-grid">
+          <div class="result-group">
+            <label for="driver_1">1st Place:</label>
+            <select
+              id="driver_1"
+              name="driver_1"
+              required
+              class="driver-select"
+            >
+              <option value="" disabled selected>Select driver...</option>
+              {% for driver in drivers %}
+              <option value="{{ driver.driver_id }}">
+                #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="result-group">
+            <label for="driver_2">2nd Place:</label>
+            <select
+              id="driver_2"
+              name="driver_2"
+              required
+              class="driver-select"
+            >
+              <option value="" disabled selected>Select driver...</option>
+              {% for driver in drivers %}
+              <option value="{{ driver.driver_id }}">
+                #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="result-group">
+            <label for="driver_3">3rd Place:</label>
+            <select
+              id="driver_3"
+              name="driver_3"
+              required
+              class="driver-select"
+            >
+              <option value="" disabled selected>Select driver...</option>
+              {% for driver in drivers %}
+              <option value="{{ driver.driver_id }}">
+                #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>⚠️ Important Notes</h2>
+        <ul class="notes-list">
+          <li>This action cannot be undone</li>
+          <li>Points will be automatically calculated and awarded to users</li>
+          <li>Each driver can only be selected once</li>
+          <li>Make sure the results are official before submitting</li>
+        </ul>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="resolve-button"
+          onclick="
+            return confirm(
+              'Are you sure you want to resolve this race? This action cannot be undone.',
+            );
+          "
+        >
+          Resolve Race & Award Points
+        </button>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="cancel-button"
+          >Cancel</a
+        >
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const selects = document.querySelectorAll(".driver-select");
+    const originalOptions = {};
+
+    // Store original options
+    selects.forEach((select) => {
+      originalOptions[select.id] = Array.from(select.options).map(
+        (option) => option.value,
+      );
+    });
+
+    // Add event listeners to prevent duplicate selections
+    selects.forEach((select) => {
+      select.addEventListener("change", function () {
+        const selectedValue = this.value;
+
+        // Disable this option in other selects
+        selects.forEach((otherSelect) => {
+          if (otherSelect.id !== this.id) {
+            const optionToDisable = otherSelect.querySelector(
+              `option[value="${selectedValue}"]`,
+            );
+            if (optionToDisable) {
+              optionToDisable.disabled = true;
+            }
+
+            // Re-enable options that were previously selected but are now available
+            originalOptions[otherSelect.id].forEach((value) => {
+              const option = otherSelect.querySelector(
+                `option[value="${value}"]`,
+              );
+              if (
+                option &&
+                !Array.from(selects).some(
+                  (s) => s.id !== otherSelect.id && s.value === value,
+                )
+              ) {
+                option.disabled = false;
+              }
+            });
+          }
+        });
+      });
+    });
+  });
+</script>
+
+{% endblock %}

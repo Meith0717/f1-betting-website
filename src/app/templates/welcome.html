@@ -1,16 +1,19 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="welcome-section">
-    <h1>🏎️ Welcome to F1 Betting Platform</h1>    
-    <div class="welcome-card">
-        <p>Experience the thrill of Formula 1 betting with our secure and user-friendly platform.</p>
-        
-        <div class="auth-actions">
-            <a href="{{ url_for('auth.login') }}" class="btn-primary">Login</a>
-            <a href="{{ url_for('auth.register') }}" class="btn-secondary">Register</a>
-        </div>
+  <h1>🏎️ Welcome to F1 Betting Platform</h1>
+  <div class="welcome-card">
+    <p>
+      Experience the thrill of Formula 1 betting with our secure and
+      user-friendly platform.
+    </p>
+
+    <div class="auth-actions">
+      <a href="{{ url_for('auth.login') }}" class="btn-primary">Login</a>
+      <a href="{{ url_for('auth.register') }}" class="btn-secondary"
+        >Register</a
+      >
     </div>
+  </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>

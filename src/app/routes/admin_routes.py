@@ -219,7 +219,48 @@ def update_drivers():
 
     return redirect(url_for("admin.admin_dashboard"))
 
-    return redirect(url_for("admin.admin_dashboard"))
+
+@admin_bp.route("/resolve-race", methods=["GET", "POST"])
+@admin_required
+def resolve_race():
+    """Resolve a race and award points to users"""
+    from ..betting import betting_manager
+    
+    if request.method == "POST":
+        race_id = request.form.get("race_id")
+        driver_1 = request.form.get("driver_1")
+        driver_2 = request.form.get("driver_2")
+        driver_3 = request.form.get("driver_3")
+        
+        if not all([race_id, driver_1, driver_2, driver_3]):
+            flash("Please fill in all fields", "error")
+            return redirect(url_for("admin.resolve_race"))
+        
+        actual_results = [driver_1, driver_2, driver_3]
+        
+        # Resolve the race
+        points_summary = betting_manager.resolve_race(race_id, actual_results)
+        
+        if points_summary:
+            # Update user scores
+            for username, points in points_summary.items():
+                betting_manager.update_user_score(username, points, race_id)
+            
+            flash(f"Race resolved! Points awarded to {len(points_summary)} users", "success")
+            return redirect(url_for("admin.admin_dashboard"))
+        else:
+            flash("No bets to resolve or error resolving race", "warning")
+            return redirect(url_for("admin.admin_dashboard"))
+    
+    # GET request - show form
+    races = race_data_manager.get_all_races()
+    drivers = betting_manager.get_available_drivers_for_race("")  # Get any race's drivers
+    
+    return render_template(
+        "admin/resolve_race.html",
+        races=races,
+        drivers=drivers
+    )
 
 
 @admin_bp.route("/cancel-race", methods=["POST"])

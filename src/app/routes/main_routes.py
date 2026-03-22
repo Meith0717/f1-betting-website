@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from ..utils import load_users, save_users, hash_password, verify_password
 from ..decorators import login_required
 from ..race_data import race_data_manager
+from ..betting import betting_manager
 from datetime import datetime
 
 main_bp = Blueprint("main", __name__)
@@ -68,6 +69,8 @@ def index():
                 user_rank=user_rank,
                 next_race=next_race,
                 upcoming_races=upcoming_races,
+                betting_manager=betting_manager,
+                race_data_manager=race_data_manager,
             )
         except Exception as e:
             current_app.logger.error(f"Error rendering user dashboard: {e}")
@@ -88,6 +91,7 @@ def profile():
         username=session["username"],
         is_admin=session.get("is_admin", False),
         users=users,
+        betting_manager=betting_manager,
     )
 
 

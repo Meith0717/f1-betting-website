@@ -15,11 +15,12 @@ def create_app():
     configure_logging(app)
 
     # Import and register blueprints from routes package
-    from .routes import main_bp, auth_bp, admin_bp
+    from .routes import main_bp, auth_bp, admin_bp, betting_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(betting_bp)
 
     # Add debug endpoint
     @app.route('/_debug')

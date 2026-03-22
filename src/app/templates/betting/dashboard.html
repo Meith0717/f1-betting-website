@@ -1,0 +1,83 @@
+{% extends 'base.html' %} {% block content %}
+<div class="betting-container">
+  <div class="betting-header">
+    <h1>🏆 Your Betting History</h1>
+    <a href="{{ url_for('main.index') }}" class="back-button"
+      >Back to Overview</a
+    >
+  </div>
+
+  <div class="betting-sections">
+    <!-- Resolved Bets Section - Only show closed/past bets -->
+    <div class="betting-section">
+      <h2>🏁 Closed/Past Bets</h2>
+      {% if resolved_bets %}
+      <div class="bets-list">
+        {% for bet in resolved_bets %}
+        <div class="bet-card resolved">
+          <div class="bet-header">
+            <h3>{{ bet.race_info.name }}</h3>
+            <span class="bet-date">📅 {{ bet.race_info.date }}</span>
+          </div>
+          <div class="bet-details">
+            <div class="bet-results">
+              <div class="result-section">
+                <strong>Your Prediction:</strong>
+                <div class="prediction-grid">
+                  <div class="prediction-item">
+                    <span class="position-badge">1st</span>
+                    <span class="driver-name">{{ bet.drivers[0] }}</span>
+                  </div>
+                  <div class="prediction-item">
+                    <span class="position-badge">2nd</span>
+                    <span class="driver-name">{{ bet.drivers[1] }}</span>
+                  </div>
+                  <div class="prediction-item">
+                    <span class="position-badge">3rd</span>
+                    <span class="driver-name">{{ bet.drivers[2] }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="result-section">
+                <strong>Actual Results:</strong>
+                <div class="prediction-grid">
+                  <div class="prediction-item">
+                    <span class="position-badge">1st</span>
+                    <span class="driver-name">{{ bet.actual_results[0] }}</span>
+                  </div>
+                  <div class="prediction-item">
+                    <span class="position-badge">2nd</span>
+                    <span class="driver-name">{{ bet.actual_results[1] }}</span>
+                  </div>
+                  <div class="prediction-item">
+                    <span class="position-badge">3rd</span>
+                    <span class="driver-name">{{ bet.actual_results[2] }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bet-points">
+              <strong>Points Earned:</strong>
+              <span class="points-value">{{ bet.points_awarded }} 🎯</span>
+            </div>
+          </div>
+          <div class="bet-meta">
+            <span class="bet-status">Status: {{ bet.status|capitalize }}</span>
+            <span class="bet-timestamp">Resolved: {{ bet.resolved_at }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="no-bets">
+        <p>
+          No closed/past bets yet. Your completed bets will appear here after
+          races are resolved.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

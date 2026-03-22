@@ -1,99 +1,189 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1>Welcome to F1 Betting Platform, {{ username }}!</h1>
-        <div class="user-actions">
-            <a href="{{ url_for('main.profile') }}" class="btn btn-primary">Profile</a>
-        </div>
+  <div class="dashboard-header">
+    <h1>Welcome to F1 Betting Platform, {{ username }}!</h1>
+    <div class="user-actions">
+      <a href="{{ url_for('main.profile') }}" class="btn btn-primary"
+        >Profile</a
+      >
     </div>
-    
-    <div class="dashboard-content">
-        {% if next_race %}
-        <div class="card next-session-card">
-            <div class="race-header">
-                <div class="race-header-top">
-                    <h3>Next Race Weekend: {{ next_race.name }}</h3>
-                    <div class="race-actions">
-                        <a href="{{ url_for('main.races') }}" class="btn btn-secondary">View All Races</a>
-                    </div>
-                </div>
-                <div class="race-info-line">
-                    <span class="race-circuit">{{ next_race.circuit }}</span>
-                    <span class="race-country">🌍 {{ next_race.country }}</span>
-                    <span class="race-date">📅 {{ next_race.date }}</span>
-                </div>
-            </div>
-            
-            <!-- Next session with timer -->
-            <div class="next-session-timer">
-                <span class="next-session-label">Next session:</span>
-                <span class="next-session-type">{{ next_race.sessions[0].type }}</span>
-                <span id="session-countdown-inline" class="countdown-timer" 
-                      data-session-time="{% if next_race.sessions[0].time_info %}{{ next_race.sessions[0].time_info.iso_format }}{% endif %}">
-                    {% if next_race.sessions[0].time_info %}
-                    <span class="countdown-loading">Loading...</span>
-                    {% else %}
-                    <span class="countdown-unavailable">--:--:--</span>
-                    {% endif %}
-                </span>
-            </div>
-            
-            <!-- All sessions for the race weekend -->
-            <div class="sessions-line">
-                {% for session in next_race.sessions %}
-                <span class="session-inline">
-                    {{ session.type }} 
-                    {% if session.time_info %}
-                        {{ session.time_info.time_only }}
-                    {% else %}
-                        {{ session.time[:5] if session.time else 'N/A' }}
-                    {% endif %}
-                </span>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        
-        <div class="stats-container">
-            <div class="card stat-card">
-                <h3 class="card-title">Your Score</h3>
-                <div class="card-value">{{ users[username].score }}</div>
-                <p class="card-description">Current competition score</p>
-            </div>
+  </div>
 
-            <div class="card stat-card">
-                <h3 class="card-title">Your Rank</h3>
-                <div class="card-value">{{ user_rank }}</div>
-                <p class="card-description">Out of {{ users|length }} users</p>
-            </div>
+  <div class="dashboard-content">
+    {% if next_race %}
+    <div class="card next-session-card">
+      <div class="race-header">
+        <div class="race-header-top">
+          <h3>Next Race Weekend: {{ next_race.name }}</h3>
+          <div class="race-actions">
+            <a href="{{ url_for('main.races') }}" class="btn btn-secondary"
+              >View All Races</a
+            >
+          </div>
         </div>
+        <div class="race-info-line">
+          <span class="race-circuit">{{ next_race.circuit }}</span>
+          <span class="race-country">🌍 {{ next_race.country }}</span>
+          <span class="race-date">📅 {{ next_race.date }}</span>
+        </div>
+      </div>
 
-        <div class="card leaderboard-card">
-            <h2 class="card-title">Leaderboard</h2>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Username</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for username, user_data in sorted_users %}
-                        <tr class="{% if username == session['username'] %}current-user{% endif %}">
-                            <td>{{ loop.index }}</td>
-                            <td>{{ username }}</td>
-                            <td>{{ user_data.score }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      <!-- Next session with timer -->
+      <div class="next-session-timer">
+        <span class="next-session-label">Next session:</span>
+        <span class="next-session-type">{{ next_race.sessions[0].type }}</span>
+        <span
+          id="session-countdown-inline"
+          class="countdown-timer"
+          data-session-time="{% if next_race.sessions[0].time_info %}{{ next_race.sessions[0].time_info.iso_format }}{% endif %}"
+        >
+          {% if next_race.sessions[0].time_info %}
+          <span class="countdown-loading">Loading...</span>
+          {% else %}
+          <span class="countdown-unavailable">--:--:--</span>
+          {% endif %}
+        </span>
+      </div>
+
+      <!-- All sessions for the race weekend -->
+      <div class="sessions-line">
+        {% for session in next_race.sessions %}
+        <span class="session-inline">
+          {{ session.type }} {% if session.time_info %} {{
+          session.time_info.time_only }} {% else %} {{ session.time[:5] if
+          session.time else 'N/A' }} {% endif %}
+        </span>
+        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+
+    <!-- Active Bets Section - Compact & Unified -->
+    {% if betting_manager %} {% set user_bets =
+    betting_manager.get_user_bets(username) %} {% if user_bets %} {% for
+    race_id, bet_data in user_bets.items() if bet_data.status == 'active' %} {%
+    set race_info = race_data_manager.get_race_by_id(race_id) if
+    race_data_manager else none %}
+    <div class="bet-entry">
+      <h3 class="bet-race-name">
+        {{ race_info.name if race_info else 'Unknown Race' }}
+      </h3>
+      <span class="bet-race-date"
+        >📅 {{ race_info.date if race_info else 'N/A' }}</span
+      >
+      <strong class="prediction-label">Your Prediction:</strong>
+      <div class="prediction-drivers">
+        <span class="driver-prediction">
+          <span class="pos-badge">1st</span> {{ bet_data.drivers[0] }}
+        </span>
+        <span class="driver-prediction">
+          <span class="pos-badge">2nd</span> {{ bet_data.drivers[1] }}
+        </span>
+        <span class="driver-prediction">
+          <span class="pos-badge">3rd</span> {{ bet_data.drivers[2] }}
+        </span>
+      </div>
+      <div class="bet-controls">
+        <a
+          href="{{ url_for('betting.edit_bet', race_id=race_id) }}"
+          class="control-button edit-control"
+          >Edit</a
+        >
+        <form
+          method="POST"
+          action="{{ url_for('betting.cancel_bet', race_id=race_id) }}"
+          class="cancel-form"
+        >
+          <button
+            type="submit"
+            class="control-button cancel-control"
+            onclick="
+              return confirm('Are you sure you want to cancel this bet?');
+            "
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+      <div class="bet-info">
+        <span class="bet-status">Status: {{ bet_data.status|capitalize }}</span>
+        <span class="bet-timestamp">Placed: {{ bet_data.timestamp }}</span>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="no-active-bets">
+      <p>You don't have any active bets yet.</p>
+      {% if next_race and betting_manager.can_bet_on_race(next_race.id,
+      username) %}
+      <a
+        href="{{ url_for('betting.place_bet', race_id=next_race.id) }}"
+        class="place-bet-link"
+      >
+        Place a bet on {{ next_race.name }} →
+      </a>
+      {% endif %}
+    </div>
+    {% endif %} {% endif %}
+
+    <div class="stats-container">
+      <div class="card stat-card">
+        <h3 class="card-title">Your Score</h3>
+        <div class="card-value">{{ users[username].score }}</div>
+        <p class="card-description">Current competition score</p>
+      </div>
+
+      <div class="card stat-card">
+        <h3 class="card-title">Your Rank</h3>
+        <div class="card-value">{{ user_rank }}</div>
+        <p class="card-description">Out of {{ users|length }} users</p>
+      </div>
+
+      <div class="card stat-card">
+        <h3 class="card-title">Your Betting History</h3>
+        <div class="card-value">
+          {% if betting_manager %} {% set user_bets =
+          betting_manager.get_user_bets(username) %} {% if user_bets %} {{
+          user_bets | length }} {% else %} 0 {% endif %} {% else %} 0 {% endif
+          %}
+        </div>
+        <p class="card-description">
+          <a
+            href="{{ url_for('betting.betting_dashboard') if betting_manager else '#' }}"
+            class="stat-link"
+          >
+            {% if betting_manager %} View all bets → {% else %} Betting
+            unavailable {% endif %}
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="card leaderboard-card">
+      <h2 class="card-title">Leaderboard</h2>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for username, user_data in sorted_users %}
+            <tr
+              class="{% if username == session['username'] %}current-user{% endif %}"
+            >
+              <td>{{ loop.index }}</td>
+              <td>{{ username }}</td>
+              <td>{{ user_data.score }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
