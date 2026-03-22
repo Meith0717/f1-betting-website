@@ -79,6 +79,8 @@ class RaceDataManager:
             return None
         return None
 
+
+
     def ensure_data_file_exists(self):
         """Ensure the races.json file exists with default data"""
         if not os.path.exists(self.data_file):

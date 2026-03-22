@@ -26,7 +26,19 @@
               {% if race.city %}<span class="race-city">📍 {{ race.city }}</span
               >{% endif %}
               <span class="race-country">🌍 {{ race.country }}</span>
+              {% if race.sessions and race.sessions|length >= 2 %}
+              {% set first_session = race.sessions[0] %}
+              {% set last_session = race.sessions[-1] %}
+              <span class="race-date">
+                📅 {% if first_session.date and last_session.date %}
+                {{ first_session.date }} - {{ last_session.date }}
+                {% else %}
+                {{ race.date }}
+                {% endif %}
+              </span>
+              {% else %}
               <span class="race-date">📅 {{ race.date }}</span>
+              {% endif %}
             </div>
           </div>
           <div class="race-details">
@@ -36,7 +48,7 @@
           <div class="sessions-line">
             {% for session in race.sessions %}
             <span class="session-inline">
-              {{ session.type }} {% if session.time_info %} {{
+              {{ session.type }} {% if session.date %}({{ session.date }}) {% endif %}{% if session.time_info %} {{
               session.time_info.time_only }} {% else %} {{ session.time[:5] if
               session.time else 'N/A' }} {% endif %}
             </span>
@@ -65,7 +77,18 @@
               <strong>Circuit:</strong> {{ race.circuit }}
             </div>
             <div class="race-detail">
-              <strong>Race Date:</strong> {{ race.date }}
+              <strong>Race Date:</strong>
+              {% if race.sessions and race.sessions|length >= 2 %}
+              {% set first_session = race.sessions[0] %}
+              {% set last_session = race.sessions[-1] %}
+              {% if first_session.date and last_session.date %}
+              {{ first_session.date }} - {{ last_session.date }}
+              {% else %}
+              {{ race.date }}
+              {% endif %}
+              {% else %}
+              {{ race.date }}
+              {% endif %}
             </div>
           </div>
         </div>

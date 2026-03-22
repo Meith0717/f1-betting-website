@@ -61,8 +61,43 @@ function updateCountdown(targetDate, element, isInline = false) {
     countdownText += `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }
 
-  element.innerHTML = `<span class="countdown-active">${countdownText}</span>`;
+  element.innerHTML = `⏰ <span class="countdown-active">${countdownText}</span>`;
+}
+
+function initializeBettingCountdowns() {
+  const bettingTimers = document.querySelectorAll('[id^="betting-closes-"]');
+  
+  bettingTimers.forEach(timerElement => {
+    const raceTime = timerElement.dataset.raceTime || "";
+    
+    if (raceTime) {
+      try {
+        const raceDate = new Date(raceTime);
+        const now = new Date();
+        
+        // Only show countdown if race is in the future
+        if (raceDate > now) {
+          updateCountdown(raceDate, timerElement, true); // inline format
+          const timer = setInterval(
+            () => updateCountdown(raceDate, timerElement, true),
+            1000,
+          );
+          timerElement.dataset.timerId = timer;
+        } else {
+          timerElement.innerHTML =
+            '⏰ <span class="countdown-expired">Betting closed</span>';
+        }
+      } catch (error) {
+        console.error("Error initializing betting countdown:", error);
+        timerElement.innerHTML =
+          '⏰ <span class="countdown-unavailable">--:--:--</span>';
+      }
+    }
+  });
 }
 
 // Initialize countdown when page loads
-document.addEventListener("DOMContentLoaded", initializeCountdown);
+document.addEventListener("DOMContentLoaded", function() {
+  initializeCountdown();
+  initializeBettingCountdowns();
+});

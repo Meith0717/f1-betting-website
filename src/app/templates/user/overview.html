@@ -24,7 +24,19 @@
         <div class="race-info-line">
           <span class="race-circuit">{{ next_race.circuit }}</span>
           <span class="race-country">🌍 {{ next_race.country }}</span>
+          {% if next_race.sessions and next_race.sessions|length >= 2 %}
+          {% set first_session = next_race.sessions[0] %}
+          {% set last_session = next_race.sessions[-1] %}
+          <span class="race-date">
+            📅 {% if first_session.date and last_session.date %}
+            {{ first_session.date }} - {{ last_session.date }}
+            {% else %}
+            {{ next_race.date }}
+            {% endif %}
+          </span>
+          {% else %}
           <span class="race-date">📅 {{ next_race.date }}</span>
+          {% endif %}
         </div>
       </div>
 
@@ -49,7 +61,7 @@
       <div class="sessions-line">
         {% for session in next_race.sessions %}
         <span class="session-inline">
-          {{ session.type }} {% if session.time_info %} {{
+          {{ session.type }} {% if session.date %}({{ session.date }}) {% endif %}{% if session.time_info %} {{
           session.time_info.time_only }} {% else %} {{ session.time[:5] if
           session.time else 'N/A' }} {% endif %}
         </span>
@@ -65,45 +77,57 @@
     set race_info = race_data_manager.get_race_by_id(race_id) if
     race_data_manager else none %}
     <div class="bet-entry">
-      <h3 class="bet-race-name">
-        {{ race_info.name if race_info else 'Unknown Race' }}
-      </h3>
-      <span class="bet-race-date"
-        >📅 {{ race_info.date if race_info else 'N/A' }}</span
-      >
-      <strong class="prediction-label">Your Prediction:</strong>
-      <div class="prediction-drivers">
-        <span class="driver-prediction">
-          <span class="pos-badge">1st</span> {{ bet_data.drivers[0] }}
-        </span>
-        <span class="driver-prediction">
-          <span class="pos-badge">2nd</span> {{ bet_data.drivers[1] }}
-        </span>
-        <span class="driver-prediction">
-          <span class="pos-badge">3rd</span> {{ bet_data.drivers[2] }}
-        </span>
-      </div>
-      <div class="bet-controls">
-        <a
-          href="{{ url_for('betting.edit_bet', race_id=race_id) }}"
-          class="control-button edit-control"
-          >Edit</a
-        >
-        <form
-          method="POST"
-          action="{{ url_for('betting.cancel_bet', race_id=race_id) }}"
-          class="cancel-form"
-        >
-          <button
-            type="submit"
-            class="control-button cancel-control"
-            onclick="
-              return confirm('Are you sure you want to cancel this bet?');
-            "
+      <div class="bet-race-header">
+        <h3 class="bet-race-name">
+          {{ race_info.name if race_info else 'Unknown Race' }}
+        </h3>
+        {% if race_info %}
+        <div class="betting-time-info">
+          <span class="betting-time-label">Time left:</span>
+          <span class="betting-closes-timer"
+            id="betting-closes-{{ race_id }}"
+            data-race-time="{{ race_data_manager._get_race_datetime(race_info).isoformat() if race_data_manager else '' }}"
           >
-            Cancel
-          </button>
-        </form>
+            <span class="countdown-loading">Loading...</span>
+          </span>
+        </div>
+        {% endif %}
+      </div>
+      <strong class="prediction-label">Your Prediction:</strong>
+      <div class="prediction-and-controls">
+        <div class="prediction-drivers">
+          <span class="driver-prediction">
+            <span class="pos-badge">1st</span> {{ bet_data.drivers[0] }}
+          </span>
+          <span class="driver-prediction">
+            <span class="pos-badge">2nd</span> {{ bet_data.drivers[1] }}
+          </span>
+          <span class="driver-prediction">
+            <span class="pos-badge">3rd</span> {{ bet_data.drivers[2] }}
+          </span>
+        </div>
+        <div class="bet-controls">
+          <a
+            href="{{ url_for('betting.edit_bet', race_id=race_id) }}"
+            class="control-button edit-control"
+            >Edit</a
+          >
+          <form
+            method="POST"
+            action="{{ url_for('betting.cancel_bet', race_id=race_id) }}"
+            class="cancel-form"
+          >
+            <button
+              type="submit"
+              class="control-button cancel-control"
+              onclick="
+                return confirm('Are you sure you want to delete this bet?');
+              "
+            >
+              Delete
+            </button>
+          </form>
+        </div>
       </div>
       <div class="bet-info">
         <span class="bet-status">Status: {{ bet_data.status|capitalize }}</span>

@@ -640,6 +640,17 @@ auth-footer a {
     gap: 12px;
 }
 
+.next-session-timer {
+    margin: 8px 0;
+    padding: 8px;
+    background-color: var(--surface-variant);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 .next-session-card .race-header-top h3 {
     text-align: left;
     flex: 1;
@@ -1451,20 +1462,20 @@ auth-footer a {
 }
 
 .betting-header h1 {
-    color: #2c3e50;
+    color: var(--brand-primary);
     margin: 0;
 }
 
 .race-info-card {
-    background: white;
-    border-radius: 10px;
+    background: var(--surface);
+    border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
     margin-bottom: 20px;
 }
 
 .race-info-card h2 {
-    color: #2c3e50;
+    color: var(--brand-primary);
     margin-top: 0;
 }
 
@@ -1477,14 +1488,14 @@ auth-footer a {
 
 .race-details p {
     margin: 0;
-    color: #7f8c8d;
+    color: var(--text);
 }
 
 .bet-form {
-    background: white;
-    border-radius: 10px;
+    background: var(--surface);
+    border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
 }
 
 .form-section {
@@ -1492,9 +1503,9 @@ auth-footer a {
 }
 
 .form-section h3 {
-    color: #2c3e50;
+    color: var(--brand-primary);
     margin-top: 0;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid var(--brand-accent);
     padding-bottom: 10px;
 }
 
@@ -1512,33 +1523,34 @@ auth-footer a {
 
 .position-group label {
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text);
     font-size: 16px;
 }
 
 .driver-select {
     padding: 10px;
-    border: 2px solid #ddd;
+    border: 2px solid var(--border);
     border-radius: 5px;
     font-size: 16px;
-    background: white;
+    background: var(--surface);
     cursor: pointer;
+    color: var(--text);
 }
 
 .driver-select:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--brand-primary);
 }
 
 .form-preview {
     margin: 25px 0;
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--surface-variant);
     border-radius: 8px;
 }
 
 .form-preview h3 {
-    color: #2c3e50;
+    color: var(--brand-primary);
     margin-top: 0;
 }
 
@@ -1550,17 +1562,17 @@ auth-footer a {
 }
 
 .preview-item {
-    background: white;
+    background: var(--surface);
     padding: 15px;
     border-radius: 8px;
     text-align: center;
-    border: 2px solid #ddd;
+    border: 2px solid var(--border);
 }
 
 .preview-position {
     display: block;
-    background: #3498db;
-    color: white;
+    background: var(--brand-accent);
+    color: var(--surface);
     padding: 5px 10px;
     border-radius: 15px;
     font-size: 14px;
@@ -1569,20 +1581,21 @@ auth-footer a {
 
 .preview-driver {
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text);
     font-size: 16px;
 }
 
 .form-actions {
     display: flex;
-    justify-content: space-between;
+    gap: 15px;
     margin-top: 25px;
+    justify-content: center;
 }
 
 .submit-button {
     padding: 12px 25px;
-    background: #2ecc71;
-    color: white;
+    background: var(--success);
+    color: var(--surface);
     border: none;
     border-radius: 5px;
     font-size: 16px;
@@ -1590,33 +1603,34 @@ auth-footer a {
 }
 
 .submit-button:hover {
-    background: #27ae60;
+    background: var(--interactive-hover);
 }
 
 .cancel-button {
     padding: 12px 25px;
-    background: #e74c3c;
-    color: white;
+    background: var(--error);
+    color: var(--surface);
     text-decoration: none;
     border-radius: 5px;
     font-size: 16px;
 }
 
 .cancel-button:hover {
-    background: #c0392b;
+    background: var(--brand-highlight);
 }
 
 /* Edit Bet Specific */
 .current-bet-info {
-    background: #f8f9fa;
-    border-radius: 10px;
+    background: var(--surface);
+    border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    border-left: 4px solid #3498db;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--brand-accent);
 }
 
 .current-bet-info h3 {
-    color: #3498db;
+    color: var(--brand-primary);
     margin-top: 0;
 }
 
@@ -1632,17 +1646,17 @@ auth-footer a {
 }
 
 .prediction-item {
-    background: white;
+    background: var(--surface-variant);
     padding: 10px;
     border-radius: 5px;
     text-align: center;
-    border: 2px solid #ddd;
+    border: 1px solid var(--border);
 }
 
 .position-badge {
     display: block;
-    background: #3498db;
-    color: white;
+    background: var(--brand-accent);
+    color: var(--surface);
     padding: 3px 8px;
     border-radius: 15px;
     font-size: 12px;
@@ -1651,26 +1665,77 @@ auth-footer a {
 
 .driver-name {
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text);
 }
 
 .bet-timestamp {
     font-size: 14px;
-    color: #7f8c8d;
+    color: var(--text-light);
     margin: 0;
+}
+
+.bet-race-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.bet-race-name {
+    margin: 0;
+    flex: 1;
+}
+
+.betting-time-info {
+    font-size: 12px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.betting-time-label {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.betting-closes-timer {
+    font-size: 13px;
+    color: var(--warning);
+    font-weight: 600;
+    background-color: rgba(255, 196, 0, 0.15);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.betting-closes-timer .countdown-active {
+    color: var(--warning);
+    font-weight: bold;
+}
+
+.betting-closes-timer .countdown-expired {
+    color: var(--error);
+    font-weight: bold;
+}
+
+.betting-closes-timer .countdown-loading {
+    color: var(--text-lighter);
+    font-style: italic;
 }
 
 /* Place Bet Specific */
 .betting-instructions {
-    background: #f8f9fa;
-    border-radius: 10px;
+    background: var(--surface);
+    border-radius: 8px;
     padding: 15px 20px;
     margin-bottom: 20px;
-    border-left: 4px solid #f39c12;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--interactive-hover);
 }
 
 .betting-instructions h3 {
-    color: #f39c12;
+    color: var(--interactive-hover);
     margin-top: 0;
 }
 
@@ -1680,7 +1745,7 @@ auth-footer a {
 }
 
 .betting-instructions li {
-    color: #7f8c8d;
+    color: var(--text-light);
     margin: 5px 0;
 }
 
@@ -1746,6 +1811,11 @@ auth-footer a {
     transition: all 0.2s ease;
 }
 
+.bet-card.other-user-bet {
+    background-color: var(--surface-variant);
+    border-left: 3px solid var(--interactive-hover);
+}
+
 .bet-card:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -1765,6 +1835,30 @@ auth-footer a {
     color: var(--brand-primary);
     font-size: 16px;
     font-weight: 600;
+}
+
+.bet-header h4 {
+    margin: 0;
+    color: var(--brand-primary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.other-user-bets {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.other-user-header {
+    color: var(--interactive-hover);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    border-bottom: 2px solid var(--interactive-hover);
+    padding-bottom: 8px;
 }
 
 .bet-date {
@@ -1940,11 +2034,18 @@ auth-footer a {
     font-size: 14px;
 }
 
+.prediction-and-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
 .prediction-drivers {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .driver-prediction {
@@ -1967,10 +2068,10 @@ auth-footer a {
 
 .bet-controls {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 6px;
+    margin-left: 12px;
 }
 
 .control-button {
@@ -1986,6 +2087,9 @@ auth-footer a {
 .edit-control {
     background-color: var(--warning);
     color: var(--surface);
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 4px;
 }
 
 .edit-control:hover {
@@ -1996,6 +2100,9 @@ auth-footer a {
 .cancel-control {
     background-color: var(--error);
     color: var(--surface);
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 4px;
 }
 
 .cancel-control:hover {

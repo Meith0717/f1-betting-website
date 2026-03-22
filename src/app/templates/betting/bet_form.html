@@ -1,0 +1,172 @@
+{% extends 'base.html' %} {% block content %}
+<div class="betting-container">
+  <div class="betting-header">
+    <h1>{% if mode == 'edit' %}📝 Edit Your Bet{% else %}💰 Place Your Bet{% endif %}</h1>
+    <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
+  </div>
+
+  <div class="card race-info-card">
+    <div class="card-header">
+      <h2>{{ race.name }}</h2>
+    </div>
+    <div class="card-body">
+      <div class="race-details">
+        <p>📅 <strong>Date:</strong> {{ race.date }}</p>
+        <p>🏁 <strong>Circuit:</strong> {{ race.circuit }}</p>
+        <p>🌍 <strong>Country:</strong> {{ race.country }}</p>
+      </div>
+    </div>
+  </div>
+
+  {% if mode == 'place' %}
+  <div class="card betting-instructions">
+    <div class="card-header">
+      <h3>📋 How to Bet</h3>
+    </div>
+    <div class="card-body">
+      <ul>
+        <li>Select 3 different drivers for the podium positions</li>
+        <li>Predict who will finish 1st, 2nd, and 3rd</li>
+        <li>You can change your bet until the race starts</li>
+        <li>Points are awarded based on correct predictions</li>
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <form
+    method="POST"
+    action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.id) }}"
+    class="card bet-form"
+  >
+    <div class="card-header">
+      <h3>{% if mode == 'edit' %}🏆 New Prediction{% else %}🏆 Your Prediction{% endif %}</h3>
+    </div>
+    <div class="card-body">
+      <div class="position-selector">
+        <div class="form-group">
+          <label for="position_1">1st Place:</label>
+          <select
+            id="position_1"
+            name="position_1"
+            class="form-control driver-select"
+            required
+          >
+            <option value="" disabled selected>Select driver...</option>
+            {% for driver in drivers %}
+            <option
+              value="{{ driver.driver_id }}"
+              data-name="{{ driver.name }}"
+              {% if mode == 'edit' and existing_bet and existing_bet.drivers[0] == driver.driver_id %}selected{% endif %}
+            >
+              #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="position_2">2nd Place:</label>
+          <select
+            id="position_2"
+            name="position_2"
+            class="form-control driver-select"
+            required
+          >
+            <option value="" disabled selected>Select driver...</option>
+            {% for driver in drivers %}
+            <option
+              value="{{ driver.driver_id }}"
+              data-name="{{ driver.name }}"
+              {% if mode == 'edit' and existing_bet and existing_bet.drivers[1] == driver.driver_id %}selected{% endif %}
+            >
+              #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="position_3">3rd Place:</label>
+          <select
+            id="position_3"
+            name="position_3"
+            class="form-control driver-select"
+            required
+          >
+            <option value="" disabled selected>Select driver...</option>
+            {% for driver in drivers %}
+            <option
+              value="{{ driver.driver_id }}"
+              data-name="{{ driver.name }}"
+              {% if mode == 'edit' and existing_bet and existing_bet.drivers[2] == driver.driver_id %}selected{% endif %}
+            >
+              #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="card-footer">
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{% if mode == 'edit' %}Update Bet{% else %}Place Bet{% endif %}</button>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Delete</a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Get all select elements
+  const selects = document.querySelectorAll('.driver-select');
+  const originalOptions = {};
+
+  // Store original options for each select
+  selects.forEach((select) => {
+    originalOptions[select.id] = Array.from(select.options).map(
+      (option) => option.value
+    );
+  });
+
+  // Add event listeners to each select
+  selects.forEach((select) => {
+    select.addEventListener('change', function() {
+      const selectedValue = this.value;
+
+      // Disable selected driver in other dropdowns
+      selects.forEach((otherSelect) => {
+        if (otherSelect.id !== this.id) {
+          const optionToDisable = otherSelect.querySelector(
+            `option[value="${selectedValue}"]`
+          );
+          if (optionToDisable) {
+            optionToDisable.disabled = true;
+          }
+
+          // Re-enable other options that were previously disabled
+          originalOptions[otherSelect.id].forEach((value) => {
+            const option = otherSelect.querySelector(
+              `option[value="${value}"]`
+            );
+            if (option && value !== selectedValue) {
+              // Only enable if not selected in any other dropdown
+              const isSelectedElsewhere = Array.from(selects).some(
+                (s) => s.id !== otherSelect.id && s.value === value
+              );
+              if (!isSelectedElsewhere) {
+                option.disabled = false;
+              }
+            }
+          });
+        }
+      });
+    });
+  });
+});
+</script>
+
+{% endblock %}

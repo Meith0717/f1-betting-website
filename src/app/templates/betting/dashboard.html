@@ -1,16 +1,16 @@
 {% extends 'base.html' %} {% block content %}
 <div class="betting-container">
   <div class="betting-header">
-    <h1>🏆 Your Betting History</h1>
+    <h1>🏆 Betting History</h1>
     <a href="{{ url_for('main.index') }}" class="back-button"
       >Back to Overview</a
     >
   </div>
 
   <div class="betting-sections">
-    <!-- Resolved Bets Section - Only show closed/past bets -->
+    <!-- Your Bets Section -->
     <div class="betting-section">
-      <h2>🏁 Closed/Past Bets</h2>
+      <h2>👤 Your Closed/Past Bets</h2>
       {% if resolved_bets %}
       <div class="bets-list">
         {% for bet in resolved_bets %}
@@ -77,6 +77,76 @@
       </div>
       {% endif %}
     </div>
+
+    <!-- Other Users Bets Section -->
+    {% if other_users_bets and other_users_bets|length > 0 %}
+    <div class="betting-section">
+      <h2>👥 Other Users' Betting History</h2>
+      {% for other_username, other_bets in other_users_bets.items() %}
+      <div class="other-user-bets">
+        <h3 class="other-user-header">
+          {{ other_username }}'s Bets ({{ other_bets|length }})
+        </h3>
+        <div class="bets-list">
+          {% for bet in other_bets %}
+          <div class="bet-card resolved other-user-bet">
+            <div class="bet-header">
+              <h4>{{ bet.race_info.name }}</h4>
+              <span class="bet-date">📅 {{ bet.race_info.date }}</span>
+            </div>
+            <div class="bet-details">
+              <div class="bet-results">
+                <div class="result-section">
+                  <strong>{{ other_username }}'s Prediction:</strong>
+                  <div class="prediction-grid">
+                    <div class="prediction-item">
+                      <span class="position-badge">1st</span>
+                      <span class="driver-name">{{ bet.drivers[0] }}</span>
+                    </div>
+                    <div class="prediction-item">
+                      <span class="position-badge">2nd</span>
+                      <span class="driver-name">{{ bet.drivers[1] }}</span>
+                    </div>
+                    <div class="prediction-item">
+                      <span class="position-badge">3rd</span>
+                      <span class="driver-name">{{ bet.drivers[2] }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="result-section">
+                  <strong>Actual Results:</strong>
+                  <div class="prediction-grid">
+                    <div class="prediction-item">
+                      <span class="position-badge">1st</span>
+                      <span class="driver-name">{{ bet.actual_results[0] }}</span>
+                    </div>
+                    <div class="prediction-item">
+                      <span class="position-badge">2nd</span>
+                      <span class="driver-name">{{ bet.actual_results[1] }}</span>
+                    </div>
+                    <div class="prediction-item">
+                      <span class="position-badge">3rd</span>
+                      <span class="driver-name">{{ bet.actual_results[2] }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="bet-points">
+                <strong>Points Earned:</strong>
+                <span class="points-value">{{ bet.points_awarded }} 🎯</span>
+              </div>
+            </div>
+            <div class="bet-meta">
+              <span class="bet-status">Status: {{ bet.status|capitalize }}</span>
+              <span class="bet-timestamp">Resolved: {{ bet.resolved_at }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </div>
 
