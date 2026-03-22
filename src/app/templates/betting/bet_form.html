@@ -36,7 +36,7 @@
 
   <form
     method="POST"
-    action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.id) }}"
+    action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.get('id', race_id)) }}"
     class="card bet-form"
   >
     <div class="card-header">
@@ -113,7 +113,7 @@
     <div class="card-footer">
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">{% if mode == 'edit' %}Update Bet{% else %}Place Bet{% endif %}</button>
-        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Delete</a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">{% if mode == 'edit' %}Cancel{% else %}Cancel{% endif %}</a>
       </div>
     </div>
   </form>

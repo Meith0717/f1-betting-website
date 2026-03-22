@@ -43,15 +43,15 @@
                 <div class="prediction-grid">
                   <div class="prediction-item">
                     <span class="position-badge">1st</span>
-                    <span class="driver-name">{{ bet.actual_results[0] }}</span>
+                    <span class="driver-name">{{ bet.actual_results[0] if bet.actual_results and bet.actual_results|length > 0 else 'N/A' }}</span>
                   </div>
                   <div class="prediction-item">
                     <span class="position-badge">2nd</span>
-                    <span class="driver-name">{{ bet.actual_results[1] }}</span>
+                    <span class="driver-name">{{ bet.actual_results[1] if bet.actual_results and bet.actual_results|length > 1 else 'N/A' }}</span>
                   </div>
                   <div class="prediction-item">
                     <span class="position-badge">3rd</span>
-                    <span class="driver-name">{{ bet.actual_results[2] }}</span>
+                    <span class="driver-name">{{ bet.actual_results[2] if bet.actual_results and bet.actual_results|length > 2 else 'N/A' }}</span>
                   </div>
                 </div>
               </div>
@@ -63,7 +63,7 @@
           </div>
           <div class="bet-meta">
             <span class="bet-status">Status: {{ bet.status|capitalize }}</span>
-            <span class="bet-timestamp">Resolved: {{ bet.resolved_at }}</span>
+            <span class="bet-timestamp">Resolved: {{ bet.resolved_at[:19] if bet.resolved_at else 'N/A' }}</span>
           </div>
         </div>
         {% endfor %}
@@ -118,27 +118,27 @@
                   <div class="prediction-grid">
                     <div class="prediction-item">
                       <span class="position-badge">1st</span>
-                      <span class="driver-name">{{ bet.actual_results[0] }}</span>
+                      <span class="driver-name">{{ bet.actual_results[0] if bet.actual_results and bet.actual_results|length > 0 else 'N/A' }}</span>
                     </div>
                     <div class="prediction-item">
                       <span class="position-badge">2nd</span>
-                      <span class="driver-name">{{ bet.actual_results[1] }}</span>
+                      <span class="driver-name">{{ bet.actual_results[1] if bet.actual_results and bet.actual_results|length > 1 else 'N/A' }}</span>
                     </div>
                     <div class="prediction-item">
                       <span class="position-badge">3rd</span>
-                      <span class="driver-name">{{ bet.actual_results[2] }}</span>
+                      <span class="driver-name">{{ bet.actual_results[2] if bet.actual_results and bet.actual_results|length > 2 else 'N/A' }}</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="bet-points">
                 <strong>Points Earned:</strong>
-                <span class="points-value">{{ bet.points_awarded }} 🎯</span>
+                <span class="points-value">{{ bet.points_awarded if bet.points_awarded is not none else '0' }} 🎯</span>
               </div>
             </div>
             <div class="bet-meta">
               <span class="bet-status">Status: {{ bet.status|capitalize }}</span>
-              <span class="bet-timestamp">Resolved: {{ bet.resolved_at }}</span>
+              <span class="bet-timestamp">Resolved: {{ bet.resolved_at[:19] if bet.resolved_at else 'N/A' }}</span>
             </div>
           </div>
           {% endfor %}

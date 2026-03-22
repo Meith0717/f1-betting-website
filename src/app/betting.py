@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional
 from flask import current_app
-
+import pytz
 
 class BettingManager:
     """Manager for handling user bets on F1 races"""
@@ -315,7 +315,7 @@ class BettingManager:
             
             # Check if race has already started
             race_datetime = race_data_manager._get_race_datetime(race)
-            if race_datetime and race_datetime < datetime.now():
+            if race_datetime and race_datetime < datetime.now(pytz.UTC):
                 current_app.logger.warning(f"Race {race_id} has already started")
                 return False
             
@@ -344,7 +344,7 @@ class BettingManager:
             
             for r in all_races:
                 r_datetime = race_data_manager._get_race_datetime(r)
-                if r_datetime and r_datetime > datetime.now():
+                if r_datetime and r_datetime > datetime.now(pytz.UTC):
                     # Check if race is not canceled
                     if r["id"] not in canceled_ids:
                         upcoming_races.append({

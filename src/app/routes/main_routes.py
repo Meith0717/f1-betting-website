@@ -4,6 +4,7 @@ from ..decorators import login_required
 from ..race_data import race_data_manager
 from ..betting import betting_manager
 from datetime import datetime
+import pytz
 
 main_bp = Blueprint("main", __name__)
 
@@ -174,7 +175,7 @@ def races():
     races_with_timezone = []
     upcoming_races = []
     past_races = []
-    now = datetime.now()
+    now = datetime.now(pytz.UTC)  # Make timezone-aware to match race datetimes
 
     for race in all_races:
         # Add timezone info to this race
@@ -184,6 +185,9 @@ def races():
         # Classify as upcoming or past (include canceled races in upcoming if they're future-dated)
         race_datetime = race_data_manager._get_race_datetime(race)
         if race_datetime:
+            # Ensure race_datetime is timezone-aware for comparison
+            if not race_datetime.tzinfo:
+                race_datetime = pytz.UTC.localize(race_datetime)
             if race_datetime > now:
                 upcoming_races.append(race_with_tz)
             else:

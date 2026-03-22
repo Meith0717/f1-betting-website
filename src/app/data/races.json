@@ -136,32 +136,32 @@
       "country": "Japan",
       "circuit": "Suzuka International Circuit",
       "date": "2026-03-22",
-      "time": "15:00:00Z",
+      "time": "15:54:00Z",
       "sessions": [
         {
           "type": "FP1",
           "date": "2026-03-22",
-          "time": "15:00:00Z"
+          "time": "15:50:00Z"
         },
         {
           "type": "FP2",
           "date": "2026-03-22",
-          "time": "15:01:00Z"
+          "time": "15:51:00Z"
         },
         {
           "type": "FP3",
           "date": "2026-03-22",
-          "time": "15:02:00Z"
+          "time": "15:52:00Z"
         },
         {
           "type": "Qualifying",
           "date": "2026-03-22",
-          "time": "15:03:00Z"
+          "time": "15:53:00Z"
         },
         {
           "type": "Race",
           "date": "2026-03-22",
-          "time": "15:04:00Z"
+          "time": "15:54:00Z"
         }
       ],
       "round": 3,

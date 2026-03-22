@@ -4,6 +4,7 @@ from ..betting import betting_manager
 from ..race_data import race_data_manager
 from ..utils import load_users
 from datetime import datetime
+import pytz
 
 betting_bp = Blueprint("betting", __name__)
 
@@ -24,12 +25,26 @@ def betting_dashboard():
         all_races = race_data_manager.get_all_races()
         # Add timezone info to races
         all_races = race_data_manager.add_timezone_info_to_races(all_races)
-        race_dict = {race["id"]: race for race in all_races}
+        race_dict = {}
+        for race in all_races:
+            try:
+                race_dict[race["id"]] = race
+            except (KeyError, TypeError):
+                # Skip races without proper ID
+                continue
         
         # Only collect resolved bets (closed/past bets)
         resolved_bets = []
         
         for race_id, bet_data in user_bets.items():
+            # Skip if bet_data is not a proper dictionary
+            if not isinstance(bet_data, dict):
+                continue
+                
+            # Only process resolved bets for the dashboard
+            if bet_data.get("status") != "resolved":
+                continue
+                
             race_info = race_dict.get(race_id, {"name": "Unknown Race", "id": race_id})
             bet_data["race_info"] = race_info
             
@@ -41,28 +56,32 @@ def betting_dashboard():
                     current_app.logger.debug(f"Current time: {now} (type: {type(now)})")
                     first_future_session = None
                     
-                    for session in race_info["sessions"]:
-                        if session.get("time"):
+                    for race_session in race_info["sessions"]:
+                        if race_session.get("time"):
                             # Use timezone-converted time if available
-                            if session.get("time_info"):
+                            if race_session.get("time_info"):
                                 # Use the already converted local time
-                                session_time = session["time_info"].get("datetime_obj")
+                                session_time = race_session["time_info"].get("datetime_obj")
                                 current_app.logger.debug(f"Using converted session time: {session_time} (type: {type(session_time)})")
                                 if session_time:
-                                    # Ensure we're comparing naive datetimes or both aware
+                                    # Ensure we're comparing compatible datetimes
                                     if hasattr(session_time, 'tzinfo') and session_time.tzinfo is not None:
-                                        # Timezone-aware datetime, compare directly
+                                        # Timezone-aware datetime, make now timezone-aware for comparison
+                                        if not hasattr(now, 'tzinfo') or now.tzinfo is None:
+                                            now = datetime.now(pytz.UTC)
                                         if session_time > now:
-                                            first_future_session = session
+                                            first_future_session = race_session
                                             break
                                     else:
-                                        # Naive datetime, assume it's already in local time
+                                        # Naive datetime, ensure now is also naive
+                                        if hasattr(now, 'tzinfo') and now.tzinfo is not None:
+                                            now = datetime.now()  # Make naive
                                         if session_time > now:
-                                            first_future_session = session
+                                            first_future_session = race_session
                                             break
                             else:
                                 # Fallback to parsing raw time string
-                                session_time_str = session["time"]
+                                session_time_str = race_session["time"]
                                 # Handle different time formats
                                 if "T" in session_time_str:
                                     session_time = datetime.fromisoformat(session_time_str.replace("Z", "+00:00"))
@@ -71,7 +90,7 @@ def betting_dashboard():
                                     session_time = datetime.strptime(session_time_str, "%Y-%m-%d %H:%M:%S")
                                 
                                 if session_time > now:
-                                    first_future_session = session
+                                    first_future_session = race_session
                                     break
                     
                     if first_future_session:
@@ -85,7 +104,7 @@ def betting_dashboard():
                     bet_data["race_datetime"] = ""
                     bet_data["betting_closes_at"] = ""
             
-            if bet_data["status"] == "resolved":
+            if bet_data.get("status") == "resolved":
                 resolved_bets.append(bet_data)
         
         # Sort by race date (newest first)
@@ -105,7 +124,11 @@ def betting_dashboard():
                 if other_user_bets:
                     other_resolved_bets = []
                     for race_id, bet_data in other_user_bets.items():
-                        if bet_data["status"] == "resolved":
+                        # Skip if bet_data is not a proper dictionary
+                        if not isinstance(bet_data, dict):
+                            continue
+                            
+                        if bet_data.get("status") == "resolved":
                             race_info = race_dict.get(race_id, {"name": "Unknown Race", "id": race_id})
                             bet_data["race_info"] = race_info
                             
@@ -117,24 +140,28 @@ def betting_dashboard():
                                     current_app.logger.debug(f"Current time: {now} (type: {type(now)})")
                                     first_future_session = None
                                     
-                                    for session in race_info["sessions"]:
-                                        if session.get("time"):
+                                    for race_session in race_info["sessions"]:
+                                        if race_session.get("time"):
                                             # Use timezone-converted time if available
-                                            if session.get("time_info"):
+                                            if race_session.get("time_info"):
                                                 # Use the already converted local time
-                                                session_time = session["time_info"].get("datetime_obj")
+                                                session_time = race_session["time_info"].get("datetime_obj")
                                                 current_app.logger.debug(f"Using converted session time: {session_time} (type: {type(session_time)})")
                                                 if session_time:
-                                                    # Ensure we're comparing naive datetimes or both aware
+                                                    # Ensure we're comparing compatible datetimes
                                                     if hasattr(session_time, 'tzinfo') and session_time.tzinfo is not None:
-                                                        # Timezone-aware datetime, compare directly
+                                                        # Timezone-aware datetime, make now timezone-aware for comparison
+                                                        if not hasattr(now, 'tzinfo') or now.tzinfo is None:
+                                                            now = datetime.now(pytz.UTC)
                                                         if session_time > now:
-                                                            first_future_session = session
+                                                            first_future_session = race_session
                                                             break
                                                     else:
-                                                        # Naive datetime, assume it's already in local time
+                                                        # Naive datetime, ensure now is also naive
+                                                        if hasattr(now, 'tzinfo') and now.tzinfo is not None:
+                                                            now = datetime.now()  # Make naive
                                                         if session_time > now:
-                                                            first_future_session = session
+                                                            first_future_session = race_session
                                                             break
                                             else:
                                                 # Fallback to parsing raw time string
@@ -147,7 +174,7 @@ def betting_dashboard():
                                                     session_time = datetime.strptime(session_time_str, "%Y-%m-%d %H:%M:%S")
                                                 
                                                 if session_time > now:
-                                                    first_future_session = session
+                                                    first_future_session = race_session
                                                     break
                                     
                                     if first_future_session:

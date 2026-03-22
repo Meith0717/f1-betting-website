@@ -10,7 +10,7 @@
   </div>
 
   <div class="dashboard-content">
-    {% if next_race %}
+    {% if next_race and next_race.name %}
     <div class="card next-session-card">
       <div class="race-header">
         <div class="race-header-top">
@@ -73,20 +73,19 @@
     <!-- Active Bets Section - Compact & Unified -->
     {% if betting_manager %} {% set user_bets =
     betting_manager.get_user_bets(username) %} {% if user_bets %} {% for
-    race_id, bet_data in user_bets.items() if bet_data.status == 'active' %} {%
-    set race_info = race_data_manager.get_race_by_id(race_id) if
-    race_data_manager else none %}
+    race_id, bet_data in user_bets.items() if bet_data.status == 'active' %}
+    {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
     <div class="bet-entry">
       <div class="bet-race-header">
         <h3 class="bet-race-name">
           {{ race_info.name if race_info else 'Unknown Race' }}
         </h3>
-        {% if race_info %}
+        {% if race_info and race_data_manager %}
         <div class="betting-time-info">
           <span class="betting-time-label">Time left:</span>
           <span class="betting-closes-timer"
             id="betting-closes-{{ race_id }}"
-            data-race-time="{{ race_data_manager._get_race_datetime(race_info).isoformat() if race_data_manager else '' }}"
+            data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(race_info) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}"
           >
             <span class="countdown-loading">Loading...</span>
           </span>
@@ -97,13 +96,13 @@
       <div class="prediction-and-controls">
         <div class="prediction-drivers">
           <span class="driver-prediction">
-            <span class="pos-badge">1st</span> {{ bet_data.drivers[0] }}
+            <span class="pos-badge">1st</span> {{ bet_data.drivers[0] if bet_data.drivers and bet_data.drivers|length > 0 else 'N/A' }}
           </span>
           <span class="driver-prediction">
-            <span class="pos-badge">2nd</span> {{ bet_data.drivers[1] }}
+            <span class="pos-badge">2nd</span> {{ bet_data.drivers[1] if bet_data.drivers and bet_data.drivers|length > 1 else 'N/A' }}
           </span>
           <span class="driver-prediction">
-            <span class="pos-badge">3rd</span> {{ bet_data.drivers[2] }}
+            <span class="pos-badge">3rd</span> {{ bet_data.drivers[2] if bet_data.drivers and bet_data.drivers|length > 2 else 'N/A' }}
           </span>
         </div>
         <div class="bet-controls">
@@ -131,7 +130,7 @@
       </div>
       <div class="bet-info">
         <span class="bet-status">Status: {{ bet_data.status|capitalize }}</span>
-        <span class="bet-timestamp">Placed: {{ bet_data.timestamp }}</span>
+        <span class="bet-timestamp">Placed: {{ bet_data.timestamp[:19] if bet_data.timestamp else 'N/A' }}</span>
       </div>
     </div>
     {% endfor %} {% else %}

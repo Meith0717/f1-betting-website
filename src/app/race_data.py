@@ -31,53 +31,52 @@ class RaceDataManager:
             self.local_timezone = pytz.timezone("UTC")
 
     def _get_race_datetime(self, race: Dict) -> Optional[datetime]:
-        """Helper method to get datetime for a race"""
+        """Helper method to get timezone-aware datetime for a race"""
         try:
             from flask import current_app
-            current_app.logger.debug(f"Getting datetime for race: {race.get('name', 'Unknown')}")
             
             if "time" in race:
-                # Handle timezone format (e.g., "04:00:00Z") by stripping the timezone
                 time_str = race["time"]
                 if "Z" in time_str:
                     time_str = time_str.replace("Z", "")
-                if ":" in time_str and len(time_str.split(":")[0]) == 2:
-                    # Already in HH:MM format
-                    time_part = time_str[:5]  # Take first 5 chars (HH:MM)
-                else:
-                    # Handle other formats
-                    time_part = time_str[:5] if len(time_str) >= 5 else time_str
-                result = datetime.strptime(
-                    f"{race['date']} {time_part}", "%Y-%m-%d %H:%M"
-                )
-                current_app.logger.debug(f"Parsed race datetime: {result}")
-                return result
+                time_part = time_str[:5] if ":" in time_str and len(time_str.split(":")[0]) == 2 else time_str[:5]
+                
+                result = datetime.strptime(f"{race['date']} {time_part}", "%Y-%m-%d %H:%M")
+                return self.utc_timezone.localize(result) # Make it UTC aware
+                
             elif race.get("sessions") and len(race["sessions"]) > 0:
                 first_session = race["sessions"][0]
                 session_time = first_session.get("time", "00:00")
-                # Handle timezone format
                 if "Z" in session_time:
                     session_time = session_time.replace("Z", "")
-                if ":" in session_time and len(session_time.split(":")[0]) == 2:
-                    time_part = session_time[:5]
-                else:
-                    time_part = (
-                        session_time[:5] if len(session_time) >= 5 else session_time
-                    )
-                result = datetime.strptime(
-                    f"{first_session['date']} {time_part}", "%Y-%m-%d %H:%M"
-                )
-                current_app.logger.debug(f"Parsed session datetime: {result}")
-                return result
+                time_part = session_time[:5] if ":" in session_time and len(session_time.split(":")[0]) == 2 else session_time[:5]
+                
+                result = datetime.strptime(f"{first_session['date']} {time_part}", "%Y-%m-%d %H:%M")
+                return self.utc_timezone.localize(result) # Make it UTC aware
+                
             elif "date" in race:
-                # Fallback to race date with default time for races without sessions
                 result = datetime.strptime(f"{race['date']} 00:00", "%Y-%m-%d %H:%M")
-                current_app.logger.debug(f"Used fallback datetime: {result}")
-                return result
+                return self.utc_timezone.localize(result) # Make it UTC aware
+                
         except (ValueError, KeyError) as e:
-            current_app.logger.error(f"Error parsing race datetime: {e}")
             return None
         return None
+
+    def _get_session_datetime(self, session: Dict) -> datetime:
+        """Helper method to get timezone-aware datetime for a session"""
+        try:
+            session_time = session.get("time", "00:00:00")
+            if session_time is None:
+                return datetime.max.replace(tzinfo=pytz.UTC)
+                
+            if "Z" in session_time:
+                session_time = session_time.replace("Z", "")
+            time_part = session_time[:5] if ":" in session_time and len(session_time.split(":")[0]) == 2 else session_time[:5]
+            
+            result = datetime.strptime(f"{session['date']} {time_part}", "%Y-%m-%d %H:%M")
+            return self.utc_timezone.localize(result) # Make it UTC aware
+        except (ValueError, KeyError):
+            return datetime.max.replace(tzinfo=pytz.UTC)
 
 
 
@@ -163,7 +162,7 @@ class RaceDataManager:
     def get_next_race(self) -> Optional[Dict]:
         """Get the next upcoming race"""
         races = self.load_races().get("races", [])
-        now = datetime.now()
+        now = datetime.now(pytz.UTC)  # Make timezone-aware
 
         upcoming_races = []
         for race in races:
@@ -172,8 +171,12 @@ class RaceDataManager:
                 continue
 
             race_datetime = self._get_race_datetime(race)
-            if race_datetime and race_datetime > now:
-                upcoming_races.append(race)
+            if race_datetime:
+                # Ensure race_datetime is timezone-aware for comparison
+                if not race_datetime.tzinfo:
+                    race_datetime = pytz.UTC.localize(race_datetime)
+                if race_datetime > now:
+                    upcoming_races.append(race)
 
         # Return the soonest upcoming race
         if upcoming_races:
@@ -187,7 +190,7 @@ class RaceDataManager:
     def get_next_session(self) -> Optional[Dict]:
         """Get the next upcoming session across all races"""
         races = self.load_races().get("races", [])
-        now = datetime.now()
+        now = datetime.now(pytz.UTC)
 
         all_sessions = []
         for race in races:
@@ -227,26 +230,6 @@ class RaceDataManager:
         if all_sessions:
             return min(all_sessions, key=lambda x: self._get_session_datetime(x))
 
-    def _get_session_datetime(self, session: Dict) -> datetime:
-        """Helper method to get datetime for a session"""
-        try:
-            session_time = session.get("time", "00:00:00")
-            # Skip sessions with None time
-            if session_time is None:
-                return datetime.max
-            # Handle timezone format (e.g., "04:00:00Z")
-            if "Z" in session_time:
-                session_time = session_time.replace("Z", "")
-            if ":" in session_time and len(session_time.split(":")[0]) == 2:
-                time_part = session_time[:5]  # Take first 5 chars (HH:MM)
-            else:
-                time_part = session_time[:5] if len(session_time) >= 5 else session_time
-            return datetime.strptime(f"{session['date']} {time_part}", "%Y-%m-%d %H:%M")
-        except (ValueError, KeyError):
-            return datetime.max
-
-        return None
-
     def get_race_by_id(self, race_id: str) -> Optional[Dict]:
         """Get race by ID"""
         races = self.load_races().get("races", [])
@@ -285,7 +268,7 @@ class RaceDataManager:
     def get_upcoming_races(self, limit: int = 5) -> List[Dict]:
         """Get upcoming races"""
         races = self.load_races().get("races", [])
-        now = datetime.now()
+        now = datetime.now(pytz.UTC)
 
         upcoming = []
         for race in races:
@@ -298,7 +281,7 @@ class RaceDataManager:
                 upcoming.append(race)
 
         # Sort by date and limit
-        upcoming.sort(key=lambda race: self._get_race_datetime(race) or datetime.min)
+        upcoming.sort(key=lambda race: self._get_race_datetime(race) or datetime.min.replace(tzinfo=pytz.UTC))
         return upcoming[:limit]
 
     def get_all_races(self) -> List[Dict]:
