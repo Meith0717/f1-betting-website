@@ -2417,6 +2417,384 @@ auth-footer a {
     cursor: not-allowed;
 }
 
+/* Race-Grouped Bet History */
+.race-bet-section {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+}
+
+/* Table Format */
+.bets-table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+}
+
+.bets-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.bets-table th,
+.bets-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.bets-table th {
+    background: var(--surface-darker);
+    font-weight: 600;
+    color: var(--text-light);
+    position: sticky;
+    top: 0;
+}
+
+.user-header {
+    width: 150px;
+    min-width: 150px;
+}
+
+.position-header,
+.position-cell {
+    width: 100px;
+    min-width: 100px;
+    text-align: center;
+}
+
+.points-header,
+.points-cell {
+    width: 80px;
+    min-width: 80px;
+    text-align: right;
+}
+
+.user-cell {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.position-cell {
+    text-align: center;
+    font-weight: 500;
+}
+
+.points-cell {
+    text-align: right;
+    font-weight: 600;
+}
+
+.you-badge {
+    background: var(--brand-primary-light);
+    color: var(--brand-primary);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+.bets-table tr:hover {
+    background: var(--surface-light);
+}
+
+.race-bets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.user-bet-row {
+    background: var(--surface-light);
+    border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-light);
+}
+
+.user-bet-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.username-label {
+    font-weight: 600;
+    color: var(--text);
+    min-width: 120px;
+}
+
+.user-prediction {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    min-width: 200px;
+    align-items: center;
+}
+
+.driver-podium {
+    background: var(--surface-darker);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.user-points {
+    font-weight: 600;
+    color: var(--color-success);
+    margin-left: auto;
+    font-size: 13px;
+}
+
+.user-bet-row:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    padding-bottom: 8px;
+}
+
+.race-bet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.race-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+}
+
+.race-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.race-date {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.race-status {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.race-status.closed {
+    background: var(--surface-dark);
+    color: var(--text);
+}
+
+.race-status.resolved {
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
+}
+
+.users-bets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.user-bet-entry {
+    background: var(--surface-light);
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid var(--border-light);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.username {
+    color: var(--text);
+}
+
+.you-badge {
+    background: var(--brand-primary-light);
+    color: var(--brand-primary);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.bet-prediction {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.prediction-label {
+    font-size: 13px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.actual-results {
+    background: var(--surface-darker);
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 12px;
+}
+
+.results-label {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.compact-bet-card {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+
+.compact-bet-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.compact-bet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 16px;
+}
+
+.race-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.race-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.race-date {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.status-indicator {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-indicator.closed {
+    background: var(--surface-dark);
+    color: var(--text);
+}
+
+.status-indicator.resolved {
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
+}
+
+.compact-prediction,
+.compact-results {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.prediction-label,
+.results-label {
+    font-weight: 500;
+    color: var(--text-light);
+    margin-right: 8px;
+}
+
+.drivers-compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.driver-podium {
+    font-size: 13px;
+    padding: 2px 6px;
+    background: var(--surface-light);
+    border-radius: 4px;
+}
+
+.driver-podium.actual {
+    background: var(--surface-darker);
+}
+
+.points-awarded {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-success);
+    text-align: right;
+}
+
+/* Other Users Section - Compact */
+.other-user-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.other-user-section:last-child {
+    border-bottom: none;
+}
+
+.other-user-title {
+    margin-bottom: 12px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.compact-bet-card.other-user-bet {
+    background: var(--surface-light);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-light);
+}
+
 /* Betting Timer Row - Integrated in Next Session Card */
 .betting-timer-row {
     margin-top: 12px;

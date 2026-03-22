@@ -1,153 +1,100 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+
+{% block content %}
 <div class="betting-container">
   <div class="betting-header">
     <h1>🏆 Betting History</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button"
-      >Back to Overview</a
-    >
+    <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
   </div>
 
-  <div class="betting-sections">
-    <!-- Your Bets Section -->
-    <div class="betting-section">
-      <h2>👤 Your Closed/Past Bets</h2>
-      {% if resolved_bets %}
-      <div class="bets-list">
-        {% for bet in resolved_bets %}
-        <div class="bet-card resolved">
-          <div class="bet-header">
-            <h3>{{ bet.race_info.name }}</h3>
-            <span class="bet-date">📅 {{ bet.race_info.date }}</span>
-          </div>
-          <div class="bet-details">
-            <div class="bet-results">
-              <div class="result-section">
-                <strong>Your Prediction:</strong>
-                <div class="prediction-grid">
-                  <div class="prediction-item">
-                    <span class="position-badge">1st</span>
-                    <span class="driver-name">{{ bet.drivers[0] }}</span>
-                  </div>
-                  <div class="prediction-item">
-                    <span class="position-badge">2nd</span>
-                    <span class="driver-name">{{ bet.drivers[1] }}</span>
-                  </div>
-                  <div class="prediction-item">
-                    <span class="position-badge">3rd</span>
-                    <span class="driver-name">{{ bet.drivers[2] }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="result-section">
-                <strong>Actual Results:</strong>
-                <div class="prediction-grid">
-                  <div class="prediction-item">
-                    <span class="position-badge">1st</span>
-                    <span class="driver-name">{{ bet.actual_results[0] if bet.actual_results and bet.actual_results|length > 0 else 'N/A' }}</span>
-                  </div>
-                  <div class="prediction-item">
-                    <span class="position-badge">2nd</span>
-                    <span class="driver-name">{{ bet.actual_results[1] if bet.actual_results and bet.actual_results|length > 1 else 'N/A' }}</span>
-                  </div>
-                  <div class="prediction-item">
-                    <span class="position-badge">3rd</span>
-                    <span class="driver-name">{{ bet.actual_results[2] if bet.actual_results and bet.actual_results|length > 2 else 'N/A' }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="bet-points">
-              <strong>Points Earned:</strong>
-              <span class="points-value">{{ bet.points_awarded }} 🎯</span>
-            </div>
-          </div>
-          <div class="bet-meta">
-            <span class="bet-status">Status: {{ bet.status|capitalize }}</span>
-            <span class="bet-timestamp">Resolved: {{ bet.resolved_at[:19] if bet.resolved_at else 'N/A' }}</span>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <div class="no-bets">
-        <p>
-          No closed/past bets yet. Your completed bets will appear here after
-          races are resolved.
-        </p>
-      </div>
-      {% endif %}
-    </div>
+  <div class="betting-section">
+    <h2>🏁 Bets by Race</h2>
 
-    <!-- Other Users Bets Section -->
-    {% if other_users_bets and other_users_bets|length > 0 %}
-    <div class="betting-section">
-      <h2>👥 Other Users' Betting History</h2>
-      {% for other_username, other_bets in other_users_bets.items() %}
-      <div class="other-user-bets">
-        <h3 class="other-user-header">
-          {{ other_username }}'s Bets ({{ other_bets|length }})
-        </h3>
-        <div class="bets-list">
-          {% for bet in other_bets %}
-          <div class="bet-card resolved other-user-bet">
-            <div class="bet-header">
-              <h4>{{ bet.race_info.name }}</h4>
-              <span class="bet-date">📅 {{ bet.race_info.date }}</span>
-            </div>
-            <div class="bet-details">
-              <div class="bet-results">
-                <div class="result-section">
-                  <strong>{{ other_username }}'s Prediction:</strong>
-                  <div class="prediction-grid">
-                    <div class="prediction-item">
-                      <span class="position-badge">1st</span>
-                      <span class="driver-name">{{ bet.drivers[0] }}</span>
-                    </div>
-                    <div class="prediction-item">
-                      <span class="position-badge">2nd</span>
-                      <span class="driver-name">{{ bet.drivers[1] }}</span>
-                    </div>
-                    <div class="prediction-item">
-                      <span class="position-badge">3rd</span>
-                      <span class="driver-name">{{ bet.drivers[2] }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="result-section">
-                  <strong>Actual Results:</strong>
-                  <div class="prediction-grid">
-                    <div class="prediction-item">
-                      <span class="position-badge">1st</span>
-                      <span class="driver-name">{{ bet.actual_results[0] if bet.actual_results and bet.actual_results|length > 0 else 'N/A' }}</span>
-                    </div>
-                    <div class="prediction-item">
-                      <span class="position-badge">2nd</span>
-                      <span class="driver-name">{{ bet.actual_results[1] if bet.actual_results and bet.actual_results|length > 1 else 'N/A' }}</span>
-                    </div>
-                    <div class="prediction-item">
-                      <span class="position-badge">3rd</span>
-                      <span class="driver-name">{{ bet.actual_results[2] if bet.actual_results and bet.actual_results|length > 2 else 'N/A' }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="bet-points">
-                <strong>Points Earned:</strong>
-                <span class="points-value">{{ bet.points_awarded if bet.points_awarded is not none else '0' }} 🎯</span>
-              </div>
-            </div>
-            <div class="bet-meta">
-              <span class="bet-status">Status: {{ bet.status|capitalize }}</span>
-              <span class="bet-timestamp">Resolved: {{ bet.resolved_at[:19] if bet.resolved_at else 'N/A' }}</span>
-            </div>
+    {% if races_with_bets %}
+      {% for race_id, race_data in races_with_bets.items() %}
+      <div class="race-bet-section">
+
+        <!-- Header -->
+        <div class="race-bet-header">
+          <h3 class="race-title">{{ race_data.race_info.name }}</h3>
+          
+          <div class="race-meta">
+            {% set first_bet = race_data.bets[0].bet %}
+            {% if first_bet.get('status') == 'resolved' %}
+              <span class="status-indicator resolved">✅ Resolved</span>
+            {% else %}
+              <span class="status-indicator closed">🔒 Closed</span>
+            {% endif %}
+            
+            <span class="race-date">
+              📅 {{ race_data.race_info.date }}
+            </span>
           </div>
-          {% endfor %}
         </div>
+
+        <!-- Table format: Users on Y-axis, Positions on X-axis -->
+        <div class="bets-table-container">
+          <table class="bets-table">
+            <thead>
+              <tr>
+                <th class="user-header">User</th>
+                <th class="position-header">1st</th>
+                <th class="position-header">2nd</th>
+                <th class="position-header">3rd</th>
+                <th class="points-header">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user_bet in race_data.bets %}
+              <tr class="user-bet-row">
+                <td class="user-cell">
+                  {{ user_bet.username }}
+                  {% if user_bet.username == username %}
+                    <span class="you-badge">(You)</span>
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {{ user_bet.bet.drivers_short[0] if user_bet.bet.drivers_short else user_bet.bet.drivers[0] }}
+                </td>
+                <td class="position-cell">
+                  {{ user_bet.bet.drivers_short[1] if user_bet.bet.drivers_short else user_bet.bet.drivers[1] }}
+                </td>
+                <td class="position-cell">
+                  {{ user_bet.bet.drivers_short[2] if user_bet.bet.drivers_short else user_bet.bet.drivers[2] }}
+                </td>
+                <td class="points-cell">
+                  {% if user_bet.bet.status == 'resolved' and user_bet.bet.points_awarded %}
+                    +{{ user_bet.bet.points_awarded }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Actual results -->
+        {% if first_bet.get('status') == 'resolved' and first_bet.get('actual_results') %}
+        <div class="actual-results">
+          <span class="results-label">🏆 Actual Results:</span>
+          <div class="drivers-compact">
+            <span class="driver-podium actual">1. {{ first_bet.actual_results_short[0] if first_bet.get('actual_results_short') else first_bet.actual_results[0] }}</span>
+            <span class="driver-podium actual">2. {{ first_bet.actual_results_short[1] if first_bet.get('actual_results_short') else first_bet.actual_results[1] }}</span>
+            <span class="driver-podium actual">3. {{ first_bet.actual_results_short[2] if first_bet.get('actual_results_short') else first_bet.actual_results[2] }}</span>
+          </div>
+        </div>
+        {% endif %}
+
       </div>
       {% endfor %}
-    </div>
+
+    {% else %}
+      <div class="no-bets">
+        <p>No bet history yet.</p>
+      </div>
     {% endif %}
   </div>
 </div>
-
 {% endblock %}
