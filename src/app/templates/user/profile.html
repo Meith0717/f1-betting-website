@@ -4,7 +4,7 @@
 <div class="profile-container">
     <div class="profile-header">
         <h1>Your Profile & Overview</h1>
-        <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
+        <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
     </div>
     
     <div class="profile-details">
@@ -56,15 +56,5 @@
             </form>
         </div>
     </div>
-    
-    {% if is_admin %}
-    <div class="admin-section">
-        <h2>👑 Administrator Access</h2>
-        <p>You have full administrative access to the F1 Betting platform.</p>
-        <div class="admin-actions">
-            <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-button">📊 Admin Dashboard</a>
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

@@ -14,31 +14,25 @@ def index():
     """Handle the main index route - shows welcome page or user dashboard"""
     from flask import current_app
     
-    current_app.logger.debug("Main index route accessed")
+    current_app.logger.info("Main index route accessed")
     
     # Get next race and session data with timezone info
     try:
         next_race = race_data_manager.get_next_race()
-        current_app.logger.debug(f"Next race: {next_race['name'] if next_race else 'None'}")
         
         next_session = race_data_manager.get_next_session()
-        current_app.logger.debug(f"Next session: {next_session['type'] if next_session else 'None'} for race {next_session.get('race_name', 'Unknown') if next_session else 'Unknown'}")
         
         upcoming_races = race_data_manager.get_upcoming_races(limit=3)
-        current_app.logger.debug(f"Found {len(upcoming_races)} upcoming races")
 
         # Add timezone info to races
         if next_race:
             next_race = race_data_manager.add_timezone_info_to_race(next_race)
-            current_app.logger.debug(f"Added timezone info to next race")
 
         # Add timezone info to next session if it exists
         if next_session:
             next_session = race_data_manager.add_timezone_info_to_session(next_session)
-            current_app.logger.debug(f"Added timezone info to next session")
 
         upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
-        current_app.logger.debug(f"Added timezone info to {len(upcoming_races)} upcoming races")
 
     except Exception as e:
         current_app.logger.error(f"Error getting race data: {e}")

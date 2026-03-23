@@ -15,8 +15,6 @@ def betting_dashboard():
     """Show user's betting dashboard with resolved bets only"""
     try:
         from flask import current_app
-        current_app.logger.debug("Loading betting dashboard")
-        
         # Check and close any expired bets
         closed_count = betting_manager.check_and_close_expired_bets()
         if closed_count > 0:
@@ -59,7 +57,6 @@ def betting_dashboard():
                 try:
                     # Find the first future session to determine when betting closes
                     now = datetime.now()
-                    current_app.logger.debug(f"Current time: {now} (type: {type(now)})")
                     first_future_session = None
                     
                     for race_session in race_info["sessions"]:
@@ -68,7 +65,6 @@ def betting_dashboard():
                             if race_session.get("time_info"):
                                 # Use the already converted local time
                                 session_time = race_session["time_info"].get("datetime_obj")
-                                current_app.logger.debug(f"Using converted session time: {session_time} (type: {type(session_time)})")
                                 if session_time:
                                     # Ensure we're comparing compatible datetimes
                                     if hasattr(session_time, 'tzinfo') and session_time.tzinfo is not None:

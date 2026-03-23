@@ -11,10 +11,10 @@
   </head>
   <body>
     <nav>
-      <div class="nav-left">🏎️ F1 Betting Platform</div>
+      <div class="nav-left">F1 Betting</div>
       <div class="nav-right">
         {% if 'username' in session %}
-        <span class="logged-in-user">👤 {{ session['username'] }}</span>
+        <a href="{{ url_for('main.index') }}">Overview</a>
         <a href="{{ url_for('main.races') }}">Races</a>
         <a href="{{ url_for('auth.logout') }}">Logout</a>
         {% if session.get('is_admin') %}
@@ -22,12 +22,11 @@
         {% endif %} {% else %}
         <a href="{{ url_for('auth.login') }}">Login</a>
         <a href="{{ url_for('auth.register') }}">Register</a>
-        <a href="{{ url_for('main.races') }}">Races</a>
         {% endif %}
       </div>
     </nav>
 
-    <div class="container">
+    <div class="main-container container">
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %} {% for category, message in messages %}
       <div class="flash-message flash-{{ category }}">{{ message }}</div>

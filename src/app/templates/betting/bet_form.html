@@ -2,10 +2,10 @@
 <div class="betting-container">
   <div class="betting-header">
     <h1>{% if mode == 'edit' %}📝 Edit Your Bet{% else %}💰 Place Your Bet{% endif %}</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button">Back to Overview</a>
+    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
   </div>
 
-  <div class="card bet-form-compact">
+  <div class="card-base card bet-form-compact">
     <div class="card-header bet-header-red">
       <h2>{{ race.name }}</h2>
     </div>
@@ -120,60 +120,6 @@
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Get all select elements
-  const selects = document.querySelectorAll('.driver-select');
-  const originalOptions = {};
-  const podiumSelects = ['position_1', 'position_2', 'position_3'];
-
-  // Store original options for each select
-  selects.forEach((select) => {
-    originalOptions[select.id] = Array.from(select.options).map(
-      (option) => option.value
-    );
-  });
-
-  // Add event listeners to each select
-  selects.forEach((select) => {
-    select.addEventListener('change', function() {
-      const selectedValue = this.value;
-
-      // Disable selected driver in other dropdowns
-      selects.forEach((otherSelect) => {
-        if (otherSelect.id !== this.id) {
-          const optionToDisable = otherSelect.querySelector(
-            `option[value="${selectedValue}"]`
-          );
-          if (optionToDisable) {
-            // Fastest lap can be the same as podium drivers
-            if (this.id === 'fastest_lap' || otherSelect.id === 'fastest_lap') {
-              optionToDisable.disabled = false;
-            } else {
-              optionToDisable.disabled = true;
-            }
-          }
-
-          // Re-enable other options that were previously disabled
-          originalOptions[otherSelect.id].forEach((value) => {
-            const option = otherSelect.querySelector(
-              `option[value="${value}"]`
-            );
-            if (option && value !== selectedValue) {
-              // Only enable if not selected in any other dropdown
-              const isSelectedElsewhere = Array.from(selects).some(
-                (s) => s.id !== otherSelect.id && s.value === value
-              );
-              if (!isSelectedElsewhere) {
-                option.disabled = false;
-              }
-            }
-          });
-        }
-      });
-    });
-  });
-});
-</script>
+<script src="{{ url_for('static', filename='js/betting_form.js') }}"></script>
 
 {% endblock %}

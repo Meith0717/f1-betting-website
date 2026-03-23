@@ -1,40 +1,14 @@
 {% extends 'base.html' %} {% block content %}
 <div class="admin-dashboard">
   <div class="admin-header">
-    <h1>📊 F1 Betting Admin Dashboard</h1>
-    <a href="{{ url_for('main.profile') }}" class="back-button"
-      >Back to Profile</a
+    <h1>Admin Dashboard</h1>
+    <a href="{{ url_for('main.index') }}" class="back-button"
+      >Back</a
     >
   </div>
 
   <div class="admin-section">
-    <h2>System Statistics</h2>
-    <div class="stats-grid">
-      <div class="card stat-card">
-        <h3 class="card-title text-dark">Total Users</h3>
-        <p class="card-value text-dark">{{ users|length }}</p>
-      </div>
-      <div class="card stat-card">
-        <h3 class="card-title text-dark">Admin Users</h3>
-        <p class="card-value text-dark">
-          {{ users|selectattr('is_admin')|list|length }}
-        </p>
-      </div>
-      <div class="card stat-card">
-        <h3 class="card-title text-dark">Regular Users</h3>
-        <p class="card-value text-dark">
-          {{ users|rejectattr('is_admin')|list|length }}
-        </p>
-      </div>
-      <div class="card stat-card">
-        <h3 class="card-title text-dark">Total Score</h3>
-        <p class="card-value text-dark">{{ total_points }}</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="admin-section">
-    <h2>🏎️ Data Management</h2>
+    <h2>Data Management</h2>
     <div class="admin-actions">
       <form
         method="POST"
@@ -62,90 +36,29 @@
           Update Drivers
         </button>
       </form>
-      <a
-        href="{{ url_for('admin.resolve_race') }}"
-        class="action-button"
-        title="Resolve race results and award points"
-        >Resolve Race</a
-      >
-    </div>
-  </div>
-
-  <div class="admin-section">
-    <h2>🚫 Cancelled Races</h2>
-    <div class="cancel-controls">
       <form
-        method="POST"
-        action="{{ url_for('admin.cancel_race') }}"
-        class="cancel-form"
-      >
-        <select
-          name="race_id"
-          id="race-select"
-          class="race-select-dropdown"
-          required
+          method="POST"
+          action="{{ url_for('admin.reset_all_points') }}"
+          class="action-form"
+          onsubmit="
+            return confirm(
+              'Are you sure you want to reset ALL user points to 0? This cannot be undone.',
+            );
+          "
         >
-          <option value="" disabled selected>Select race to cancel...</option>
-          {% for race in races %} {% if not race.canceled %}
-          <option value="{{ race.id }}">{{ race.name }}</option>
-          {% endif %} {% endfor %}
-        </select>
-        <button type="submit" class="cancel-action-button">Cancel Race</button>
-      </form>
-    </div>
-
-    <div class="race-table-container">
-      <table class="race-table">
-        <thead>
-          <tr>
-            <th>Race Name</th>
-            <th>Country</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for race in races %} {% if race.canceled %}
-          <tr class="race-canceled">
-            <td>{{ race.name }}</td>
-            <td>{{ race.country }}</td>
-            <td>{{ race.date }}</td>
-            <td>
-              <form
-                method="POST"
-                action="{{ url_for('admin.uncancel_race') }}"
-                class="reactivate-form"
-              >
-                <input type="hidden" name="race_id" value="{{ race.id }}" />
-                <button
-                  type="submit"
-                  class="reactivate-button"
-                  title="Reactivate this race"
-                >
-                  Reactivate
-                </button>
-              </form>
-            </td>
-          </tr>
-          {% endif %} {% endfor %} {% if not races|selectattr('canceled')|list
-          %}
-          <tr>
-            <td colspan="4" class="no-canceled-races">
-              No cancelled races found
-            </td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
+          <button type="submit" class="action-button reset-points-button">
+            Reset All Points
+          </button>
+        </form>
     </div>
   </div>
 
   <div class="admin-section">
-    <h2>📝 Application Logs</h2>
+    <h2>Application Logs</h2>
     <div class="log-viewer">
       {% if log_file_exists %}
       <div class="log-header">
-        <h3>Recent Log Entries (last 50 lines, newest first)</h3>
+        <h3>Recent Log Entries</h3>
         <div class="log-controls">
           <button onclick="toggleLogWrap()" class="log-control-button">
             Toggle Wrap
@@ -184,44 +97,7 @@
   </div>
 
   <div class="admin-section">
-    <h2>👥 System Settings</h2>
-    <div class="admin-actions">
-      <div class="setting-item">
-        <strong>Registration Password:</strong>
-        <code class="registration-password">{{ registration_password }}</code>
-        <form
-          method="POST"
-          action="{{ url_for('admin.change_registration_password') }}"
-          class="registration-form"
-        >
-          <button
-            type="submit"
-            class="action-button"
-            title="Generate new registration password"
-          >
-            New Password
-          </button>
-        </form>
-      </div>
-
-      <div class="setting-item">
-        <form
-          method="POST"
-          action="{{ url_for('admin.reset_all_points') }}"
-          class="action-form"
-          onsubmit="
-            return confirm(
-              'Are you sure you want to reset ALL user points to 0? This cannot be undone.',
-            );
-          "
-        >
-          <button type="submit" class="action-button reset-points-button">
-            Reset All Points
-          </button>
-        </form>
-      </div>
-    </div>
-
+    <h2>Users & Security</h2>
     <div class="user-table-container">
       <table class="user-table">
         <thead>
@@ -309,33 +185,26 @@
         </tbody>
       </table>
     </div>
+
+    <div class="admin-actions">
+        <strong>Registration Password: {{ registration_password }}</strong>
+        <form
+          method="POST"
+          action="{{ url_for('admin.change_registration_password') }}"
+          class="registration-form"
+        >
+          <button
+            type="submit"
+            class="action-button"
+            title="Generate new registration password"
+          >
+            New Password
+          </button>
+        </form>
+    </div>
+    
   </div>
 </div>
-<script>
-  function toggleLogWrap() {
-    const logContainer = document.getElementById("logContainer");
-    const logContent = logContainer.querySelector(".log-content");
-
-    if (logContainer.classList.contains("wrap")) {
-      logContainer.classList.remove("wrap");
-      logContent.classList.remove("wrap");
-    } else {
-      logContainer.classList.add("wrap");
-      logContent.classList.add("wrap");
-    }
-  }
-
-  function clearLogs() {
-    if (
-      confirm(
-        "Are you sure you want to clear the log file? This cannot be undone.",
-      )
-    ) {
-      // This function is now handled by the form submission
-      return true;
-    }
-    return false;
-  }
-</script>
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
 
 {% endblock %}

@@ -29,29 +29,24 @@ def admin_dashboard():
     """Admin dashboard with system statistics"""
     from flask import current_app
     
-    current_app.logger.debug("Admin dashboard route accessed")
+    current_app.logger.info("Admin dashboard route accessed")
     
     try:
         users = load_users()
-        current_app.logger.debug(f"Loaded {len(users)} users for admin dashboard")
         
         # Get registration password from environment or default
         registration_password = get_registration_password()
-        current_app.logger.debug("Retrieved registration password")
 
         # Calculate total points
         total_points = sum(user.get("score", 0) for user in users.values())
-        current_app.logger.debug(f"Calculated total points: {total_points}")
 
         # Create sorted users list for leaderboard
         sorted_users = sorted(
             users.items(), key=lambda x: x[1].get("score", 0), reverse=True
         )
-        current_app.logger.debug(f"Created sorted users list with {len(sorted_users)} users")
 
         # Get all races for canceled race management
         races = race_data_manager.get_all_races()
-        current_app.logger.debug(f"Loaded {len(races)} races for admin dashboard")
 
         # Get recent log entries
         log_file = os.path.join(current_app.instance_path, 'logs', 'app.log') if current_app.instance_path else 'logs/app.log'

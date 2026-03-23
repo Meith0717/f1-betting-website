@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block content %}
-<div class="dashboard-container">
+<div class="main-container dashboard-container">
   <div class="dashboard-header">
     <h1>Welcome to F1 Betting Platform, {{ username }}!</h1>
     <div class="user-actions">
@@ -12,10 +12,10 @@
   <div class="dashboard-content">
     {% if next_race %}
     {% if next_session %}
-    <div class="card next-session-card">
+    <div class="card-base card info-card">
       <div class="race-header">
         <div class="race-header-top">
-          <h3>{% if next_session %}Next Session: {{ next_session.type }} - {% endif %}{{ next_race.name }}</h3>
+          <h3>Next Round: {{ next_race.name }}</h3>
           <div class="race-actions">
             <a href="{{ url_for('main.races') }}" class="btn btn-secondary"
               >View All Races</a
@@ -28,25 +28,6 @@
           <span class="race-date">📅 {{ next_race.date[8:10] }}.{{ next_race.date[5:7] }}.{{ next_race.date[0:4] }}</span>
         </div>
       </div>
-
-      {% if next_session %}
-      <!-- Next session with timer -->
-      <div class="next-session-timer">
-        <span class="next-session-label">Session starts in:</span>
-        <span class="next-session-type">{{ next_session.type }}</span>
-        <span
-          id="session-countdown-inline"
-          class="countdown-timer"
-          data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}"
-        >
-          {% if next_session.time_info %}
-          <span class="countdown-loading">Loading...</span>
-          {% else %}
-          <span class="countdown-unavailable">--:--:--</span>
-          {% endif %}
-        </span>
-      </div>
-      {% endif %}
 
       <!-- All sessions for the race weekend -->
       <div class="sessions-line">
@@ -66,6 +47,25 @@
         <span class="session-inline">No sessions available</span>
         {% endif %}
       </div>
+
+      {% if next_session %}
+      <!-- Next session with timer -->
+      <div class="next-session-timer">
+        <span class="next-session-label">Next Session:</span>
+        <span class="next-session-type">{{ next_session.type }}</span>
+        <span
+          id="session-countdown-inline"
+          class="countdown-timer"
+          data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}"
+        >
+          {% if next_session.time_info %}
+          <span class="countdown-loading">Loading...</span>
+          {% else %}
+          <span class="countdown-unavailable">--:--:--</span>
+          {% endif %}
+        </span>
+      </div>
+      {% endif %}
 
       {% if betting_manager.can_bet_on_race(next_race.id, username) %}
       {% set user_bets = betting_manager.get_user_bets(username) %}
@@ -98,7 +98,7 @@
     betting_manager.get_user_bets(username) %} {% if user_bets %} {% for
     race_id, bet_data in user_bets.items() if bet_data.status == 'active' %}
     {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
-    <div class="bet-entry">
+    <div class="card-base card info-card">
       <div class="bet-race-header">
         <h3 class="bet-race-name">
           {{ race_info.name if race_info else 'Unknown Race' }}
@@ -156,28 +156,24 @@
         <span class="bet-timestamp">Placed: {{ bet_data.timestamp[:19] if bet_data.timestamp else 'N/A' }}</span>
       </div>
     </div>
-    {% endfor %} {% else %}
-    <div class="no-active-bets">
-      <p>You don't have any active bets yet.</p>
-    </div>
+    {% endfor %}
     {% endif %}
-    
     {% endif %}
 
     <div class="stats-container">
-      <div class="card stat-card">
+      <div class="card-base card stat-card">
         <h3 class="card-title">Your Score</h3>
         <div class="card-value">{{ users[username].score }}</div>
         <p class="card-description">Current competition score</p>
       </div>
 
-      <div class="card stat-card">
+      <div class="card-base card stat-card">
         <h3 class="card-title">Your Rank</h3>
         <div class="card-value">{{ user_rank }}</div>
         <p class="card-description">Out of {{ users|length }} users</p>
       </div>
 
-      <div class="card stat-card">
+      <div class="card-base card stat-card">
         <h3 class="card-title">Your Betting History</h3>
         <div class="card-value">
           {% if betting_manager %} {% set user_bets =
@@ -197,7 +193,7 @@
       </div>
     </div>
 
-    <div class="card leaderboard-card">
+    <div class="card-base card">
       <h2 class="card-title">Leaderboard</h2>
       <div class="table-responsive">
         <table class="table">

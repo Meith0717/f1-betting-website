@@ -23,6 +23,7 @@
     --card-bg: var(--surface);
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 /*****************************
 * Minimal & Simple Global Styles
 *****************************/
@@ -31,19 +32,23 @@
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: var(--text);
     background-color: var(--background);
 }
+
 a {
     color: var(--brand-primary);
     text-decoration: none;
 }
+
 a:hover {
     text-decoration: underline;
 }
+
 /*****************************
 * Main Container System - Unified
 *****************************/
@@ -52,6 +57,7 @@ a:hover {
     margin: 0 auto;
     padding: 20px;
 }
+
 /*****************************
 * Base Button System
 *****************************/
@@ -68,23 +74,28 @@ a:hover {
     font-size: 16px;
     text-align: center;
 }
+
 /* Button variants */
 .btn-primary {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 .btn-primary:hover {
     background-color: var(--interactive-hover);
 }
+
 .btn-secondary {
     background-color: var(--surface-variant);
     color: var(--brand-primary);
     border: 2px solid var(--brand-primary);
 }
+
 .btn-secondary:hover {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 .btn-submit {
     background-color: var(--brand-primary);
     color: var(--surface);
@@ -98,9 +109,11 @@ a:hover {
     width: 100%;
     margin: 15px 0;
 }
+
 .btn-submit:hover {
     background-color: var(--interactive-hover);
 }
+
 .btn-cancel {
     background-color: var(--surface-variant);
     color: var(--brand-primary);
@@ -112,10 +125,12 @@ a:hover {
     transition: all 0.2s ease;
     text-align: center;
 }
+
 .btn-cancel:hover {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 /*****************************
 * Card System - Unified
 *****************************/
@@ -124,50 +139,60 @@ a:hover {
     border-radius: 10px;
     padding: 20px;
 }
+
 .card {
     /* Extends .card-base */
 }
+
 .card-header {
     border-bottom: 1px solid var(--divider);
     padding-bottom: 10px;
     margin-bottom: 15px;
 }
+
 .card-title {
     font-size: 1.1em;
     font-weight: 600;
     margin-bottom: 10px;
     color: var(--brand-primary);
 }
+
 .card-value {
     font-size: 2.5em;
     font-weight: bold;
     margin: 10px 0;
     color: var(--brand-primary);
 }
+
 .card-description {
     color: var(--text-light);
     margin-bottom: 0;
     font-size: 0.85em;
 }
+
 .card-footer {
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid var(--divider);
     text-align: right;
 }
+
 .card-body {
     margin-bottom: 15px;
 }
+
 .stat-card {
     flex: 1;
     min-width: 250px;
 }
+
 .stats-container {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
     margin-bottom: 20px;
 }
+
 /*****************************
 * Navigation - Minimal & Mobile-Friendly
 *****************************/
@@ -180,16 +205,19 @@ nav {
     align-items: center;
     font-size: 14px;
 }
+
 .nav-left {
     font-size: 16px;
     font-weight: 600;
 }
+
 .nav-right {
     display: flex;
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
 }
+
 .nav-right a {
     color: white;
     text-decoration: none;
@@ -198,9 +226,11 @@ nav {
     transition: background-color 0.2s;
     font-size: 14px;
 }
+
 .nav-right a:hover {
     background-color: var(--overlay-white);
 }
+
 /* Mobile navigation */
 @media (max-width: 600px) {
     nav {
@@ -208,14 +238,17 @@ nav {
         flex-direction: column;
         gap: 8px;
     }
+
     .nav-left {
         font-size: 15px;
     }
+
     .nav-right {
         gap: 8px;
         justify-content: center;
     }
 }
+
 /*****************************
 * Flash Messages - Minimal
 *****************************/
@@ -226,6 +259,7 @@ nav {
     font-weight: 500;
     font-size: 14px;
 }
+
 /*****************************
 * Form Styles - Reusable
 *****************************/
@@ -235,10 +269,12 @@ nav {
     gap: 8px;
     margin-bottom: 15px;
 }
+
 .form-group label {
     font-weight: 600;
     color: var(--text);
 }
+
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -248,33 +284,39 @@ nav {
     font-size: 16px;
     transition: border-color 0.3s;
 }
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--brand-primary);
 }
+
 .form-hint {
     font-size: 12px;
     color: var(--text-lighter);
     margin-top: 4px;
 }
+
 /*****************************
 * Table Styles - Unified
 *****************************/
 .table-responsive {
     overflow-x: auto;
 }
+
 .table {
     width: 100%;
     border-collapse: collapse;
 }
+
 .table th,
 .table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid var(--divider);
 }
+
 .table th {
     background-color: var(--divider);
     font-weight: 600;
@@ -283,12 +325,15 @@ nav {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
 .table tr:hover {
     background-color: var(--interactive-hover);
 }
+
 .table tr .table tr.current-user:hover {
     background-color: var(--success-light);
 }
+
 /*****************************
 * Auth Pages - Minimal & Mobile-Friendly
 *****************************/
@@ -299,6 +344,7 @@ nav {
     min-height: 70vh;
     padding: 20px;
 }
+
 .auth-card {
     /* Extends .card-base */
     padding: 24px;
@@ -306,6 +352,7 @@ nav {
     max-width: 400px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .auth-card h1 {
     color: var(--brand-primary);
     margin-bottom: 24px;
@@ -313,15 +360,18 @@ nav {
     font-size: 24px;
     font-weight: 600;
 }
+
 .auth-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
     width: 100%;
 }
+
 .auth-form .form-group {
     margin-bottom: 12px;
 }
+
 .auth-form label {
     display: block;
     margin-bottom: 8px;
@@ -329,6 +379,7 @@ nav {
     font-weight: 500;
     font-size: 14px;
 }
+
 .auth-form input {
     width: 100%;
     padding: 12px;
@@ -339,44 +390,53 @@ nav {
     font-size: 14px;
     transition: border-color 0.2s ease;
 }
+
 .auth-form input:focus {
     outline: none;
     border-color: var(--brand-primary);
     box-shadow: 0 0 0 2px rgba(225, 6, 0, 0.2);
 }
+
 .auth-form .form-hint {
     font-size: 12px;
     color: var(--text-lighter);
     margin-top: 4px;
 }
+
 .auth-footer {
     margin-top: 20px;
     text-align: center;
     color: var(--text-light);
     font-size: 14px;
 }
+
 .auth-footer a {
     color: var(--brand-primary);
     font-weight: 500;
     text-decoration: underline;
 }
+
 .auth-footer a:hover {
     color: var(--interactive-hover);
 }
+
 /* Mobile responsiveness */
 @media (max-width: 480px) {
     .auth-card {
         padding: 20px;
         margin: 0 16px;
     }
+
     .auth-card h1 {
         font-size: 22px;
         margin-bottom: 20px;
     }
+
     .auth-form input {
         padding: 10px;
     }
 }
+
 /*****************************
 * Welcome Page - Minimal Layout
 *****************************/
@@ -386,24 +446,28 @@ nav {
     max-width: 600px;
     margin: 0 auto;
 }
+
 .welcome-section h1 {
     color: var(--brand-primary);
     margin-bottom: 20px;
     font-size: 24px;
     font-weight: 600;
 }
+
 .welcome-card {
     /* Extends .card-base */
     padding: 24px;
     margin: 0 auto;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .welcome-card p {
     color: var(--text-light);
     margin-bottom: 24px;
     font-size: 15px;
     line-height: 1.5;
 }
+
 .auth-actions {
     margin-top: 24px;
     display: flex;
@@ -411,46 +475,56 @@ nav {
     gap: 12px;
     flex-wrap: wrap;
 }
+
 .auth-actions .btn-primary,
 .auth-actions .btn-secondary {
     padding: 12px 24px;
     font-size: 15px;
 }
+
 /* Mobile responsiveness */
 @media (max-width: 480px) {
     .welcome-section {
         padding: 20px 12px;
     }
+
     .welcome-section h1 {
         font-size: 22px;
         margin-bottom: 16px;
     }
+
     .welcome-card {
         padding: 20px;
     }
+
     .welcome-card p {
         font-size: 14px;
     }
+
     .auth-actions {
         gap: 10px;
     }
+
     .auth-actions .btn-primary,
     .auth-actions .btn-secondary {
         padding: 10px 20px;
         font-size: 14px;
     }
 }
+
 /*****************************
 * Dashboard - Clean & Simple
 *****************************/
 .dashboard-container {
     /* Extends .main-container */
 }
+
 .dashboard-content {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
+
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -459,23 +533,28 @@ nav {
     padding-bottom: 15px;
     border-bottom: 2px solid var(--divider);
 }
+
 .dashboard-header h1 {
     color: var(--brand-primary);
     font-size: 28px;
 }
+
 .user-actions {
     display: flex;
     gap: 10px;
 }
+
 .race-detail {
     font-size: 14px;
     padding: 6px 0;
     color: var(--text);
 }
+
 .race-detail strong {
     color: var(--brand-primary);
     font-weight: 600;
 }
+
 /*****************************
 * Races Page - Simple Layout
 *****************************/
@@ -483,12 +562,14 @@ nav {
     /* Extends .main-container */
     background-color: var(--background);
 }
+
 .races-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
 }
+
 .back-button {
     background-color: var(--brand-primary);
     color: var(--surface);
@@ -503,22 +584,27 @@ nav {
     align-items: center;
     gap: 8px;
 }
+
 .back-button:hover {
     background-color: var(--interactive-hover);
 }
+
 .back-button:before {
     content: "←";
 }
+
 .races-sections {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
+
 .races-section {
     background-color: var(--surface);
     border-radius: 8px;
     padding: 20px;
 }
+
 .races-section h2 {
     color: var(--brand-primary);
     margin-bottom: 15px;
@@ -527,11 +613,13 @@ nav {
     font-size: 20px;
     font-weight: 600;
 }
+
 .race-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
+
 .race-card {
     background-color: var(--surface);
     border-radius: 6px;
@@ -539,6 +627,7 @@ nav {
     transition: all 0.2s ease;
     font-size: 14px;
 }
+
 .race-card h3 {
     color: var(--brand-primary);
     margin-bottom: 0;
@@ -549,6 +638,9 @@ nav {
     align-items: center;
     gap: 12px;
 }
+
+
+
 .next-session-timer {
     margin: 8px 0;
     padding: 8px;
@@ -559,14 +651,19 @@ nav {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+
+
 .next-session-label {
     font-weight: 600;
     color: var(--brand-accent);
 }
+
 .next-session-type {
     font-weight: 600;
     color: var(--interactive-hover);
 }
+
 .info-card .countdown-timer {
     font-size: 14px;
     font-weight: normal;
@@ -576,6 +673,7 @@ nav {
     border-radius: 4px;
     margin-left: auto;
 }
+
 .race-details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -583,11 +681,13 @@ nav {
     margin-bottom: 12px;
     font-size: 14px;
 }
+
 .past-race {
     opacity: 0.9;
     background-color: var(--surface-variant);
     border-color: var(--border);
 }
+
 .race-card[data-canceled="true"] {
     border-left: 4px solid var(--error);
     background-color: rgba(231, 76, 60, 0.3);
@@ -595,10 +695,12 @@ nav {
     opacity: 1;
     cursor: not-allowed;
 }
+
 .race-card[data-canceled="true"]:hover {
     transform: none;
     /* Remove hover effect for canceled cards */
 }
+
 .race-card[data-canceled="true"] .canceled-badge {
     display: block !important;
     /* Ensure always visible */
@@ -607,10 +709,12 @@ nav {
     right: 0 !important;
     top: 0 !important;
 }
+
 .race-card[data-canceled="true"] h3 {
     color: var(--error);
     font-weight: 600;
 }
+
 .race-card[data-canceled="true"] .race-header {
     cursor: not-allowed;
     border-bottom-color: rgba(231, 76, 60, 0.2);
@@ -618,6 +722,7 @@ nav {
     min-height: 40px;
     /* Ensure space for badge */
 }
+
 .sessions-line {
     margin-top: 8px;
     font-size: 13px;
@@ -627,19 +732,23 @@ nav {
     align-items: center;
     color: var(--text-light);
 }
+
 .session-inline {
     font-size: 12px;
     color: var(--text);
 }
+
 .session-inline::after {
     content: "•";
     margin-left: 8px;
     color: var(--text-lighter);
 }
+
 .session-inline:last-child::after {
     content: "";
     margin-left: 0;
 }
+
 .canceled-badge {
     background-color: var(--error);
     color: var(--surface);
@@ -653,6 +762,7 @@ nav {
     z-index: 1;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
+
 /*****************************
 * Profile Page - Simple Layout
 *****************************/
@@ -660,41 +770,48 @@ nav {
     /* Extends .main-container */
     background-color: var(--background);
 }
+
 .profile-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 12px;
     margin: 15px 0;
 }
+
 .profile-info-item {
     background-color: var(--surface-variant);
     padding: 12px;
     border-radius: 6px;
     border: 1px solid var(--border);
 }
+
 .profile-info-item strong {
     display: block;
     color: var(--text-light);
     font-size: 13px;
     margin-bottom: 4px;
 }
+
 .profile-info-item span {
     color: var(--text);
     font-size: 14px;
     font-weight: 500;
 }
+
 .profile-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
 }
+
 .profile-details {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
     margin-bottom: 30px;
 }
+
 .profile-section {
     flex: 1;
     min-width: 300px;
@@ -702,40 +819,59 @@ nav {
     background-color: var(--surface);
     border-radius: 8px;
 }
+
 .notification-setting {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
     gap: 10px;
 }
+
 .notification-setting input[type="checkbox"] {
     width: 18px;
     height: 18px;
     cursor: pointer;
 }
+
 .notification-setting label {
     cursor: pointer;
     font-weight: normal;
 }
+
 .notification-hint {
     color: var(--error);
     font-size: 14px;
     margin: 5px 0 10px 28px;
     font-style: italic;
 }
+
 .notification-setting input[type="checkbox"]:disabled+label {
     cursor: not-allowed;
     color: var(--text-lighter);
 }
+
 .admin-actions {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
     margin-top: 15px;
 }
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background-color: var(--surface);
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
 .setting-item strong {
     color: var(--text-light);
 }
+
 .setting-item code {
     background-color: var(--surface-variant);
     padding: 2px 6px;
@@ -743,15 +879,32 @@ nav {
     font-family: monospace;
     font-size: 13px;
 }
+
 .data-action-box h3 {
     color: var(--brand-primary);
     margin-bottom: 10px;
     font-size: 18px;
 }
-.update-races-button, 
+
+.update-races-button, .update-drivers-button {
+    background-color: var(--brand-primary);
+    color: var(--surface);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .update-races-button:hover, .update-drivers-button:hover {
     background-color: var(--interactive-hover);
 }
+
 /*****************************
 * Admin Dashboard - Simple
 *****************************/
@@ -759,24 +912,41 @@ nav {
     /* Extends .main-container */
     background-color: var(--background);
 }
+
 .admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
 }
+
 .admin-section {
     background-color: var(--surface);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
 }
+
 .registration-form {
     margin: 15px 0;
 }
+
+.generate-password-button {
+    padding: 8px 16px;
+    background-color: var(--brand-primary);
+    color: var(--surface);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    margin-right: 10px;
+}
+
 .generate-password-button:hover {
     background-color: var(--interactive-hover);
 }
+
 .cancel-action-box,
 .cancel-form {
     display: flex;
@@ -785,11 +955,29 @@ nav {
     align-items: center;
     margin-bottom: 15px;
 }
+
+.race-select-dropdown {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--background);
+    color: var(--text);
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.cancel-controls {
+    margin-bottom: 15px;
+}
+
 .cancel-controls form {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
+
 .cancel-controls select {
     flex: 1;
     min-width: 250px;
@@ -799,44 +987,108 @@ nav {
     background-color: var(--surface-variant);
     color: var(--text);
 }
-.canceled-race-simple .canceled-race-simple 
+
+.canceled-race-simple .canceled-race-simple .reactivate-button {
+    background-color: var(--brand-primary);
+    color: var(--surface);
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 .reactivate-button:hover {
     background-color: var(--interactive-hover);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
+
 .reactivate-button::before {
     content: "↻";
     /* Simpler refresh icon */
     font-size: 14px;
 }
+
 .no-canceled,
+.no-canceled-races {
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.reactivate-form {
+    margin-left: 10px;
+}
+
 .race-select-dropdown:focus {
     outline: none;
     border-color: var(--brand-primary);
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
+
+.cancel-action-button {
+    padding: 10px 20px;
+    background-color: var(--brand-primary);
+    color: var(--surface);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
 .cancel-action-button:hover {
     background-color: var(--interactive-hover);
 }
+
 .uncancel-button:hover {
     background-color: #27ae60;
 }
+
 .canceled-races-management h3 {
     color: var(--brand-primary);
     margin-bottom: 15px;
 }
+
+.registration-password {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--brand-accent);
+    background-color: var(--brand-highlight);
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 10px 0;
+}
+
 .info-text code {
     background-color: var(--background);
     padding: 2px 6px;
     border-radius: 3px;
     font-family: monospace;
 }
+
 .user-table-container {
     overflow-x: auto;
     margin-top: 15px;
 }
+
 .user-table,
+.race-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
 .user-table th,
 .user-table td,
 .race-table th,
@@ -845,16 +1097,23 @@ nav {
     text-align: left;
     border-bottom: 1px solid var(--border);
 }
+
 .user-table th,
 .race-table th {
     background-color: var(--background);
     font-weight: 600;
     color: var(--text);
 }
+
 .user-table tr:hover,
 .race-table tr:hover {
     background-color: var(--surface-variant);
 }
+
+.race-canceled {
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
 .admin-badge {
     background-color: var(--brand-accent);
     color: var(--surface);
@@ -863,6 +1122,7 @@ nav {
     font-size: 12px;
     display: inline-block;
 }
+
 .regular-badge {
     background-color: var(--success);
     color: var(--surface);
@@ -871,13 +1131,16 @@ nav {
     font-size: 12px;
     display: inline-block;
 }
+
 .action-cell {
     white-space: nowrap;
 }
+
 .action-form {
     display: inline;
     margin: 0 2px;
 }
+
 .promote-button,
 .demote-button {
     background: none;
@@ -887,14 +1150,17 @@ nav {
     padding: 4px 8px;
     border-radius: 4px;
 }
+
 .promote-button:hover {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 .demote-button:hover {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 .delete-button {
     background: none;
     border: none;
@@ -904,10 +1170,12 @@ nav {
     border-radius: 4px;
     color: var(--error);
 }
+
 .delete-button:hover {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 .action-button {
     padding: 8px 16px;
     background-color: var(--brand-primary);
@@ -918,6 +1186,7 @@ nav {
     font-weight: bold;
     transition: all 0.3s;
 }
+
 /*****************************
 * Countdown Timer Styles
 *****************************/
@@ -929,21 +1198,26 @@ nav {
     min-width: 80px;
     text-align: right;
 }
+
 .countdown-loading {
     color: var(--text-lighter);
     font-style: italic;
 }
+
 .countdown-unavailable {
     color: var(--error);
 }
+
 .countdown-active {
     color: var(--success);
     font-weight: bold;
 }
+
 .countdown-expired {
     color: var(--error);
     font-weight: bold;
 }
+
 /*****************************
 * Animation
 *****************************/
@@ -957,6 +1231,7 @@ nav {
     position: relative;
     /* Ensure positioning context for absolute children */
 }
+
 .race-info-line {
     display: flex;
     flex-wrap: wrap;
@@ -965,37 +1240,46 @@ nav {
     font-size: 13px;
     color: var(--text-light);
 }
+
 .race-circuit {
     font-weight: 500;
     color: var(--text);
 }
+
 .race-city {
     color: var(--brand-accent);
 }
+
 .race-country {
     color: var(--success);
 }
+
 .race-date {
     color: var(--interactive-hover);
     font-weight: 500;
 }
+
 .race-info-line span::after {
     content: "•";
     margin-left: 12px;
     color: var(--text-lighter);
 }
+
 .race-info-line span:last-child::after {
     content: "";
     margin-left: 0;
 }
+
 /* Reset points button - custom red color */
 .reset-points-button {
     background-color: var(--brand-primary);
     color: var(--surface);
 }
+
 .reset-points-button:hover {
     background-color: var(--interactive-hover);
 }
+
 /*****************************
 * Betting Pages - Compact Styles
 *****************************/
@@ -1005,6 +1289,7 @@ nav {
     margin: 0 auto;
     padding: 20px;
 }
+
 /* Compact Bet Form */
 .bet-form-compact {
     margin: 15px 0;
@@ -1012,16 +1297,19 @@ nav {
     overflow: hidden;
     font-size: 13px;
 }
+
 .bet-header-red {
     background: var(--color-danger);
     color: white;
     padding: 12px 16px;
 }
+
 .bet-header-red h2 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
 }
+
 .race-info-row {
     margin-bottom: 16px;
     padding: 12px;
@@ -1029,6 +1317,7 @@ nav {
     border-radius: 6px;
     border: 1px solid var(--border-light);
 }
+
 .race-details-inline {
     display: flex;
     flex-wrap: wrap;
@@ -1036,6 +1325,7 @@ nav {
     margin-bottom: 12px;
     font-size: 13px;
 }
+
 .race-detail-item {
     display: flex;
     align-items: center;
@@ -1043,26 +1333,32 @@ nav {
     color: var(--text);
     white-space: nowrap;
 }
+
 .race-detail-item:first-child {
     font-weight: 600;
 }
+
 .instructions-compact strong {
     display: block;
     margin-bottom: 6px;
     color: var(--text);
 }
+
 .instructions-compact ul {
     margin: 0;
     padding-left: 18px;
 }
+
 .instructions-compact li {
     margin-bottom: 4px;
     font-size: 12px;
     color: var(--text-light);
 }
+
 .bet-selections-section {
     width: 100%;
 }
+
 .bet-selections-section h3 {
     margin-bottom: 12px;
     color: var(--text);
@@ -1071,35 +1367,42 @@ nav {
     align-items: center;
     gap: 8px;
 }
+
 .bet-form-inner {
     width: 100%;
 }
+
 .position-selector-vertical {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 16px;
 }
+
 .position-selector-vertical .form-group {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 12px;
 }
+
 .position-selector-vertical label {
     min-width: 80px;
     text-align: right;
     font-weight: 600;
     font-size: 13px;
 }
+
 .position-selector-vertical .driver-select {
     flex: 1;
 }
+
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
+
 .form-group label {
     font-weight: 600;
     font-size: 12px;
@@ -1108,6 +1411,7 @@ nav {
     align-items: center;
     gap: 4px;
 }
+
 .driver-select {
     padding: 8px 10px;
     border: 1px solid var(--border);
@@ -1116,14 +1420,17 @@ nav {
     color: var(--text);
     font-size: 13px;
 }
+
 .driver-select:focus {
     outline: none;
     border-color: var(--brand-primary);
     box-shadow: 0 0 0 1px rgba(0, 120, 255, 0.1);
 }
+
 .driver-select option {
     padding: 8px 12px;
 }
+
 .form-hint {
     display: block;
     margin-top: 3px;
@@ -1131,73 +1438,90 @@ nav {
     color: var(--text-light);
     font-style: italic;
 }
+
 .betting-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
 }
+
 .betting-header h1 {
     color: var(--brand-primary);
     margin: 0;
 }
+
+
+
 .race-details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
     margin-top: 15px;
 }
+
 .race-details p {
     margin: 0;
     color: var(--text);
 }
+
 .form-section h3 {
     color: var(--brand-primary);
     margin-top: 0;
     border-bottom: 2px solid var(--brand-accent);
     padding-bottom: 10px;
 }
+
 .position-group label {
     font-weight: bold;
     color: var(--text);
     font-size: 16px;
 }
+
 .form-preview h3 {
     color: var(--brand-primary);
     margin-top: 0;
 }
+
 .form-actions {
     display: flex;
     gap: 15px;
     margin-top: 25px;
     justify-content: center;
 }
+
 .submit-button:hover {
     background: var(--interactive-hover);
 }
+
 .cancel-button:hover {
     background: var(--brand-highlight);
 }
+
 /* Edit Bet Specific */
 .current-bet-info h3 {
     color: var(--brand-primary);
     margin-top: 0;
 }
+
 .bet-timestamp {
     font-size: 14px;
     color: var(--text-light);
     margin: 0;
 }
+
 .bet-race-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
 }
+
 .bet-race-name {
     margin: 0;
     flex: 1;
 }
+
 .betting-time-info {
     font-size: 12px;
     color: var(--text-light);
@@ -1206,10 +1530,12 @@ nav {
     gap: 4px;
     white-space: nowrap;
 }
+
 .betting-time-label {
     font-weight: 500;
     color: var(--text);
 }
+
 .betting-closes-timer {
     font-size: 13px;
     color: var(--warning);
@@ -1218,31 +1544,38 @@ nav {
     padding: 4px 8px;
     border-radius: 6px;
 }
+
 .betting-closes-timer .countdown-active {
     color: var(--warning);
     font-weight: bold;
 }
+
 .betting-closes-timer .countdown-expired {
     color: var(--error);
     font-weight: bold;
 }
+
 .betting-closes-timer .countdown-loading {
     color: var(--text-lighter);
     font-style: italic;
 }
+
 /* Place Bet Specific */
 .betting-instructions h3 {
     color: var(--interactive-hover);
     margin-top: 0;
 }
+
 .betting-instructions ul {
     margin: 10px 0;
     padding-left: 20px;
 }
+
 .betting-instructions li {
     color: var(--text-light);
     margin: 5px 0;
 }
+
 /*****************************
 * Betting Dashboard - Compact
 *****************************/
@@ -1251,12 +1584,14 @@ nav {
     margin: 0;
     font-size: 28px;
 }
+
 .betting-section {
     background-color: var(--surface);
     border-radius: 8px;
     padding: 20px;
     border: 1px solid var(--border);
 }
+
 .betting-section h2 {
     color: var(--brand-primary);
     margin-top: 0;
@@ -1265,30 +1600,37 @@ nav {
     font-size: 1.3em;
     margin-bottom: 15px;
 }
+
+
+
 .bet-header h3 {
     margin: 0;
     color: var(--brand-primary);
     font-size: 16px;
     font-weight: 600;
 }
+
 .bet-header h4 {
     margin: 0;
     color: var(--brand-primary);
     font-size: 16px;
     font-weight: 600;
 }
+
 .result-section strong {
     display: block;
     margin-bottom: 8px;
     color: var(--text);
     font-size: 14px;
 }
+
 .prediction-grid .prediction-item .position-badge .driver-name .bet-points strong {
     display: block;
     margin-bottom: 6px;
     color: var(--text);
     font-size: 14px;
 }
+
 .no-bets {
     padding: 20px;
     text-align: center;
@@ -1297,42 +1639,61 @@ nav {
     border-radius: 4px;
     border: 1px solid var(--border);
 }
+
 .no-bets p {
     margin: 0;
     font-size: 14px;
 }
+
 /*****************************
 * User Overview - Compact
 *****************************/
-.active-bets-section 
+.active-bets-section .bet-entry {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    background-color: var(--surface);
+    border-left: 3px solid var(--brand-accent);
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
 .bet-entry:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 .bet-race-name {
     margin: 0 0 4px 0;
     color: var(--brand-primary);
     font-size: 15px;
     font-weight: 600;
 }
+
 .prediction-label {
     display: block;
     margin-bottom: 6px;
     color: var(--text);
     font-size: 14px;
 }
+
 .prediction-and-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
 }
+
 .prediction-drivers {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 0;
 }
+
 .driver-prediction {
     background-color: var(--surface-variant);
     padding: 4px 8px;
@@ -1340,6 +1701,7 @@ nav {
     border: 1px solid var(--border);
     font-size: 13px;
 }
+
 .pos-badge {
     background-color: var(--brand-accent);
     color: var(--surface);
@@ -1349,6 +1711,7 @@ nav {
     margin-right: 4px;
     font-weight: bold;
 }
+
 .bet-controls {
     display: flex;
     gap: 8px;
@@ -1356,6 +1719,7 @@ nav {
     flex-wrap: wrap;
     margin-left: 12px;
 }
+
 .control-button {
     padding: 4px 8px;
     border: none;
@@ -1365,6 +1729,7 @@ nav {
     font-weight: 600;
     transition: all 0.3s ease;
 }
+
 .edit-control {
     background-color: var(--brand-primary);
     color: var(--surface);
@@ -1372,9 +1737,11 @@ nav {
     font-size: 12px;
     border-radius: 4px;
 }
+
 .edit-control:hover {
     background-color: var(--interactive-hover);
 }
+
 .cancel-control {
     background-color: var(--brand-primary);
     color: var(--surface);
@@ -1382,9 +1749,11 @@ nav {
     font-size: 12px;
     border-radius: 4px;
 }
+
 .cancel-control:hover {
     background-color: var(--interactive-hover);
 }
+
 .bet-info {
     display: flex;
     justify-content: space-between;
@@ -1395,18 +1764,22 @@ nav {
     padding-top: 6px;
     border-top: 1px solid var(--divider);
 }
+
 .no-active-bets p {
     margin: 0;
     font-size: 13px;
 }
+
 .place-bet-link:hover {
     background-color: var(--interactive-hover);
     transform: translateY(-1px);
 }
+
 .cancel-form {
     display: inline;
     margin: 0;
 }
+
 /*****************************
 * Session Results - Compact
 *****************************/
@@ -1415,6 +1788,7 @@ nav {
     padding: 8px 12px;
     border-radius: 6px;
 }
+
 .results-table th {
     background-color: var(--surface-variant);
     padding: 12px;
@@ -1423,42 +1797,63 @@ nav {
     position: sticky;
     top: 0;
 }
+
 .results-table td {
     padding: 10px 12px;
     border-bottom: 1px solid var(--divider);
 }
+
 .results-table tr:hover {
     background-color: var(--overlay-white);
 }
+
 .results-table .results-table .results-table .results-table .results-table .results-table .points-cell {
     font-weight: bold;
     color: var(--success);
 }
+
 .results-table .position-cell {
     font-weight: bold;
 }
+
 .results-table .session-status .session-status .session-status .no-results p {
     margin: 0;
     font-size: 14px;
 }
+
+.nav-button {
+    padding: 10px 20px;
+    background-color: var(--surface-variant);
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
 .nav-button:hover {
     background-color: var(--brand-primary);
     color: var(--surface);
     border-color: var(--brand-primary);
 }
+
 .nav-button:disabled,
 .nav-button[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 .session-tab:hover {
     background-color: var(--surface);
 }
+
 .session-tab .session-tab:disabled,
 .session-tab[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 /* Race-Grouped Bet History */
 .race-bet-section {
     background: var(--surface);
@@ -1467,23 +1862,27 @@ nav {
     margin-bottom: 16px;
     border: 1px solid var(--border);
 }
+
 /* Table Format */
 .bets-table-container {
     width: 100%;
     overflow-x: auto;
     margin: 12px 0;
 }
+
 .bets-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
 }
+
 .bets-table th,
 .bets-table td {
     padding: 10px 12px;
     text-align: left;
     border-bottom: 1px solid var(--border-light);
 }
+
 .bets-table th {
     background: var(--surface-darker);
     font-weight: 600;
@@ -1491,34 +1890,41 @@ nav {
     position: sticky;
     top: 0;
 }
+
 .user-header {
     width: 150px;
     min-width: 150px;
 }
+
 .position-header,
 .position-cell {
     width: 100px;
     min-width: 100px;
     text-align: center;
 }
+
 .points-header,
 .points-cell {
     width: 80px;
     min-width: 80px;
     text-align: right;
 }
+
 .user-cell {
     font-weight: 500;
     color: var(--text);
 }
+
 .position-cell {
     text-align: center;
     font-weight: 500;
 }
+
 .points-cell {
     text-align: right;
     font-weight: 600;
 }
+
 .you-badge {
     background: var(--brand-primary-light);
     color: var(--brand-primary);
@@ -1528,15 +1934,18 @@ nav {
     font-weight: 600;
     margin-left: 6px;
 }
+
 .bets-table tr:hover {
     background: var(--surface-light);
 }
+
 .user-bet-row {
     background: var(--surface-light);
     border-radius: 4px;
     padding: 8px 12px;
     border: 1px solid var(--border-light);
 }
+
 .driver-podium {
     background: var(--surface-darker);
     padding: 4px 10px;
@@ -1546,11 +1955,13 @@ nav {
     color: var(--text);
     white-space: nowrap;
 }
+
 .user-bet-row:not(:last-child) {
     border-bottom: 1px solid var(--border);
     margin-bottom: 4px;
     padding-bottom: 8px;
 }
+
 .race-bet-header {
     display: flex;
     justify-content: space-between;
@@ -1559,6 +1970,7 @@ nav {
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border-light);
 }
+
 .race-title {
     margin: 0;
     font-size: 18px;
@@ -1566,6 +1978,7 @@ nav {
     color: var(--text);
     flex: 1;
 }
+
 .race-meta {
     display: flex;
     align-items: center;
@@ -1573,28 +1986,34 @@ nav {
     flex-wrap: wrap;
     margin-left: auto;
 }
+
 .race-status.closed {
     background: var(--surface-dark);
     color: var(--text);
 }
+
 .race-status.resolved {
     background: var(--color-success-light);
     color: var(--color-success-dark);
 }
+
 .username {
     color: var(--text);
 }
+
 .prediction-label {
     font-size: 13px;
     color: var(--text-light);
     font-weight: 500;
 }
+
 .actual-results {
     background: var(--surface-darker);
     border-radius: 6px;
     padding: 12px;
     margin-top: 12px;
 }
+
 .results-label {
     font-size: 13px;
     color: var(--text);
@@ -1602,6 +2021,9 @@ nav {
     margin-bottom: 8px;
     display: block;
 }
+
+
+
 .status-indicator {
     font-size: 12px;
     padding: 4px 8px;
@@ -1611,14 +2033,17 @@ nav {
     align-items: center;
     gap: 4px;
 }
+
 .status-indicator.closed {
     background: var(--surface-dark);
     color: var(--text);
 }
+
 .status-indicator.resolved {
     background: var(--color-success-light);
     color: var(--color-success-dark);
 }
+
 .compact-prediction,
 .prediction-label,
 .results-label {
@@ -1626,19 +2051,23 @@ nav {
     color: var(--text-light);
     margin-right: 8px;
 }
+
 .drivers-compact {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     margin-top: 4px;
 }
+
 .driver-podium.actual {
     background: var(--surface-darker);
 }
+
 /* Other Users Section - Compact */
 .other-user-section:last-child {
     border-bottom: none;
 }
+
 /* Betting Timer Row - Integrated in Next Session Card */
 .betting-timer-row {
     margin-top: 12px;
@@ -1650,11 +2079,13 @@ nav {
     gap: 8px;
     flex-wrap: wrap;
 }
+
 .betting-timer-label {
     font-size: 13px;
     color: var(--text-light);
     font-weight: 500;
 }
+
 .betting-countdown-timer {
     font-size: 13px;
     font-weight: 600;
@@ -1662,6 +2093,7 @@ nav {
     min-width: 80px;
     text-align: right;
 }
+
 .betting-action-button {
     margin-left: auto;
     font-size: 13px;
@@ -1676,6 +2108,7 @@ nav {
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .betting-action-button:hover {
     background-color: var(--interactive-hover);
 }

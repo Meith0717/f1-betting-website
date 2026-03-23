@@ -39,7 +39,7 @@ function updateCountdown(targetDate, element, isInline = false) {
   if (diff <= 0) {
     // Check if this is a betting countdown timer
     if (element.id && element.id.startsWith('betting-countdown-')) {
-      element.innerHTML = '⏰ <span class="countdown-expired">Betting closed</span>';
+      element.innerHTML = '<span class="countdown-expired">Betting closed</span>';
       console.log('Betting countdown expired, refreshing page...');
       // Refresh page to update bet status
       setTimeout(() => {
@@ -72,7 +72,7 @@ function updateCountdown(targetDate, element, isInline = false) {
     countdownText += `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }
 
-  element.innerHTML = `⏰ <span class="countdown-active">${countdownText}</span>`;
+  element.innerHTML = `<span class="countdown-active">${countdownText}</span>`;
 }
 
 function initializeBettingCountdowns() {
@@ -102,12 +102,12 @@ function initializeBettingCountdowns() {
           timerElement.dataset.timerId = timer;
         } else {
           timerElement.innerHTML =
-            '⏰ <span class="countdown-expired">Betting closed</span>';
+            '<span class="countdown-expired">Betting closed</span>';
         }
       } catch (error) {
         console.error("Error initializing betting countdown:", error);
         timerElement.innerHTML =
-          '⏰ <span class="countdown-unavailable">--:--:--</span>';
+          '<span class="countdown-unavailable">--:--:--</span>';
       }
     } else {
       console.warn(`No race time data for timer: ${timerElement.id}`);

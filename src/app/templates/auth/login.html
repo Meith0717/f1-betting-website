@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 <div class="auth-container">
-  <div class="auth-card">
-    <h1>🔐 Login to F1 Betting</h1>
+  <div class="card-base auth-card">
+    <h1>Sign In</h1>
 
     <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
       <div class="form-group">
@@ -11,7 +11,8 @@
           id="username"
           name="username"
           required
-          placeholder="Enter your username"
+          placeholder="Your username"
+          autocomplete="username"
         />
       </div>
 
@@ -22,16 +23,16 @@
           id="password"
           name="password"
           required
-          placeholder="Enter your password"
+          placeholder="Your password"
+          autocomplete="current-password"
         />
       </div>
 
-      <button type="submit" class="btn-submit">Login</button>
+      <button type="submit" class="btn-submit">Sign In</button>
     </form>
 
     <div class="auth-footer">
-      Don't have an account?
-      <a href="{{ url_for('auth.register') }}">Register here</a>
+      <a href="{{ url_for('auth.register') }}">Create account</a>
     </div>
   </div>
 </div>
