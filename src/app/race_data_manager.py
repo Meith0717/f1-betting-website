@@ -44,7 +44,9 @@ class RaceDataManager:
 
         return cleaned
 
-    def _parse_utc_datetime(self, date_str: str, time_str: Optional[str]) -> Optional[datetime]:
+    def _parse_utc_datetime(
+        self, date_str: str, time_str: Optional[str]
+    ) -> Optional[datetime]:
         """Parse date/time strings as a UTC-aware datetime."""
         try:
             if not date_str:
@@ -53,9 +55,13 @@ class RaceDataManager:
             cleaned_time = self._clean_time_string(time_str)
 
             if len(cleaned_time.split(":")) >= 3:
-                dt = datetime.strptime(f"{date_str} {cleaned_time[:8]}", "%Y-%m-%d %H:%M:%S")
+                dt = datetime.strptime(
+                    f"{date_str} {cleaned_time[:8]}", "%Y-%m-%d %H:%M:%S"
+                )
             else:
-                dt = datetime.strptime(f"{date_str} {cleaned_time[:5]}", "%Y-%m-%d %H:%M")
+                dt = datetime.strptime(
+                    f"{date_str} {cleaned_time[:5]}", "%Y-%m-%d %H:%M"
+                )
 
             return self.utc_timezone.localize(dt)
         except Exception:
@@ -67,14 +73,16 @@ class RaceDataManager:
             # First try to get race datetime from sessions (new structure)
             if race.get("sessions"):
                 # Find the Race session specifically
-                race_session = next((s for s in race["sessions"] if s["type"] == "Race"), None)
+                race_session = next(
+                    (s for s in race["sessions"] if s["type"] == "Race"), None
+                )
                 if race_session:
                     parsed = self._parse_utc_datetime(
                         race_session.get("date"), race_session.get("time")
                     )
                     if parsed:
                         return parsed
-                
+
                 # Fallback to first session if Race session not found
                 first_session = race["sessions"][0]
                 parsed = self._parse_utc_datetime(
@@ -270,7 +278,9 @@ class RaceDataManager:
         """Delete a race."""
         data = self.load_races()
         original_length = len(data.get("races", []))
-        data["races"] = [race for race in data.get("races", []) if race.get("id") != race_id]
+        data["races"] = [
+            race for race in data.get("races", []) if race.get("id") != race_id
+        ]
 
         if len(data["races"]) < original_length:
             self.save_races(data)
@@ -431,7 +441,11 @@ class RaceDataManager:
 
             def _append_session(session_type: str, key: str):
                 session_data = schedule.get(key)
-                if session_data and session_data.get("date") and session_data.get("time"):
+                if (
+                    session_data
+                    and session_data.get("date")
+                    and session_data.get("time")
+                ):
                     sessions.append(
                         {
                             "type": session_type,
@@ -444,7 +458,11 @@ class RaceDataManager:
             _append_session("FP2", "fp2")
             _append_session("FP3", "fp3")
 
-            if schedule.get("sprintQualy") and schedule["sprintQualy"].get("date") and schedule["sprintQualy"].get("time"):
+            if (
+                schedule.get("sprintQualy")
+                and schedule["sprintQualy"].get("date")
+                and schedule["sprintQualy"].get("time")
+            ):
                 sessions.append(
                     {
                         "type": "Sprint Qualifying",
@@ -455,7 +473,11 @@ class RaceDataManager:
 
             _append_session("Qualifying", "qualy")
 
-            if schedule.get("sprintRace") and schedule["sprintRace"].get("date") and schedule["sprintRace"].get("time"):
+            if (
+                schedule.get("sprintRace")
+                and schedule["sprintRace"].get("date")
+                and schedule["sprintRace"].get("time")
+            ):
                 sessions.append(
                     {
                         "type": "Sprint Race",
@@ -464,7 +486,11 @@ class RaceDataManager:
                     }
                 )
 
-            if not schedule.get("race") or not schedule["race"].get("date") or not schedule["race"].get("time"):
+            if (
+                not schedule.get("race")
+                or not schedule["race"].get("date")
+                or not schedule["race"].get("time")
+            ):
                 continue
 
             # Add race as a session for consistency
@@ -508,9 +534,7 @@ class RaceDataManager:
         try:
             import requests
 
-            response = requests.get(
-                "https://f1api.dev/api/current/drivers", timeout=10
-            )
+            response = requests.get("https://f1api.dev/api/current/drivers", timeout=10)
             response.raise_for_status()
             return response.json()
         except Exception as e:

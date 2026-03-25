@@ -8,9 +8,9 @@ from flask import (
     flash,
     current_app,
 )
-from ..utils import load_users, save_users
-from ..decorators import admin_required
-from ..race_data import race_data_manager
+from ..auth_utils import load_users, save_users
+from ..auth_decorators import admin_required
+from ..race_data_manager import race_data_manager
 import os
 import secrets
 
@@ -28,12 +28,12 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 def admin_dashboard():
     """Admin dashboard with system statistics"""
     from flask import current_app
-    
+
     current_app.logger.info("Admin dashboard route accessed")
-    
+
     try:
         users = load_users()
-        
+
         # Get registration password from environment or default
         registration_password = get_registration_password()
 
@@ -49,12 +49,16 @@ def admin_dashboard():
         races = race_data_manager.get_all_races()
 
         # Get recent log entries
-        log_file = os.path.join(current_app.instance_path, 'logs', 'app.log') if current_app.instance_path else 'logs/app.log'
+        log_file = (
+            os.path.join(current_app.instance_path, "logs", "app.log")
+            if current_app.instance_path
+            else "logs/app.log"
+        )
         log_entries = []
-        
+
         try:
             if os.path.exists(log_file):
-                with open(log_file, 'r') as f:
+                with open(log_file, "r") as f:
                     # Read last 50 lines
                     lines = f.readlines()
                     log_entries = lines[-50:] if len(lines) > 50 else lines
@@ -219,43 +223,44 @@ def update_drivers():
 @admin_required
 def resolve_race():
     """Resolve a race and award points to users"""
-    from ..betting import betting_manager
-    
+    from ..betting_manager import betting_manager
+
     if request.method == "POST":
         race_id = request.form.get("race_id")
         driver_1 = request.form.get("driver_1")
         driver_2 = request.form.get("driver_2")
         driver_3 = request.form.get("driver_3")
-        
+
         if not all([race_id, driver_1, driver_2, driver_3]):
             flash("Please fill in all fields", "error")
             return redirect(url_for("admin.resolve_race"))
-        
+
         actual_results = [driver_1, driver_2, driver_3]
-        
+
         # Resolve the race
         points_summary = betting_manager.resolve_race(race_id, actual_results)
-        
+
         if points_summary:
             # Update user scores
             for username, points in points_summary.items():
                 betting_manager.update_user_score(username, points, race_id)
-            
-            flash(f"Race resolved! Points awarded to {len(points_summary)} users", "success")
+
+            flash(
+                f"Race resolved! Points awarded to {len(points_summary)} users",
+                "success",
+            )
             return redirect(url_for("admin.admin_dashboard"))
         else:
             flash("No bets to resolve or error resolving race", "warning")
             return redirect(url_for("admin.admin_dashboard"))
-    
+
     # GET request - show form
     races = race_data_manager.get_all_races()
-    drivers = betting_manager.get_available_drivers_for_race("")  # Get any race's drivers
-    
-    return render_template(
-        "admin/resolve_race.html",
-        races=races,
-        drivers=drivers
-    )
+    drivers = betting_manager.get_available_drivers_for_race(
+        ""
+    )  # Get any race's drivers
+
+    return render_template("admin/resolve_race.html", races=races, drivers=drivers)
 
 
 @admin_bp.route("/cancel-race", methods=["POST"])
@@ -325,24 +330,28 @@ def uncancel_race(race_id=None):
 def clear_logs():
     """Clear the application log file"""
     from flask import current_app
-    
+
     try:
-        log_file = os.path.join(current_app.instance_path, 'logs', 'app.log') if current_app.instance_path else 'logs/app.log'
-        
+        log_file = (
+            os.path.join(current_app.instance_path, "logs", "app.log")
+            if current_app.instance_path
+            else "logs/app.log"
+        )
+
         if os.path.exists(log_file):
             # Clear the log file by opening in write mode
-            with open(log_file, 'w') as f:
+            with open(log_file, "w") as f:
                 f.write("Log file cleared\n")
-            
+
             current_app.logger.info("Log file cleared by admin")
             flash("Log file cleared successfully!", "success")
         else:
             flash("No log file found to clear", "info")
-            
+
     except Exception as e:
         current_app.logger.error(f"Error clearing logs: {e}")
         flash("Error clearing log file", "error")
-        
+
     return redirect(url_for("admin.admin_dashboard"))
 
 

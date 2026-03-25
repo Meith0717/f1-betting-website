@@ -31,7 +31,7 @@ def save_users(users):
 
     try:
         current_app.logger.debug(f"Saving {len(users)} users to {users_file}")
-        
+
         # Create data directory with restrictive permissions
         os.makedirs(os.path.dirname(users_file), exist_ok=True)
 
@@ -47,7 +47,7 @@ def save_users(users):
             dir=os.path.dirname(users_file), prefix="users_"
         )
         current_app.logger.debug(f"Created temp file: {temp_path}")
-        
+
         with os.fdopen(temp_fd, "w") as f:
             json.dump({"users": users}, f, indent=2)
             current_app.logger.debug(f"Written user data to temp file")
@@ -69,7 +69,7 @@ def save_users(users):
             current_app.logger.debug(f"Set final file permissions to 0o600")
         except Exception as e:
             current_app.logger.warning(f"Could not set final file permissions: {e}")
-            
+
         current_app.logger.info(f"Successfully saved {len(users)} users")
 
     except Exception as e:

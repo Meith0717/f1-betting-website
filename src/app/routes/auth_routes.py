@@ -1,12 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from ..utils import (
+from ..auth_utils import (
     load_users,
     save_users,
     ensure_first_admin,
     hash_password,
     verify_password,
 )
-from ..decorators import admin_required, login_required
+from ..auth_decorators import admin_required, login_required
 from datetime import datetime
 import os
 
@@ -22,7 +22,7 @@ def get_registration_password():
 def login():
     """Handle user login with session management"""
     from flask import current_app
-    
+
     current_app.logger.debug("Login route accessed")
     users = ensure_first_admin()
     current_app.logger.debug(f"Loaded {len(users)} users, ensuring first admin")
@@ -31,7 +31,7 @@ def login():
         current_app.logger.debug("Login POST request received")
         username = request.form.get("username")
         password = request.form.get("password")
-        
+
         current_app.logger.debug(f"Login attempt for username: {username}")
 
         if username in users and verify_password(users[username]["password"], password):
@@ -45,7 +45,9 @@ def login():
 
             # Migrate plaintext passwords
             if not users[username]["password"].startswith("pbkdf2_sha256$"):
-                current_app.logger.warning(f"Migrating plaintext password for user: {username}")
+                current_app.logger.warning(
+                    f"Migrating plaintext password for user: {username}"
+                )
                 users[username]["password"] = hash_password(password)
 
             save_users(users)

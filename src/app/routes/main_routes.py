@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
-from ..utils import load_users, save_users, hash_password, verify_password
-from ..decorators import login_required
-from ..race_data import race_data_manager
-from ..betting import betting_manager
+from ..auth_utils import load_users, save_users, hash_password, verify_password
+from ..auth_decorators import login_required
+from ..race_data_manager import race_data_manager
+from ..betting_manager import betting_manager
 from datetime import datetime
 import pytz
 
@@ -13,15 +13,15 @@ main_bp = Blueprint("main", __name__)
 def index():
     """Handle the main index route - shows welcome page or user dashboard"""
     from flask import current_app
-    
+
     current_app.logger.info("Main index route accessed")
-    
+
     # Get next race and session data with timezone info
     try:
         next_race = race_data_manager.get_next_race()
-        
+
         next_session = race_data_manager.get_next_session()
-        
+
         upcoming_races = race_data_manager.get_upcoming_races(limit=3)
 
         # Add timezone info to races
@@ -44,7 +44,9 @@ def index():
     try:
         closed_count = betting_manager.check_and_close_expired_bets()
         if closed_count > 0:
-            current_app.logger.info(f"Closed bets for {closed_count} races that have started")
+            current_app.logger.info(
+                f"Closed bets for {closed_count} races that have started"
+            )
     except Exception as e:
         current_app.logger.error(f"Error checking expired bets: {e}")
 
@@ -54,7 +56,7 @@ def index():
         try:
             users = load_users()
             current_app.logger.debug(f"Loaded {len(users)} users for dashboard")
-            
+
             # Create sorted users list for leaderboard
             sorted_users = sorted(
                 users.items(), key=lambda x: x[1].get("score", 0), reverse=True
@@ -89,7 +91,7 @@ def index():
             current_app.logger.error(f"Error rendering user dashboard: {e}")
             flash("Error loading dashboard data", "error")
             return redirect(url_for("main.index"))
-    
+
     current_app.logger.debug("No user session, showing welcome page")
     return render_template("welcome.html")
 

@@ -5,8 +5,10 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 import pytz
-import requests
 from flask import current_app
+
+# Import at module level to avoid repeated imports
+from .race_data_manager import race_data_manager
 
 
 class BettingManager:
@@ -35,29 +37,32 @@ class BettingManager:
     def _now_iso(self) -> str:
         return self._utc_now().isoformat()
 
-    def _load_driver_data(self):
+    def _load_driver_data(self) -> None:
         """Load driver data for team lookup."""
+        self.driver_teams = {}  # Initialize empty dict
+
+        if not os.path.exists(self.drivers_file):
+            self._logger().warning("Driver data file not found: %s", self.drivers_file)
+            return
+
         try:
-            if os.path.exists(self.drivers_file):
-                with open(self.drivers_file, "r", encoding="utf-8") as f:
-                    driver_data = json.load(f)
-                    # Create driver_id -> team mapping
-                    self.driver_teams = {}
-                    for driver in driver_data.get("drivers", []):
-                        driver_id = driver.get("driverId")
-                        team_id = driver.get("teamId")
-                        if driver_id and team_id:
-                            self.driver_teams[driver_id] = team_id
-            else:
-                self.driver_teams = {}
-                self._logger().warning("Driver data file not found: %s", self.drivers_file)
+            with open(self.drivers_file, "r", encoding="utf-8") as f:
+                driver_data = json.load(f)
+
+            # Create driver_id -> team mapping
+            for driver in driver_data.get("drivers", []):
+                driver_id = driver.get("driverId")
+                team_id = driver.get("teamId")
+                if driver_id and team_id:
+                    self.driver_teams[driver_id] = team_id
+
         except Exception as e:
             self.driver_teams = {}
             self._logger().error("Error loading driver data: %s", e)
 
     def _get_users_file(self) -> str:
         """Get path to users data file."""
-        return os.path.join(os.path.dirname(self.data_file), 'users.json')
+        return os.path.join(os.path.dirname(self.data_file), "users.json")
 
     def load_users(self) -> Dict:
         """Load all user data from file."""
@@ -83,7 +88,7 @@ class BettingManager:
         try:
             users_file = self._get_users_file()
             backup_file = users_file + ".bak"
-            
+
             # Create backup
             if os.path.exists(users_file):
                 with open(users_file, "r", encoding="utf-8") as f:
@@ -95,9 +100,7 @@ class BettingManager:
             with open(users_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
 
-            self._logger().info(
-                "Saved user data: %s users", len(data.get("users", {}))
-            )
+            self._logger().info("Saved user data: %s users", len(data.get("users", {})))
 
             # Remove backup
             if os.path.exists(backup_file):
@@ -105,7 +108,7 @@ class BettingManager:
 
         except Exception as e:
             self._logger().error("Error saving users: %s", e)
-            
+
             # Try to restore from backup
             if os.path.exists(backup_file):
                 try:
@@ -145,22 +148,21 @@ class BettingManager:
             self._logger().error("Error creating bets file: %s", e)
             raise
 
-    def is_betting_closed(self, race_id: str) -> bool:
-        from .race_data import race_data_manager
-
+    def _get_race_datetime_safe(self, race_id: str) -> Optional[datetime]:
+        """Safely get race datetime, returning None if race not found or invalid."""
         race = race_data_manager.get_race_by_id(race_id)
         if not race:
-            return True
+            return None
+        return race_data_manager._get_race_datetime(race)
 
-        race_datetime = race_data_manager._get_race_datetime(race)
+    def is_betting_closed(self, race_id: str) -> bool:
+        """Check if betting is closed for a race (race has started)."""
+        race_datetime = self._get_race_datetime_safe(race_id)
         if not race_datetime:
             return True
 
         now = datetime.now(pytz.UTC)
-
-        # Optional safety buffer
-        BUFFER = timedelta(minutes=2)
-
+        BUFFER = timedelta(minutes=2)  # Safety buffer
         return race_datetime - BUFFER <= now
 
     def load_bets(self) -> Dict:
@@ -225,7 +227,7 @@ class BettingManager:
     def _update_user_scores(self, race_id: str, points_summary: Dict):
         """
         Update user scores in users.json after race resolution.
-        
+
         Args:
             race_id: ID of the resolved race
             points_summary: Dictionary of username -> points awarded
@@ -233,39 +235,48 @@ class BettingManager:
         try:
             # Load current user data
             users_data = self.load_users()
-            
+
             # Update each user's score
             for username, points_data in points_summary.items():
                 if username in users_data["users"]:
                     # Get current score
                     current_score = users_data["users"][username].get("score", 0)
-                    
+
                     # Add new points
                     if isinstance(points_data, dict):
                         total_points = points_data.get("total", 0)
                     else:
                         total_points = points_data
-                    
+
                     # Update score
-                    users_data["users"][username]["score"] = current_score + total_points
-                    
-                    # Add to score history
-                    score_history = users_data["users"][username].setdefault("score_history", [])
-                    score_history.append({
-                        "race_id": race_id,
-                        "points": total_points,
-                        "total": current_score + total_points,
-                        "timestamp": self._now_iso()
-                    })
-                    
-                    self._logger().info(
-                        "Updated score for %s: %s -> %s (+%s)", 
-                        username, current_score, current_score + total_points, total_points
+                    users_data["users"][username]["score"] = (
+                        current_score + total_points
                     )
-            
+
+                    # Add to score history
+                    score_history = users_data["users"][username].setdefault(
+                        "score_history", []
+                    )
+                    score_history.append(
+                        {
+                            "race_id": race_id,
+                            "points": total_points,
+                            "total": current_score + total_points,
+                            "timestamp": self._now_iso(),
+                        }
+                    )
+
+                    self._logger().info(
+                        "Updated score for %s: %s -> %s (+%s)",
+                        username,
+                        current_score,
+                        current_score + total_points,
+                        total_points,
+                    )
+
             # Save updated user data
             self.save_users(users_data)
-            
+
         except Exception as e:
             self._logger().error("Error updating user scores: %s", e)
 
@@ -273,89 +284,88 @@ class BettingManager:
         """
         Calculate points based on the scoring rules:
         - 1 point per correct driver position
-        - 1 point per correct team position  
+        - 1 point per correct team position
         - 1 point for correct fastest lap
         - 1 bonus point for perfect podium (all drivers AND teams correct)
-        
+
         Args:
             user_bet: User's bet with drivers and fastest_lap
             actual_results: Race results with full driver/team data
-            
+
         Returns:
             Dict with total points and breakdown by category
         """
         points = 0
         breakdown = {
-            'position_1': 0,
-            'position_2': 0,
-            'position_3': 0,
-            'fastest_lap': 0,
-            'perfect_podium': 0
+            "position_1": 0,
+            "position_2": 0,
+            "position_3": 0,
+            "fastest_lap": 0,
+            "perfect_podium": 0,
         }
-        
+
         # Extract actual results data
         actual_positions = []
         actual_teams = []
         actual_fastest_lap = None
-        
-        for result in actual_results.get('results', []):
+
+        for result in actual_results.get("results", []):
             if len(actual_positions) >= 3:
                 break
-            actual_positions.append(result.get('driverId'))
-            actual_teams.append(result.get('teamId'))
-        
+            actual_positions.append(result.get("driverId"))
+            actual_teams.append(result.get("teamId"))
+
         # Find fastest lap driver
-        fastest_lap_data = actual_results.get('overall_fastest_lap', {})
+        fastest_lap_data = actual_results.get("overall_fastest_lap", {})
         if fastest_lap_data:
-            actual_fastest_lap = fastest_lap_data.get('driverId')
-        
+            actual_fastest_lap = fastest_lap_data.get("driverId")
+
         # Check each position (1st, 2nd, 3rd)
         perfect_podium = True
-        
+
         for i in range(3):
-            if i >= len(user_bet.get('drivers', [])):
+            if i >= len(user_bet.get("drivers", [])):
                 continue
-                
-            bet_driver = user_bet['drivers'][i]
-            
+
+            bet_driver = user_bet["drivers"][i]
+
             # Check if position exists in actual results
             if i < len(actual_positions):
                 actual_driver = actual_positions[i]
                 actual_team = actual_teams[i]
-                
+
                 # Get team for bet driver
                 bet_team = self.driver_teams.get(bet_driver)
-                
+
                 # Award 1 point for correct driver
                 if bet_driver == actual_driver:
                     points += 1
-                    breakdown[f'position_{i+1}'] += 1
-                
+                    breakdown[f"position_{i+1}"] += 1
+
                 # Award 1 point for correct team
                 if bet_team == actual_team:
                     points += 1
-                    breakdown[f'position_{i+1}'] += 1
-                
+                    breakdown[f"position_{i+1}"] += 1
+
                 # Check if this position breaks perfect podium
                 if bet_driver != actual_driver or bet_team != actual_team:
                     perfect_podium = False
-        
+
         # Check fastest lap
-        if user_bet.get('fastest_lap') == actual_fastest_lap:
+        if user_bet.get("fastest_lap") == actual_fastest_lap:
             points += 1
-            breakdown['fastest_lap'] = 1
-        
+            breakdown["fastest_lap"] = 1
+
         # Award perfect podium bonus
         if perfect_podium:
             points += 1
-            breakdown['perfect_podium'] = 1
-        
-        return {
-            'total_points': points,
-            'breakdown': breakdown
-        }
+            breakdown["perfect_podium"] = 1
 
-    def place_bet(self, username: str, race_id: str, bets: List[str], fastest_lap: str = None) -> bool:
+        return {"total_points": points, "breakdown": breakdown}
+
+    def place_bet(
+        self, username: str, race_id: str, bets: List[str], fastest_lap: str = None
+    ) -> bool:
         """
         Place a bet for a user on a specific race.
 
@@ -393,19 +403,28 @@ class BettingManager:
             bet_data = {
                 "drivers": bets,
                 "fastest_lap": fastest_lap,
-                "created_at": self._now_iso()
+                "created_at": self._now_iso(),
             }
 
             # Store bet in race_bets[race_id].user_bets[username] structure
-            data["race_bets"].setdefault(race_id, {
-                "user_bets": {},
-                "status": "active",
-            })
+            data["race_bets"].setdefault(
+                race_id,
+                {
+                    "user_bets": {},
+                    "status": "active",
+                },
+            )
 
             data["race_bets"][race_id]["user_bets"][username] = bet_data
 
             self.save_bets(data)
-            self._logger().info("Bet placed: %s on %s - %s (Fastest Lap: %s)", username, race_id, bets, fastest_lap or "None")
+            self._logger().info(
+                "Bet placed: %s on %s - %s (Fastest Lap: %s)",
+                username,
+                race_id,
+                bets,
+                fastest_lap or "None",
+            )
             return True
 
         except Exception as e:
@@ -417,12 +436,12 @@ class BettingManager:
         try:
             data = self.load_bets()
             user_bets = {}
-            
+
             # New structure: bets are nested under race_bets[race_id].user_bets[username]
             for race_id, race_data in data["race_bets"].items():
                 if "user_bets" in race_data and username in race_data["user_bets"]:
                     user_bets[race_id] = race_data["user_bets"][username]
-            
+
             return user_bets
         except Exception as e:
             self._logger().error("Error getting bets for %s: %s", username, e)
@@ -435,7 +454,10 @@ class BettingManager:
             race_bets = {}
 
             # New structure: bets are nested under race_bets[race_id].user_bets
-            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+            if (
+                race_id in data["race_bets"]
+                and "user_bets" in data["race_bets"][race_id]
+            ):
                 race_bets = data["race_bets"][race_id]["user_bets"]
 
             return race_bets
@@ -450,29 +472,36 @@ class BettingManager:
     def close_bets_for_race(self, race_id: str) -> bool:
         """
         Close all bets for a race when the race weekend starts.
-        
+
         This method should be called automatically when a race begins.
         Once closed, bets cannot be edited or canceled.
-        
+
         Args:
             race_id: ID of the race to close bets for
-            
+
         Returns:
             bool: True if bets were closed successfully
         """
         try:
             data = self.load_bets()
             bets_closed = False
-            
+
             # Close all bets for this race - new structure
-            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
-                for username, bet_data in data["race_bets"][race_id]["user_bets"].items():
+            if (
+                race_id in data["race_bets"]
+                and "user_bets" in data["race_bets"][race_id]
+            ):
+                for username, bet_data in data["race_bets"][race_id][
+                    "user_bets"
+                ].items():
                     # Remove individual bet timestamps when closing
                     bet_data.pop("closed_at", None)
                     bet_data.pop("closed_by", None)
                     bets_closed = True
-                    self._logger().info("Closed bet for %s on %s (race started)", username, race_id)
-            
+                    self._logger().info(
+                        "Closed bet for %s on %s (race started)", username, race_id
+                    )
+
             # Mark race as closed in race tracking
             if race_id in data["race_bets"]:
                 if data["race_bets"][race_id].get("status") == "active":
@@ -485,16 +514,16 @@ class BettingManager:
                 data["race_bets"][race_id] = {
                     "status": "closed",
                     "closed_at": self._now_iso(),
-                    "user_bets": {}
+                    "user_bets": {},
                 }
                 bets_closed = True
                 self._logger().info("Created closed race entry for %s", race_id)
-            
+
             if bets_closed:
                 self.save_bets(data)
-            
+
             return bets_closed
-            
+
         except Exception as e:
             self._logger().error("Error closing bets for race %s: %s", race_id, e)
             return False
@@ -502,44 +531,46 @@ class BettingManager:
     def check_and_close_expired_bets(self):
         """
         Check all races and automatically close bets for races that have started.
-        
+
         This should be called regularly (e.g., on page load) to ensure bets
         are properly closed when race weekends begin.
-        
+
         Returns:
             int: Number of races that had bets closed
         """
         try:
-            from .race_data import race_data_manager
-            
+
             data = self.load_bets()
             all_races = race_data_manager.get_all_races()
             now = self._utc_now()
             races_closed = 0
-            
+
             for race in all_races:
                 race_id = race.get("id")
                 if not race_id:
                     continue
-                
+
                 # Skip if race is already closed or resolved
                 if race_id in data["race_bets"]:
                     race_status = data["race_bets"][race_id].get("status")
                     if race_status in ["closed", "resolved"]:
                         continue
-                
+
                 # Check if race has started
                 race_datetime = race_data_manager._get_race_datetime(race)
                 if race_datetime and race_datetime <= now:
                     # Race has started, close bets
                     if self.close_bets_for_race(race_id):
                         races_closed += 1
-            
+
             if races_closed > 0:
-                self._logger().info("Automatically closed bets for %s races that have started", races_closed)
-            
+                self._logger().info(
+                    "Automatically closed bets for %s races that have started",
+                    races_closed,
+                )
+
             return races_closed
-            
+
         except Exception as e:
             self._logger().error("Error checking for expired bets: %s", e)
             return 0
@@ -567,23 +598,35 @@ class BettingManager:
 
             # New structure: get race bets from race_bets[race_id].user_bets
             race_bets = {}
-            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+            if (
+                race_id in data["race_bets"]
+                and "user_bets" in data["race_bets"][race_id]
+            ):
                 race_bets = data["race_bets"][race_id]["user_bets"]
 
             for username, bet_data in race_bets.items():
                 # Create full actual results structure for scoring
                 actual_results_full = {
-                    'results': [
-                        {'driverId': actual_results[0], 'teamId': self.driver_teams.get(actual_results[0])},
-                        {'driverId': actual_results[1], 'teamId': self.driver_teams.get(actual_results[1])},
-                        {'driverId': actual_results[2], 'teamId': self.driver_teams.get(actual_results[2])}
+                    "results": [
+                        {
+                            "driverId": actual_results[0],
+                            "teamId": self.driver_teams.get(actual_results[0]),
+                        },
+                        {
+                            "driverId": actual_results[1],
+                            "teamId": self.driver_teams.get(actual_results[1]),
+                        },
+                        {
+                            "driverId": actual_results[2],
+                            "teamId": self.driver_teams.get(actual_results[2]),
+                        },
                     ]
                 }
-                
+
                 # Calculate points using new scoring system
                 points_data = self.calculate_points(bet_data, actual_results_full)
-                points = points_data['total_points']
-                
+                points = points_data["total_points"]
+
                 bet_data["points_awarded"] = points
                 bet_data["points_breakdown"] = points_data["breakdown"]
 
@@ -591,12 +634,15 @@ class BettingManager:
                 data["race_bets"][race_id]["user_bets"][username] = bet_data
 
                 points_summary[username] = {
-                    'total': points,
-                    'breakdown': points_data['breakdown']
+                    "total": points,
+                    "breakdown": points_data["breakdown"],
                 }
                 self._logger().info(
-                    "Resolved bet for %s on %s: %s points (Breakdown: %s)", 
-                    username, race_id, points, points_data['breakdown']
+                    "Resolved bet for %s on %s: %s points (Breakdown: %s)",
+                    username,
+                    race_id,
+                    points,
+                    points_data["breakdown"],
                 )
 
             if race_id in data["race_bets"]:
@@ -604,25 +650,27 @@ class BettingManager:
                 data["race_bets"][race_id]["resolved_at"] = self._now_iso()
 
             self.save_bets(data)
-            
+
             # Update user scores in users.json
             self._update_user_scores(race_id, points_summary)
-            
+
             return points_summary
 
         except Exception as e:
             self._logger().error("Error resolving race %s: %s", race_id, e)
             return {}
 
-    def resolve_race_with_fastest_lap(self, race_id: str, actual_results: List[str], fastest_lap_driver: str = None) -> Dict:
+    def resolve_race_with_fastest_lap(
+        self, race_id: str, actual_results: List[str], fastest_lap_driver: str = None
+    ) -> Dict:
         """
         Resolve a race including fastest lap predictions.
-        
+
         Args:
             race_id: ID of the race to resolve
             actual_results: List of 3 driver IDs in actual finishing order
             fastest_lap_driver: Driver ID for fastest lap
-            
+
         Returns:
             Summary of points awarded by user
         """
@@ -638,7 +686,10 @@ class BettingManager:
 
             # New structure: get race bets from race_bets[race_id].user_bets
             race_bets = {}
-            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+            if (
+                race_id in data["race_bets"]
+                and "user_bets" in data["race_bets"][race_id]
+            ):
                 race_bets = data["race_bets"][race_id]["user_bets"]
 
             for username, bet_data in race_bets.items():
@@ -646,41 +697,55 @@ class BettingManager:
                 points = 0
                 # Create full actual results structure for new scoring system
                 actual_results_full = {
-                    'results': [
-                        {'driverId': actual_results[0], 'teamId': self.driver_teams.get(actual_results[0])},
-                        {'driverId': actual_results[1], 'teamId': self.driver_teams.get(actual_results[1])},
-                        {'driverId': actual_results[2], 'teamId': self.driver_teams.get(actual_results[2])}
+                    "results": [
+                        {
+                            "driverId": actual_results[0],
+                            "teamId": self.driver_teams.get(actual_results[0]),
+                        },
+                        {
+                            "driverId": actual_results[1],
+                            "teamId": self.driver_teams.get(actual_results[1]),
+                        },
+                        {
+                            "driverId": actual_results[2],
+                            "teamId": self.driver_teams.get(actual_results[2]),
+                        },
                     ]
                 }
-                
+
                 # Add fastest lap to results if provided
                 if fastest_lap_driver:
-                    actual_results_full['overall_fastest_lap'] = {
-                        'driverId': fastest_lap_driver,
-                        'teamId': self.driver_teams.get(fastest_lap_driver)
+                    actual_results_full["overall_fastest_lap"] = {
+                        "driverId": fastest_lap_driver,
+                        "teamId": self.driver_teams.get(fastest_lap_driver),
                     }
-                
+
                 # Calculate points using new scoring system
                 points_data = self.calculate_points(bet_data, actual_results_full)
-                points = points_data['total_points']
-                
+                points = points_data["total_points"]
+
                 # Update bet with resolution results and detailed breakdown
-                bet_data.update({
-                    "actual_fastest_lap": fastest_lap_driver,
-                    "points_awarded": points,
-                    "points_breakdown": points_data['breakdown']
-                })
+                bet_data.update(
+                    {
+                        "actual_fastest_lap": fastest_lap_driver,
+                        "points_awarded": points,
+                        "points_breakdown": points_data["breakdown"],
+                    }
+                )
 
                 # Update bet in new structure
                 data["race_bets"][race_id]["user_bets"][username] = bet_data
 
                 points_summary[username] = {
-                    'total': points,
-                    'breakdown': points_data['breakdown']
+                    "total": points,
+                    "breakdown": points_data["breakdown"],
                 }
                 self._logger().info(
-                    "Resolved bet for %s on %s: %s points (Breakdown: %s)", 
-                    username, race_id, points, points_data['breakdown']
+                    "Resolved bet for %s on %s: %s points (Breakdown: %s)",
+                    username,
+                    race_id,
+                    points,
+                    points_data["breakdown"],
                 )
 
             if race_id in data["race_bets"]:
@@ -688,14 +753,16 @@ class BettingManager:
                 data["race_bets"][race_id]["resolved_at"] = self._now_iso()
 
             self.save_bets(data)
-            
+
             # Update user scores in users.json
             self._update_user_scores(race_id, points_summary)
-            
+
             return points_summary
 
         except Exception as e:
-            self._logger().error("Error resolving race %s with fastest lap: %s", race_id, e)
+            self._logger().error(
+                "Error resolving race %s with fastest lap: %s", race_id, e
+            )
             return {}
 
     def update_user_score(self, username: str, points: int, race_id: str) -> bool:
@@ -703,7 +770,7 @@ class BettingManager:
         Update a user's score based on betting results.
         """
         try:
-            from .utils import load_users, save_users
+            from .auth_utils import load_users, save_users
 
             users = load_users()
             if username not in users:
@@ -740,7 +807,6 @@ class BettingManager:
         Check if betting is allowed on a race.
         """
         try:
-            from .race_data import race_data_manager
 
             race = race_data_manager.get_race_by_id(race_id)
             if not race:
@@ -778,7 +844,9 @@ class BettingManager:
                     self._logger().warning("Race %s is already resolved", race_id)
                     return False
                 elif race_status == "closed":
-                    self._logger().warning("Race %s is already closed (race weekend started)", race_id)
+                    self._logger().warning(
+                        "Race %s is already closed (race weekend started)", race_id
+                    )
                     return False
 
             all_races = race_data_manager.get_all_races()
@@ -807,7 +875,9 @@ class BettingManager:
             return True
 
         except Exception as e:
-            self._logger().error("Error checking bet eligibility for %s: %s", race_id, e)
+            self._logger().error(
+                "Error checking bet eligibility for %s: %s", race_id, e
+            )
             return False
 
     def get_available_drivers_for_race(self, race_id: str) -> List[Dict]:
@@ -815,7 +885,6 @@ class BettingManager:
         Get list of available drivers for a specific race.
         """
         try:
-            from .race_data import race_data_manager
 
             drivers_data = race_data_manager.load_drivers()
             drivers = drivers_data.get("drivers", [])
@@ -845,10 +914,10 @@ class BettingManager:
     def _load_race_results_cache(self) -> Dict:
         """Load race results from cache file."""
         cache_file = self._get_race_results_cache_file()
-        
+
         if not os.path.exists(cache_file):
             return {}
-        
+
         try:
             with open(cache_file, "r", encoding="utf-8") as f:
                 return json.load(f)
@@ -859,7 +928,7 @@ class BettingManager:
     def _save_race_results_cache(self, results: Dict):
         """Save race results to cache file."""
         cache_file = self._get_race_results_cache_file()
-        
+
         try:
             os.makedirs(os.path.dirname(cache_file), exist_ok=True)
             with open(cache_file, "w", encoding="utf-8") as f:
@@ -874,53 +943,59 @@ class BettingManager:
         Race ID format should be like 'bahrain_2026' which translates to year=2026, round=1
         """
         import requests
-        
+
         # Parse race_id to get year and round
         # Expected format: country_year (e.g., bahrain_2026)
         try:
-            parts = race_id.split('_')
+            parts = race_id.split("_")
             if len(parts) < 2:
                 self._logger().error("Invalid race_id format: %s", race_id)
                 return None
-            
+
             year = parts[-1]  # Last part is year
-            
+
             # Get round number from race data
-            from .race_data import race_data_manager
             race = race_data_manager.get_race_by_id(race_id)
-            
+
             if not race:
                 self._logger().error("Race not found: %s", race_id)
                 return None
-            
-            round_number = race.get('round')
+
+            round_number = race.get("round")
             if not round_number:
                 self._logger().error("Race missing round number: %s", race_id)
                 return None
-            
+
             # Fetch from F1 API
             api_url = f"https://f1api.dev/api/{year}/{round_number}/race"
             self._logger().info("Fetching race results from %s", api_url)
-            
+
             response = requests.get(api_url, timeout=10)
-            
+
             if response.status_code == 200:
                 results_data = response.json()
-                
+
                 # Transform the results into our standard format
-                transformed_results = self._transform_race_results(race_id, results_data)
-                
+                transformed_results = self._transform_race_results(
+                    race_id, results_data
+                )
+
                 # Cache the transformed results (store the full transformed object)
                 cache = self._load_race_results_cache()
-                cache[race_id] = transformed_results  # Store the complete transformed results
+                cache[race_id] = (
+                    transformed_results  # Store the complete transformed results
+                )
                 self._save_race_results_cache(cache)
-                
+
                 return transformed_results
             else:
-                self._logger().error("API request failed with status %s: %s", 
-                                   response.status_code, response.text)
+                self._logger().error(
+                    "API request failed with status %s: %s",
+                    response.status_code,
+                    response.text,
+                )
                 return None
-                
+
         except Exception as e:
             self._logger().error("Error fetching race results for %s: %s", race_id, e)
             return None
@@ -932,135 +1007,146 @@ class BettingManager:
         # First try cache
         cache = self._load_race_results_cache()
         cached_results = cache.get(race_id)
-        
+
         if cached_results:
             self._logger().info("Using cached race results for %s", race_id)
             return cached_results  # Return the full transformed results object
-        
+
         # If not in cache, fetch from API
         return self.fetch_race_results_from_api(race_id)
 
     def _transform_race_results(self, race_id: str, api_response: Dict) -> Dict:
         """
         Transform raw API response into structured race results format.
-        
+
         Args:
             race_id: The race ID being transformed
             api_response: Raw response from F1 API
-            
+
         Returns:
             Transformed results with consistent structure
         """
         try:
             # Get current timestamp
             transform_timestamp = self._now_iso()
-            
+
             # Build API URL for reference
-            from .race_data import race_data_manager
             race = race_data_manager.get_race_by_id(race_id)
-            year = race.get('round')  # Actually round number, need to fix this
-            
+            year = race.get("round")  # Actually round number, need to fix this
+
             # Parse race_id to get year (last part)
-            year = race_id.split('_')[-1]
-            round_number = race.get('round', 1)
+            year = race_id.split("_")[-1]
+            round_number = race.get("round", 1)
             api_url = f"https://f1api.dev/api/{year}/{round_number}/race"
-            
+
             # Transform results - handle both old and new API structures
             transformed_results = {
-                'fetched_at': transform_timestamp,
-                'api_url': api_url,
-                'race_id': race_id,
-                'results': []
+                "fetched_at": transform_timestamp,
+                "api_url": api_url,
+                "race_id": race_id,
+                "results": [],
             }
-            
+
             # Check if this is the new API structure (with 'races' key)
-            if 'races' in api_response:
+            if "races" in api_response:
                 # New API structure: results are under races.results
-                race_data = api_response['races']
-                raw_results = race_data.get('results', [])
-                
+                race_data = api_response["races"]
+                raw_results = race_data.get("results", [])
+
                 # Extract race metadata
-                transformed_results['race_date'] = race_data.get('date')
-                transformed_results['race_time'] = race_data.get('time')
-                transformed_results['race_name'] = race_data.get('raceName')
-                
+                transformed_results["race_date"] = race_data.get("date")
+                transformed_results["race_time"] = race_data.get("time")
+                transformed_results["race_name"] = race_data.get("raceName")
+
             else:
                 # Old API structure: results are directly under 'results'
-                raw_results = api_response.get('results', [])
-            
+                raw_results = api_response.get("results", [])
+
             # Process each result
             for result in raw_results:
                 # Handle both old and new structures for driver ID
-                if 'driver' in result:
+                if "driver" in result:
                     # New structure: driver info is nested
-                    driver_id = result['driver'].get('driverId')
+                    driver_id = result["driver"].get("driverId")
                     driver_name = f"{result['driver'].get('name', '')} {result['driver'].get('surname', '')}".strip()
-                    driver_number = result['driver'].get('number')
-                    
+                    driver_number = result["driver"].get("number")
+
                     # Team info is also nested
-                    team_id = result['team'].get('teamId')
-                    team_name = result['team'].get('teamName')
+                    team_id = result["team"].get("teamId")
+                    team_name = result["team"].get("teamName")
                 else:
                     # Old structure: driver info is at top level
-                    driver_id = result.get('driverId')
+                    driver_id = result.get("driverId")
                     driver_name = None
                     driver_number = None
-                    team_id = result.get('constructor', {}).get('constructorId')
+                    team_id = result.get("constructor", {}).get("constructorId")
                     team_name = None
-                
+
                 # Handle fastest lap - different field names
-                fast_lap_time = result.get('fastLap') or result.get('fastestLap', {}).get('time')
-                
+                fast_lap_time = result.get("fastLap") or result.get(
+                    "fastestLap", {}
+                ).get("time")
+
                 transformed_result = {
-                    'position': result.get('position'),
-                    'driverId': driver_id,
-                    'driverName': driver_name,
-                    'driverNumber': driver_number,
-                    'teamId': team_id,
-                    'teamName': team_name,
-                    'points': result.get('points', 0),
-                    'status': result.get('status', 'Finished') if result.get('time') else 'DNF',
-                    'fastLapTime': fast_lap_time
+                    "position": result.get("position"),
+                    "driverId": driver_id,
+                    "driverName": driver_name,
+                    "driverNumber": driver_number,
+                    "teamId": team_id,
+                    "teamName": team_name,
+                    "points": result.get("points", 0),
+                    "status": (
+                        result.get("status", "Finished")
+                        if result.get("time")
+                        else "DNF"
+                    ),
+                    "fastLapTime": fast_lap_time,
                 }
-                
+
                 # Add fastest lap details if available
                 if fast_lap_time:
-                    transformed_result['fastestLap'] = {
-                        'time': fast_lap_time
-                    }
+                    transformed_result["fastestLap"] = {"time": fast_lap_time}
                     # If we have lap number, add it
-                    if result.get('fastestLap'):
-                        transformed_result['fastestLap']['lap'] = result['fastestLap'].get('lap')
-                        transformed_result['fastestLap']['speed'] = result['fastestLap'].get('speed')
-                
-                transformed_results['results'].append(transformed_result)
-            
+                    if result.get("fastestLap"):
+                        transformed_result["fastestLap"]["lap"] = result[
+                            "fastestLap"
+                        ].get("lap")
+                        transformed_result["fastestLap"]["speed"] = result[
+                            "fastestLap"
+                        ].get("speed")
+
+                transformed_results["results"].append(transformed_result)
+
             # Find overall fastest lap from individual results
             fastest_lap_driver = None
             fastest_lap_time = None
-            
-            for result in transformed_results['results']:
-                if result.get('fastLapTime') and (fastest_lap_time is None or result['fastLapTime'] < fastest_lap_time):
-                    fastest_lap_time = result['fastLapTime']
-                    fastest_lap_driver = result['driverId']
-            
+
+            for result in transformed_results["results"]:
+                if result.get("fastLapTime") and (
+                    fastest_lap_time is None or result["fastLapTime"] < fastest_lap_time
+                ):
+                    fastest_lap_time = result["fastLapTime"]
+                    fastest_lap_driver = result["driverId"]
+
             if fastest_lap_driver:
-                transformed_results['overall_fastest_lap'] = {
-                    'driverId': fastest_lap_driver,
-                    'time': fastest_lap_time
+                transformed_results["overall_fastest_lap"] = {
+                    "driverId": fastest_lap_driver,
+                    "time": fastest_lap_time,
                 }
-            
+
             return transformed_results
-            
+
         except Exception as e:
-            self._logger().error("Error transforming race results for %s: %s", race_id, e)
+            self._logger().error(
+                "Error transforming race results for %s: %s", race_id, e
+            )
             # Return minimal structure on error
             return {
-                'fetched_at': self._now_iso(),
-                'api_url': f"https://f1api.dev/api/{race_id.split('_')[-1]}/1/race",
-                'race_id': race_id,
-                'results': [],
-                'error': str(e)
+                "fetched_at": self._now_iso(),
+                "api_url": f"https://f1api.dev/api/{race_id.split('_')[-1]}/1/race",
+                "race_id": race_id,
+                "results": [],
+                "error": str(e),
             }
 
     def resolve_race_from_api(self, race_id: str) -> bool:
@@ -1070,66 +1156,84 @@ class BettingManager:
         try:
             # Get race results
             results = self.get_race_results(race_id)
-            
+
             if not results:
                 self._logger().error("No race results available for %s", race_id)
                 return False
-            
+
             # Extract top 3 drivers from transformed results
             # New structure: results['results'] contains list of transformed results
-            race_results = results.get('results', [])
-            
+            race_results = results.get("results", [])
+
             if len(race_results) < 3:
-                self._logger().error("Insufficient race results data for %s (got %s results)", race_id, len(race_results))
+                self._logger().error(
+                    "Insufficient race results data for %s (got %s results)",
+                    race_id,
+                    len(race_results),
+                )
                 # Check if this is an API issue vs empty results
                 if len(race_results) == 0:
-                    self._logger().warning("Race %s has no results available from API - race may be too far in future or API issue", race_id)
+                    self._logger().warning(
+                        "Race %s has no results available from API - race may be too far in future or API issue",
+                        race_id,
+                    )
                 return False
-            
+
             # Get driver IDs for positions 1, 2, 3 from transformed structure
             actual_results = []
             for i in range(3):
                 if i < len(race_results):
                     result = race_results[i]
-                    driver_id = result.get('driverId')
+                    driver_id = result.get("driverId")
                     if driver_id:
                         actual_results.append(driver_id)
                     else:
-                        self._logger().warning("Race result at position %s for %s has no driverId", i+1, race_id)
-            
+                        self._logger().warning(
+                            "Race result at position %s for %s has no driverId",
+                            i + 1,
+                            race_id,
+                        )
+
             # Also extract fastest lap driver for complete resolution
             fastest_lap_driver = None
-            overall_fastest = results.get('overall_fastest_lap')
+            overall_fastest = results.get("overall_fastest_lap")
             if overall_fastest:
-                fastest_lap_driver = overall_fastest.get('driverId')
-            
+                fastest_lap_driver = overall_fastest.get("driverId")
+
             # Fallback: find fastest lap from individual results
             if not fastest_lap_driver:
                 for result in race_results:
-                    if result.get('fastestLap'):
-                        fastest_lap_driver = result.get('driverId')
+                    if result.get("fastestLap"):
+                        fastest_lap_driver = result.get("driverId")
                         break
-            
+
             if len(actual_results) < 3:
-                self._logger().error("Could not extract 3 drivers from race results for %s (only got %s)", race_id, len(actual_results))
+                self._logger().error(
+                    "Could not extract 3 drivers from race results for %s (only got %s)",
+                    race_id,
+                    len(actual_results),
+                )
                 return False
-            
+
             # Resolve the race with the actual results and fastest lap
             points_summary = self.resolve_race_with_fastest_lap(
                 race_id, actual_results, fastest_lap_driver
             )
-            
+
             if points_summary:
                 # Update user scores
                 for username, points in points_summary.items():
                     self.update_user_score(username, points, race_id)
-                
-                self._logger().info("Successfully resolved race %s with API results (including fastest lap)", race_id)
+
+                self._logger().info(
+                    "Successfully resolved race %s with API results (including fastest lap)",
+                    race_id,
+                )
                 return True
             else:
                 self._logger().info("No bets to resolve for race %s", race_id)
                 return True
-                
+
         except Exception as e:
             self._logger().error("Error resolving race %s from API: %s", race_id, e)
             return False

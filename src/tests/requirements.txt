@@ -1,0 +1,17 @@
+# Test requirements for F1 Betting Application
+
+# Core testing packages
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Test utilities
+faker>=15.0.0
+freezegun>=1.2.0
+
+# Code quality
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.12.0
+
+# Type checking
+mypy>=1.0.0
