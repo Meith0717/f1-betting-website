@@ -38,8 +38,7 @@ class BettingManager:
 
         try:
             default_data = {
-                "bets": {},
-                "races": {},
+                "race_bets": {},
                 "metadata": {
                     "created_at": self._now_iso(),
                     "version": "1.0",
@@ -74,7 +73,6 @@ class BettingManager:
 
         return race_datetime - BUFFER <= now
 
-
     def load_bets(self) -> Dict:
         """Load all betting data from file."""
         try:
@@ -84,17 +82,16 @@ class BettingManager:
             with open(self.data_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            data.setdefault("bets", {})
-            data.setdefault("races", {})
+            data.setdefault("race_bets", {})
             data.setdefault("metadata", {})
 
             self._logger().debug(
-                "Loaded betting data with %s user bets", len(data.get("bets", {}))
+                "Loaded betting data with %s race bets", len(data.get("race_bets", {}))
             )
             return data
         except (json.JSONDecodeError, IOError) as e:
             self._logger().error("Error loading bets: %s", e)
-            return {"bets": {}, "races": {}, "metadata": {}}
+            return {"race_bets": {}, "metadata": {}}
 
     def save_bets(self, data: Dict):
         """Save betting data to file with a backup."""
@@ -112,7 +109,7 @@ class BettingManager:
                 json.dump(data, f, indent=2)
 
             self._logger().info(
-                "Saved betting data: %s user bets", len(data.get("bets", {}))
+                "Saved betting data: %s race bets", len(data.get("race_bets", {}))
             )
 
             if os.path.exists(backup_file):
@@ -169,21 +166,20 @@ class BettingManager:
         try:
             data = self.load_bets()
 
-            # Create bet data for new nested structure
+            # Create bet data
             bet_data = {
                 "drivers": bets,
                 "fastest_lap": fastest_lap,
-                "created_at": self._now_iso(),
+                "created_at": self._now_iso()
             }
 
-            # Store bet in races[race_id].bets[username] structure
-            data["races"].setdefault(race_id, {
-                "bets": {},
+            # Store bet in race_bets[race_id].user_bets[username] structure
+            data["race_bets"].setdefault(race_id, {
+                "user_bets": {},
                 "status": "active",
-                "created_at": self._now_iso(),
             })
 
-            data["races"][race_id]["bets"][username] = bet_data
+            data["race_bets"][race_id]["user_bets"][username] = bet_data
 
             self.save_bets(data)
             self._logger().info("Bet placed: %s on %s - %s (Fastest Lap: %s)", username, race_id, bets, fastest_lap or "None")
@@ -199,10 +195,10 @@ class BettingManager:
             data = self.load_bets()
             user_bets = {}
             
-            # New structure: bets are nested under races[race_id].bets[username]
-            for race_id, race_data in data["races"].items():
-                if "bets" in race_data and username in race_data["bets"]:
-                    user_bets[race_id] = race_data["bets"][username]
+            # New structure: bets are nested under race_bets[race_id].user_bets[username]
+            for race_id, race_data in data["race_bets"].items():
+                if "user_bets" in race_data and username in race_data["user_bets"]:
+                    user_bets[race_id] = race_data["user_bets"][username]
             
             return user_bets
         except Exception as e:
@@ -215,9 +211,9 @@ class BettingManager:
             data = self.load_bets()
             race_bets = {}
 
-            # New structure: bets are nested under races[race_id].bets
-            if race_id in data["races"] and "bets" in data["races"][race_id]:
-                race_bets = data["races"][race_id]["bets"]
+            # New structure: bets are nested under race_bets[race_id].user_bets
+            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+                race_bets = data["race_bets"][race_id]["user_bets"]
 
             return race_bets
         except Exception as e:
@@ -245,29 +241,28 @@ class BettingManager:
             data = self.load_bets()
             bets_closed = False
             
-            # Close all active bets for this race - new structure
-            if race_id in data["races"] and "bets" in data["races"][race_id]:
-                for username, bet_data in data["races"][race_id]["bets"].items():
-                    if bet_data.get("status") == "active":
-                        bet_data["status"] = "closed"
-                        bet_data["closed_at"] = self._now_iso()
-                        bet_data["closed_by"] = "system"
-                        bets_closed = True
-                        self._logger().info("Closed bet for %s on %s (race started)", username, race_id)
+            # Close all bets for this race - new structure
+            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+                for username, bet_data in data["race_bets"][race_id]["user_bets"].items():
+                    # Remove individual bet timestamps when closing
+                    bet_data.pop("closed_at", None)
+                    bet_data.pop("closed_by", None)
+                    bets_closed = True
+                    self._logger().info("Closed bet for %s on %s (race started)", username, race_id)
             
             # Mark race as closed in race tracking
-            if race_id in data["races"]:
-                if data["races"][race_id].get("status") == "active":
-                    data["races"][race_id]["status"] = "closed"
-                    data["races"][race_id]["closed_at"] = self._now_iso()
+            if race_id in data["race_bets"]:
+                if data["race_bets"][race_id].get("status") == "active":
+                    data["race_bets"][race_id]["status"] = "closed"
+                    data["race_bets"][race_id]["closed_at"] = self._now_iso()
                     bets_closed = True
                     self._logger().info("Marked race %s as closed (started)", race_id)
             else:
                 # Create race entry if it doesn't exist
-                data["races"][race_id] = {
+                data["race_bets"][race_id] = {
                     "status": "closed",
                     "closed_at": self._now_iso(),
-                    "bets": {}
+                    "user_bets": {}
                 }
                 bets_closed = True
                 self._logger().info("Created closed race entry for %s", race_id)
@@ -303,10 +298,10 @@ class BettingManager:
                 race_id = race.get("id")
                 if not race_id:
                     continue
-                    
+                
                 # Skip if race is already closed or resolved
-                if race_id in data["races"]:
-                    race_status = data["races"][race_id].get("status")
+                if race_id in data["race_bets"]:
+                    race_status = data["race_bets"][race_id].get("status")
                     if race_status in ["closed", "resolved"]:
                         continue
                 
@@ -347,15 +342,12 @@ class BettingManager:
             data = self.load_bets()
             points_summary = {}
 
-            # New structure: get race bets from races[race_id].bets
+            # New structure: get race bets from race_bets[race_id].user_bets
             race_bets = {}
-            if race_id in data["races"] and "bets" in data["races"][race_id]:
-                race_bets = data["races"][race_id]["bets"]
+            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+                race_bets = data["race_bets"][race_id]["user_bets"]
 
             for username, bet_data in race_bets.items():
-                if bet_data.get("status") != "active":
-                    continue
-
                 user_bets = bet_data.get("drivers", [])
                 points = 0
 
@@ -367,23 +359,21 @@ class BettingManager:
                         else:
                             points += 2
 
-                bet_data["status"] = "resolved"
                 bet_data["resolved_at"] = self._now_iso()
                 bet_data["actual_results"] = actual_results
                 bet_data["points_awarded"] = points
 
                 # Update bet in new structure
-                data["races"][race_id]["bets"][username] = bet_data
+                data["race_bets"][race_id]["user_bets"][username] = bet_data
 
                 points_summary[username] = points
                 self._logger().info(
                     "Resolved bet for %s on %s: %s points", username, race_id, points
                 )
 
-            if race_id in data["races"]:
-                data["races"][race_id]["status"] = "resolved"
-                data["races"][race_id]["resolved_at"] = self._now_iso()
-                # NOTE: Results are stored in race_results.json, not duplicated here
+            if race_id in data["race_bets"]:
+                data["race_bets"][race_id]["status"] = "resolved"
+                data["race_bets"][race_id]["resolved_at"] = self._now_iso()
 
             self.save_bets(data)
             return points_summary
@@ -414,15 +404,12 @@ class BettingManager:
             data = self.load_bets()
             points_summary = {}
 
-            # New structure: get race bets from races[race_id].bets
+            # New structure: get race bets from race_bets[race_id].user_bets
             race_bets = {}
-            if race_id in data["races"] and "bets" in data["races"][race_id]:
-                race_bets = data["races"][race_id]["bets"]
+            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id]:
+                race_bets = data["race_bets"][race_id]["user_bets"]
 
             for username, bet_data in race_bets.items():
-                if bet_data.get("status") != "active":
-                    continue
-
                 # Calculate points for positions
                 points = 0
                 user_bets_list = bet_data.get("drivers", [])
@@ -449,20 +436,19 @@ class BettingManager:
                 })
 
                 # Update bet in new structure
-                data["races"][race_id]["bets"][username] = bet_data
+                data["race_bets"][race_id]["user_bets"][username] = bet_data
 
                 points_summary[username] = points
                 self._logger().info(
                     "Resolved bet for %s on %s: %s points (positions: %s, fastest lap: %s)", 
                     username, race_id, points, 
-                    "+".join(str(p) for p in [5 if user_bets_list[i] == actual_results[i] else 2 if user_bets_list[i] in actual_results else 0 for i in range(3)]),
+                    "+ ".join(str(p) for p in [5 if user_bets_list[i] == actual_results[i] else 2 if user_bets_list[i] in actual_results else 0 for i in range(3)]),
                     "+3" if user_fastest_lap == fastest_lap_driver else "+0"
                 )
 
-            if race_id in data["races"]:
-                data["races"][race_id]["status"] = "resolved"
-                data["races"][race_id]["resolved_at"] = self._now_iso()
-                # NOTE: Results are stored in race_results.json, not duplicated here
+            if race_id in data["race_bets"]:
+                data["race_bets"][race_id]["status"] = "resolved"
+                data["race_bets"][race_id]["resolved_at"] = self._now_iso()
 
             self.save_bets(data)
             return points_summary
@@ -545,8 +531,8 @@ class BettingManager:
                     return False
 
             data = self.load_bets()
-            if race_id in data["races"]:
-                race_status = data["races"][race_id].get("status")
+            if race_id in data["race_bets"]:
+                race_status = data["race_bets"][race_id].get("status")
                 if race_status == "resolved":
                     self._logger().warning("Race %s is already resolved", race_id)
                     return False

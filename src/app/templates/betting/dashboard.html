@@ -10,7 +10,10 @@
   <div class="betting-section">
     <h2>🏁 Bets by Race</h2>
 
-    {% if races_with_bets %}
+    <!-- Combined races display -->
+    {% if races_with_bets or races_without_bets %}
+      
+      <!-- First show races with bets -->
       {% for race_id, race_data in races_with_bets.items() %}
       <div class="race-bet-section">
 
@@ -19,10 +22,9 @@
           <h3 class="race-title">{{ race_data.race_info.name }}</h3>
           
           <div class="race-meta">
-            {% set race_status = race_data.race_info.status %}
             {% set first_bet = race_data.bets[0] %}
             {% set bet_resolved = first_bet.get('resolved_at') is not none %}
-            {% if bet_resolved or race_status == 'resolved' %}
+            {% if bet_resolved %}
               <span class="status-indicator resolved">✅ Resolved</span>
             {% else %}
               <span class="status-indicator closed">🔒 Closed</span>
@@ -58,29 +60,29 @@
               </tr>
             </thead>
             <tbody>
-              {% for username, bet_data in race_data.bets.items() %}
+              {% for bet in race_data.bets %}
               <tr class="user-bet-row">
                 <td class="user-cell">
-                  {{ username }}
-                  {% if username == username %}
+                  {{ bet.username }}
+                  {% if bet.username == username %}
                     <span class="you-badge">(You)</span>
                   {% endif %}
                 </td>
                 <td class="position-cell">
-                  {{ bet_data.drivers[0] }}
+                  {{ bet.drivers[0] }}
                 </td>
                 <td class="position-cell">
-                  {{ bet_data.drivers[1] }}
+                  {{ bet.drivers[1] }}
                 </td>
                 <td class="position-cell">
-                  {{ bet_data.drivers[2] }}
+                  {{ bet.drivers[2] }}
                 </td>
                 <td class="position-cell">
-                  {{ bet_data.fastest_lap if bet_data.fastest_lap else '-' }}
+                  {{ bet.fastest_lap if bet.fastest_lap else '-' }}
                 </td>
                 <td class="points-cell">
-                  {% if bet_data.resolved_at and bet_data.points_awarded %}
-                    +{{ bet_data.points_awarded }}
+                  {% if bet.resolved_at and bet.points_awarded %}
+                    +{{ bet.points_awarded }}
                   {% else %}
                     -
                   {% endif %}
@@ -114,6 +116,40 @@
       </div>
       {% endfor %}
 
+      <!-- Then show races without bets -->
+      {% for race_id, race_data in races_without_bets.items() %}
+      <div class="race-bet-section no-bets-race">
+        <div class="race-bet-header">
+          <h3 class="race-title">{{ race_data.race_info.name }}</h3>
+          
+          <div class="race-meta">
+            {% set race_status = race_data.race_bet_info.status %}
+            {% if race_status == 'resolved' %}
+              <span class="status-indicator resolved">✅ Resolved</span>
+            {% else %}
+              <span class="status-indicator closed">🔒 Closed</span>
+              {% if is_admin %}
+              <div class="resolve-buttons-group">
+                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
+                  <button type="submit" class="resolve-button" title="Resolve this race using F1 API">
+                    🎯 API Resolve
+                  </button>
+                </form>
+              </div>
+              {% endif %}
+            {% endif %}
+            
+            <span class="race-date">
+              📅 {{ race_data.race_info.date }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="no-bets-message">
+          <p>No bets were placed for this race.</p>
+        </div>
+      </div>
+      {% endfor %}
     {% else %}
       <div class="no-bets">
         <p>No bet history yet.</p>

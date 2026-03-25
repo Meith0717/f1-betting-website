@@ -12,114 +12,22 @@ betting_bp = Blueprint("betting", __name__)
 @betting_bp.route("/betting")
 @login_required
 def betting_dashboard():
-    """Show user's betting dashboard with resolved bets only"""
+    """Show user's betting dashboard with closed and resolved bets"""
     try:
         from flask import current_app
+        
         # Check and close any expired bets
         closed_count = betting_manager.check_and_close_expired_bets()
         if closed_count > 0:
             current_app.logger.info(f"Closed bets for {closed_count} races that have started")
         
-        # Get user's bets
-        username = session["username"]
-        users = load_users()  # Load all users to check admin status
-        user_bets = betting_manager.get_user_bets(username)
+        # Get all betting data
+        all_bets = betting_manager.get_all_bets()
+        race_bets = all_bets.get("race_bets", {})
         
         # Get all races for context
         all_races = race_data_manager.get_all_races()
-        # Add timezone info to races
-        all_races = race_data_manager.add_timezone_info_to_races(all_races)
-        race_dict = {}
-        for race in all_races:
-            try:
-                race_dict[race["id"]] = race
-            except (KeyError, TypeError):
-                # Skip races without proper ID
-                continue
-        
-        # Collect closed and resolved bets
-        closed_resolved_bets = []
-        
-        for race_id, bet_data in user_bets.items():
-            # Skip if bet_data is not a proper dictionary
-            if not isinstance(bet_data, dict):
-                continue
-                
-            # Check if bet is resolved (has resolved_at) or race is closed/resolved
-            bet_is_resolved = bet_data.get("resolved_at") is not None
-            race_status = race_dict.get(race_id, {}).get("status")
-            
-            # Get race info for all bets
-            race_info = race_dict.get(race_id, {"name": "Unknown Race", "id": race_id})
-            bet_data["race_info"] = race_info
-            
-            # Get bet status
-            bet_status = bet_data.get("status", "")
-            
-            # Include if bet is resolved or race is closed/resolved
-            if bet_is_resolved or race_status in ["closed", "resolved"]:
-                # Use session times for proper race datetime
-                if race_info and race_info.get("sessions"):
-                    try:
-                        # Find the first future session to determine when betting closes
-                        now = datetime.now()
-                        first_future_session = None
-                        
-                        for race_session in race_info["sessions"]:
-                            if race_session.get("time"):
-                                # Use timezone-converted time if available
-                                if race_session.get("time_info"):
-                                    # Use the already converted local time
-                                    session_time = race_session["time_info"].get("datetime_obj")
-                                    if session_time:
-                                        # Ensure we're comparing compatible datetimes
-                                        if hasattr(session_time, 'tzinfo') and session_time.tzinfo is not None:
-                                            # Timezone-aware datetime, make now timezone-aware for comparison
-                                            if not hasattr(now, 'tzinfo') or now.tzinfo is None:
-                                                now = datetime.now(pytz.UTC)
-                                            if session_time > now:
-                                                first_future_session = race_session
-                                                break
-                                        else:
-                                            # Naive datetime, ensure now is also naive
-                                            if hasattr(now, 'tzinfo') and now.tzinfo is not None:
-                                                now = datetime.now()  # Make naive
-                                            if session_time > now:
-                                                first_future_session = race_session
-                                                break
-                                else:
-                                    # Fallback to parsing raw time string
-                                    session_time_str = race_session["time"]
-                                    # Handle different time formats
-                                    if "T" in session_time_str:
-                                        session_time = datetime.fromisoformat(session_time_str.replace("Z", "+00:00"))
-                                    else:
-                                        # Fallback for other formats
-                                        session_time = datetime.strptime(session_time_str, "%Y-%m-%d %H:%M:%S")
-                                    
-                                    if session_time > now:
-                                        first_future_session = race_session
-                                        break
-                    
-                        if first_future_session:
-                            bet_data["race_datetime"] = first_future_session.get("time", "")
-                            bet_data["betting_closes_at"] = first_future_session.get("time", "")
-                        else:
-                            # If no future sessions, use the last session time
-                            bet_data["race_datetime"] = race_info["sessions"][-1].get("time", "") if race_info["sessions"] else ""
-                    except Exception as e:
-                        current_app.logger.error(f"Error getting race session time: {e}")
-                        bet_data["race_datetime"] = ""
-                        bet_data["betting_closes_at"] = ""
-                
-                if bet_status == "resolved" or bet_status == "closed":
-                    closed_resolved_bets.append(bet_data)
-        
-        # Sort by race date (newest first)
-        closed_resolved_bets.sort(key=lambda x: x["race_info"].get("date", ""), reverse=True)
-        
-        # Group all bets by race for the new template structure
-        races_with_bets = {}
+        race_dict = {race["id"]: race for race in all_races if race.get("id")}
         
         # Load drivers data for short names
         drivers_data = race_data_manager.load_drivers()
@@ -130,109 +38,120 @@ def betting_dashboard():
             if driver_id and short_name:
                 driver_short_names[driver_id] = short_name
         
-        # Add current user's bets
-        for bet_data in closed_resolved_bets:
-            race_id = bet_data["race_info"]["id"]
-            if race_id not in races_with_bets:
+        # Prepare races with bets for template
+        races_with_bets = {}
+        races_without_bets = {}
+        
+        for race_id, race_bet_info in race_bets.items():
+            # Only show closed or resolved races
+            if race_bet_info.get("status") not in ["closed", "resolved"]:
+                continue
+                
+            race_info = race_dict.get(race_id, {"name": f"Race {race_id}", "id": race_id})
+            user_bets = race_bet_info.get("user_bets", {})
+            
+            if user_bets:
                 races_with_bets[race_id] = {
-                    "race_info": bet_data["race_info"],
+                    "race_info": race_info,
+                    "race_bet_info": race_bet_info,
                     "bets": []
                 }
-            
-            # Convert driver IDs to short names for predictions
-            drivers_with_short_names = []
-            for driver_id in bet_data["drivers"]:
-                drivers_with_short_names.append(driver_short_names.get(driver_id, driver_id))
-            bet_data["drivers_short"] = drivers_with_short_names
-            
-            # Add fastest lap support (placeholder for future implementation)
-            fastest_lap = bet_data.get("fastest_lap")
-            if fastest_lap:
-                bet_data["fastest_lap_short"] = driver_short_names.get(fastest_lap, fastest_lap)
+                
+                # Add all user bets for this race
+                for username, bet_data in user_bets.items():
+                    # Convert driver IDs to short names
+                    drivers_short = [driver_short_names.get(d, d) for d in bet_data.get("drivers", [])]
+                    fastest_lap_short = driver_short_names.get(bet_data.get("fastest_lap"), bet_data.get("fastest_lap", "-"))
+                    
+                    # Convert actual results if available
+                    actual_results_short = []
+                    if bet_data.get("actual_results"):
+                        actual_results_short = [driver_short_names.get(d, d) for d in bet_data["actual_results"]]
+                    
+                    races_with_bets[race_id]["bets"].append({
+                        "username": username,
+                        "drivers": bet_data.get("drivers", []),
+                        "drivers_short": drivers_short,
+                        "fastest_lap": bet_data.get("fastest_lap"),
+                        "fastest_lap_short": fastest_lap_short,
+                        "points_awarded": bet_data.get("points_awarded"),
+                        "resolved_at": bet_data.get("resolved_at"),
+                        "created_at": bet_data.get("created_at"),
+                        "actual_results": bet_data.get("actual_results"),
+                        "actual_results_short": actual_results_short,
+                        "actual_fastest_lap": bet_data.get("actual_fastest_lap")
+                    })
             else:
-                bet_data["fastest_lap_short"] = None
+                # Race has no bets
+                races_without_bets[race_id] = {
+                    "race_info": race_info,
+                    "race_bet_info": race_bet_info,
+                    "bets": []
+                }
+        
+        # Combine and sort all races by date (newest first)
+        def get_race_date(race_data):
+            race_info = race_data["race_info"]
+            return race_info.get("date", "1970-01-01")
+        
+        # Sort both categories separately first
+        races_with_bets = dict(sorted(races_with_bets.items(), key=lambda x: get_race_date(x[1]), reverse=True))
+        races_without_bets = dict(sorted(races_without_bets.items(), key=lambda x: get_race_date(x[1]), reverse=True))
+        
+        # Create combined list for display
+        all_races_list = []
+        
+        # Merge races, interleaving by date
+        races_with_bets_items = list(races_with_bets.items())
+        races_without_bets_items = list(races_without_bets.items())
+        
+        i, j = 0, 0
+        while i < len(races_with_bets_items) and j < len(races_without_bets_items):
+            race_with_bets = races_with_bets_items[i]
+            race_without_bets = races_without_bets_items[j]
             
-            # Convert driver IDs to short names for actual results if available
-            if bet_data.get("actual_results"):
-                actual_results_short = []
-                for driver_id in bet_data["actual_results"]:
-                    actual_results_short.append(driver_short_names.get(driver_id, driver_id))
-                bet_data["actual_results_short"] = actual_results_short
+            date_with = get_race_date(race_with_bets[1])
+            date_without = get_race_date(race_without_bets[1])
             
-            races_with_bets[race_id]["bets"].append({
-                "username": username,
-                "bet": bet_data
-            })
+            if date_with >= date_without:
+                all_races_list.append(("with_bets", race_with_bets))
+                i += 1
+            else:
+                all_races_list.append(("without_bets", race_without_bets))
+                j += 1
         
-        # Get other users' betting history and add to race grouping
-        try:
-            all_users = load_users()
-        except Exception as e:
-            current_app.logger.error(f"Error loading users for betting history: {e}")
-            all_users = {}
+        # Add remaining races
+        while i < len(races_with_bets_items):
+            all_races_list.append(("with_bets", races_with_bets_items[i]))
+            i += 1
         
-        for other_username, user_data in all_users.items():
-            if other_username != username:  # Skip current user
-                other_user_bets = betting_manager.get_user_bets(other_username)
-                if other_user_bets:
-                    for race_id, bet_data in other_user_bets.items():
-                        # Skip if bet_data is not a proper dictionary
-                        if not isinstance(bet_data, dict):
-                            continue
-                            
-                        bet_status = bet_data.get("status")
-                        if bet_status in ["resolved", "closed"]:
-                            race_info = race_dict.get(race_id, {"name": "Unknown Race", "id": race_id})
-                            bet_data["race_info"] = race_info
-                            bet_data["bet_status"] = bet_status
-                            
-                            # Convert driver IDs to short names for predictions
-                            drivers_with_short_names = []
-                            for driver_id in bet_data["drivers"]:
-                                drivers_with_short_names.append(driver_short_names.get(driver_id, driver_id))
-                            bet_data["drivers_short"] = drivers_with_short_names
-                            
-                            # Add fastest lap support (placeholder for future implementation)
-                            fastest_lap = bet_data.get("fastest_lap")
-                            if fastest_lap:
-                                bet_data["fastest_lap_short"] = driver_short_names.get(fastest_lap, fastest_lap)
-                            else:
-                                bet_data["fastest_lap_short"] = None
-                            
-                            # Convert driver IDs to short names for actual results if available
-                            if bet_data.get("actual_results"):
-                                actual_results_short = []
-                                for driver_id in bet_data["actual_results"]:
-                                    actual_results_short.append(driver_short_names.get(driver_id, driver_id))
-                                bet_data["actual_results_short"] = actual_results_short
-                            
-                            # Add to race grouping
-                            if race_id not in races_with_bets:
-                                races_with_bets[race_id] = {
-                                    "race_info": race_info,
-                                    "bets": []
-                                }
-                            races_with_bets[race_id]["bets"].append({
-                                "username": other_username,
-                                "bet": bet_data
-                            })
+        while j < len(races_without_bets_items):
+            all_races_list.append(("without_bets", races_without_bets_items[j]))
+            j += 1
         
-        # Sort races by date (newest first)
-        races_with_bets = dict(sorted(
-            races_with_bets.items(),
-            key=lambda x: x[1]["race_info"].get("date", ""),
-            reverse=True
-        ))
+        # Convert back to separate dicts for template
+        races_with_bets = {}
+        races_without_bets = {}
         
-        print("betting_dashboard")
-        print(all_races)
-
+        for race_type, (race_id, race_data) in all_races_list:
+            if race_type == "with_bets":
+                races_with_bets[race_id] = race_data
+            else:
+                races_without_bets[race_id] = race_data
+        
+        # Get current user info
+        username = session["username"]
+        users = load_users()
+        is_admin = users.get(username, {}).get("is_admin", False)
+        
         return render_template(
             "betting/dashboard.html",
             username=username,
             races_with_bets=races_with_bets,
+            races_without_bets=races_without_bets,
             betting_manager=betting_manager,
-            is_admin=users.get(username, {}).get("is_admin", False)
+            is_admin=is_admin,
+            driver_short_names=driver_short_names
         )
         
     except Exception as e:

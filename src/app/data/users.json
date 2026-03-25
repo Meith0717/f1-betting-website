@@ -6,8 +6,16 @@
       "score": 0,
       "email_notifications": false,
       "created_at": "2026-03-19T13:39:24.331175",
-      "last_login": "2026-03-25T16:53:17.879051",
-      "is_admin": true
+      "last_login": "2026-03-25T20:36:52.914262",
+      "is_admin": true,
+      "score_history": [
+        {
+          "race_id": "australian_2026",
+          "points": 0,
+          "total": 0,
+          "timestamp": "2026-03-25T19:37:08.728630+00:00"
+        }
+      ]
     },
     "Gwen": {
       "password": "pbkdf2_sha256$b9dc2fd989dab2d3368b5c868d5cbebe$9998e1e5298fac3e2b43f60d7b32581bffb462a487cda94fec1c08b0875e34b8",

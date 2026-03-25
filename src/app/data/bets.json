@@ -1,30 +1,52 @@
 {
-  "bets": {},
-  "races": {
+  "race_bets": {
     "chinese_2026": {
-      "status": "closed",
-      "closed_at": "2026-03-25T15:26:59.491341+00:00",
-      "users": []
+      "status": "resolved",
+      "closed_at": "2026-03-25T17:25:05.727599+00:00",
+      "user_bets": {},
+      "resolved_at": "2026-03-25T19:37:02.256340+00:00"
     },
     "australian_2026": {
-      "bets": {
+      "user_bets": {
         "Thierry": {
           "drivers": [
-            "lawson",
-            "lindblad",
-            "hadjar"
+            "hamilton",
+            "sainz",
+            "ocon"
           ],
-          "fastest_lap": "colapinto",
-          "created_at": "2026-03-25T15:27:17.231417+00:00"
+          "fastest_lap": "perez",
+          "created_at": "2026-03-25T17:25:16.488023+00:00",
+          "resolved_at": "2026-03-25T19:37:08.727998+00:00",
+          "actual_results": [
+            "russell",
+            "antonelli",
+            "leclerc"
+          ],
+          "actual_fastest_lap": "max_verstappen",
+          "points_awarded": 0
         }
       },
-      "status": "closed",
-      "created_at": "2026-03-25T15:27:17.231430+00:00",
-      "closed_at": "2026-03-25T15:28:00.840696+00:00"
+      "status": "resolved",
+      "closed_at": "2026-03-25T17:25:36.117699+00:00",
+      "resolved_at": "2026-03-25T19:37:08.728075+00:00"
+    },
+    "japanese_2026": {
+      "user_bets": {
+        "Thierry": {
+          "drivers": [
+            "russell",
+            "ocon",
+            "colapinto"
+          ],
+          "fastest_lap": "ocon",
+          "created_at": "2026-03-25T19:21:15.714122+00:00"
+        }
+      },
+      "status": "active"
     }
   },
   "metadata": {
-    "created_at": "2026-03-25T15:26:59.490210+00:00",
+    "created_at": "2026-03-25T17:25:05.726652+00:00",
     "version": "1.0"
   }
 }

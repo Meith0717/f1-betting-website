@@ -91,8 +91,10 @@
     <!-- Active Bets Section - Compact & Unified -->
     {% if betting_manager %} {% set user_bets =
     betting_manager.get_user_bets(username) %} {% if user_bets %} {% for
-    race_id, bet_data in user_bets.items() if bet_data.status == 'active' %}
+    race_id, bet_data in user_bets.items() %}
     {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
+    {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
+    {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
     <div class="card-base card info-card">
       <div class="bet-race-header">
         <h3 class="bet-race-name">
@@ -147,10 +149,10 @@
         </div>
       </div>
       <div class="bet-info">
-        <span class="bet-status">Status: {{ bet_data.status|capitalize }}</span>
-        <span class="bet-timestamp">Placed: {{ bet_data.timestamp[:19] if bet_data.timestamp else 'N/A' }}</span>
+        <span class="bet-timestamp">Placed: {{ bet_data.created_at[:19] if bet_data.created_at else 'N/A' }}</span>
       </div>
     </div>
+    {% endif %}
     {% endfor %}
     {% endif %}
     {% endif %}
