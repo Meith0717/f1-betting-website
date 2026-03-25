@@ -1,4 +1,7 @@
 {
-  "canceled_race_ids": [],
+  "canceled_race_ids": [
+    "bahrain_2026",
+    "saudi_arabia_2026"
+  ],
   "notes": "Add race IDs to this list to mark them as canceled. Race IDs should match the id field from races.json"
 }

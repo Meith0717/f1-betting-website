@@ -759,6 +759,553 @@ nav {
     /* Extends .main-container */
     background-color: var(--background);
 }
+
+/* Admin Dashboard - Unified Styles */
+.admin-section-header {
+    margin-bottom: 20px;
+}
+
+.admin-section-title,
+.admin-section h2 {
+    color: var(--brand-primary);
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--divider);
+}
+
+.admin-section-subtitle {
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--divider);
+    padding-bottom: 10px;
+}
+
+.admin-section-description {
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+/* Info boxes for explanations */
+.info-box {
+    background-color: var(--surface-variant);
+    border-left: 4px solid var(--brand-primary);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.info-box h4 {
+    color: var(--brand-primary);
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.info-box p {
+    color: var(--text-light);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Warning boxes */
+.warning-box {
+    background-color: var(--surface-variant);
+    border-left: 4px solid var(--error);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.warning-box h4 {
+    color: var(--error);
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.warning-box p {
+    color: var(--text-light);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Success boxes */
+.success-box {
+    background-color: var(--surface-variant);
+    border-left: 4px solid var(--success);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.success-box h4 {
+    color: var(--success);
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.success-box p {
+    color: var(--text-light);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Data Management Section - Comprehensive */
+.data-management-section {
+    margin-bottom: 40px;
+}
+
+.data-section-title {
+    color: var(--brand-primary);
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-section-subtitle {
+    color: var(--text);
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    border-bottom: 2px solid var(--divider);
+    padding-bottom: 10px;
+}
+
+.data-section-description {
+    color: var(--text-light);
+    margin-bottom: 25px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Action Cards Grid */
+.data-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.data-action-card {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 28px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.data-action-card:hover {
+    border-color: var(--brand-primary);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.data-action-card h3 {
+    color: var(--brand-primary);
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-action-card p {
+    color: var(--text-light);
+    font-size: 15px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* Warning card for dangerous actions */
+.data-action-card.warning-card {
+    border-color: var(--error);
+    background-color: var(--surface-variant);
+}
+
+.data-action-card.warning-card h3 {
+    color: var(--error);
+}
+
+/* Action buttons */
+.data-action-button {
+    background-color: var(--brand-primary);
+    color: var(--surface);
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.data-action-button:hover {
+    background-color: var(--interactive-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Reset button (danger) */
+.reset-points-button {
+    background-color: var(--error);
+}
+
+.reset-points-button:hover {
+    background-color: var(--interactive-hover);
+}
+
+/* Ensure uniform height */
+.data-action-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.data-action-card form {
+    margin-top: auto;
+}
+
+/* Log Viewer Section - Beautiful Design */
+.log-viewer-section {
+    margin-top: 40px;
+}
+
+.log-container {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    max-height: 500px;
+    overflow-y: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--divider);
+}
+
+.log-header h3 {
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.log-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.log-control-button {
+    background-color: var(--surface-variant);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.log-control-button:hover {
+    background-color: var(--surface);
+    border-color: var(--brand-primary);
+}
+
+.log-content {
+    margin: 0;
+    padding: 0;
+    color: var(--text-light);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    tab-size: 4;
+}
+
+/* Log line styling */
+.log-line {
+    padding: 4px 0;
+}
+
+.log-line:hover {
+    background-color: rgba(225, 6, 0, 0.05);
+}
+
+.log-timestamp {
+    color: var(--text-lighter);
+    margin-right: 12px;
+}
+
+.log-level-info {
+    color: var(--brand-primary);
+    font-weight: 600;
+}
+
+.log-level-error {
+    color: var(--error);
+    font-weight: 600;
+}
+
+.log-level-warning {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.log-level-debug {
+    color: var(--brand-accent);
+    font-weight: 600;
+}
+
+.no-logs {
+    background-color: var(--surface-variant);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.no-logs svg {
+    display: block;
+    margin: 0 auto 16px;
+    color: var(--text-lighter);
+    font-size: 48px;
+}
+
+/* Cancelled Races Section */
+.canceled-races-section {
+    margin-top: 40px;
+}
+
+.canceled-races-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.canceled-races-header h3 {
+    color: var(--brand-primary);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.cancel-controls {
+    margin-bottom: 20px;
+}
+
+.canceled-races-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.canceled-races-table th,
+.canceled-races-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--divider);
+}
+
+.canceled-races-table th {
+    background-color: var(--surface-variant);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.canceled-races-table tr:hover {
+    background-color: var(--surface-variant);
+}
+
+.no-canceled-races {
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
+    padding: 40px;
+}
+
+/* Race Results Resolution Section */
+.results-resolution-section {
+    margin-top: 40px;
+}
+
+.results-resolution-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.results-resolution-header h3 {
+    color: var(--brand-primary);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.race-select-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.race-select-dropdown {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
+    font-size: 15px;
+    min-width: 250px;
+    transition: all 0.3s ease;
+}
+
+.race-select-dropdown:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(225, 6, 0, 0.2);
+}
+
+.resolve-race-button {
+    background-color: var(--success);
+    color: var(--surface);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.resolve-race-button:hover {
+    background-color: var(--interactive-hover);
+    transform: translateY(-1px);
+}
+
+.resolve-race-button:disabled {
+    background-color: var(--surface-variant);
+    color: var(--text-light);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Resolved Races List */
+.resolved-races-list {
+    margin-top: 25px;
+}
+
+.resolved-race-item {
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.resolved-race-item:hover {
+    border-color: var(--brand-primary);
+    background-color: var(--surface-variant);
+}
+
+.resolved-race-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.resolved-race-header h4 {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.resolved-race-meta {
+    color: var(--text-light);
+    font-size: 14px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.resolved-race-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resolved-race-status {
+    background-color: var(--success-light);
+    color: var(--success);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.no-resolved-races {
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
+    padding: 40px;
+}
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -1678,4 +2225,57 @@ nav {
 }
 .betting-action-button:hover {
     background-color: var(--interactive-hover);
+}
+
+/* Race Resolve Button */
+.resolve-button {
+    margin-left: 8px;
+    font-size: 12px;
+    padding: 4px 8px;
+    background-color: var(--success);
+    color: var(--surface);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.resolve-button:hover {
+    background-color: var(--success-hover);
+    transform: translateY(-1px);
+}
+
+.resolve-form {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.resolve-buttons-group {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.resolve-button.manual-resolve {
+    background-color: var(--warning);
+    margin-left: 4px;
+}
+
+.resolve-button.manual-resolve:hover {
+    background-color: var(--warning-hover);
+}
+
+/* Fastest lap result styles */
+.fastest-lap-result {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.driver-podium.fastest {
+    background-color: var(--warning);
+    color: var(--on-warning);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
 }

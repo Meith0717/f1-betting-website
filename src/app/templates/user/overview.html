@@ -15,7 +15,7 @@
     <div class="card-base card info-card">
       <div class="race-header">
         <div class="race-header-top">
-          <h3>Next Round: {{ next_race.name }}</h3>
+          <h3>Next: Round {{next_race.round}} - {{ next_race.name }}</h3>
           <div class="race-actions">
             <a href="{{ url_for('main.races') }}" class="btn btn-secondary"
               >View All Races</a
@@ -23,9 +23,9 @@
           </div>
         </div>
         <div class="race-info-line">
-          <span class="race-circuit">{{ next_race.circuit }}</span>
           <span class="race-country">🌍 {{ next_race.country }}</span>
-          <span class="race-date">📅 {{ next_race.date[8:10] }}.{{ next_race.date[5:7] }}.{{ next_race.date[0:4] }}</span>
+          <span class="race-circuit">{{ next_race.circuit }}</span>
+          <span class="race-date">📅 {{ next_race.sessions[-1].date[8:10] }}.{{ next_race.sessions[-1].date[5:7] }}.{{ next_race.sessions[-1].date[0:4] }}</span>
         </div>
       </div>
 
@@ -38,11 +38,6 @@
           session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
         </span>
         {% endfor %}
-        <!-- Add the main race as a session -->
-        <span class="session-inline">
-          Race ({% if next_race.date %}{{ next_race.date[8:10] }}.{{ next_race.date[5:7] }}{% endif %}) {% if next_race.time_info %}{{
-          next_race.time_info.time_only }} {% else %} {{ next_race.time[:5] }} {% endif %}
-        </span>
         {% else %}
         <span class="session-inline">No sessions available</span>
         {% endif %}

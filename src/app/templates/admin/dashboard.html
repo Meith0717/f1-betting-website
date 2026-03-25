@@ -1,14 +1,20 @@
 {% extends 'base.html' %} {% block content %}
 <div class="admin-dashboard">
   <div class="admin-header">
-    <h1>Admin Dashboard</h1>
+    <h1>🏎️ Admin Dashboard</h1>
     <a href="{{ url_for('main.index') }}" class="back-button"
       >Back</a
     >
   </div>
 
+  <!-- Admin Info Box -->
+  <div class="info-box">
+    <h4>⚠️ Administrator Access</h4>
+    <p>You have full access to manage the F1 Betting application. Use these tools responsibly.</p>
+  </div>
+
   <div class="admin-section">
-    <h2>Data Management</h2>
+    <h2>📊 Data Management</h2>
     <div class="admin-actions">
       <form
         method="POST"
@@ -37,31 +43,127 @@
         </button>
       </form>
       <form
-          method="POST"
-          action="{{ url_for('admin.reset_all_points') }}"
-          class="action-form"
-          onsubmit="
-            return confirm(
-              'Are you sure you want to reset ALL user points to 0? This cannot be undone.',
-            );
-          "
-        >
-          <button type="submit" class="action-button reset-points-button">
-            Reset All Points
-          </button>
-        </form>
+        method="POST"
+        action="{{ url_for('admin.reset_all_points') }}"
+        class="action-form"
+        onsubmit="
+          return confirm(
+            'Are you sure you want to reset ALL user points to 0? This cannot be undone.',
+          );
+        "
+      >
+        <button type="submit" class="action-button reset-points-button">
+          Reset All Points
+        </button>
+      </form>
     </div>
+
+    <!-- Race Results Resolution Section -->
+
+
+    <div class="canceled-races-section">
+      <div class="canceled-races-header">
+        <h2>🚫 Cancelled Races</h2>
+      </div>
+      <p class="data-section-description">
+        Manage cancelled races and reactivate them if needed
+      </p>
+      <div class="cancel-controls">
+        <form
+          method="POST"
+          action="{{ url_for('admin.cancel_race') }}"
+          class="cancel-form"
+        >
+          <div class="race-select-container">
+            <select
+              name="race_id"
+              id="race-select"
+              class="race-select-dropdown"
+              required
+            >
+              <option value="" disabled selected>Select race to cancel...</option>
+              {% for race in races %} {% if not race.canceled %}
+              <option value="{{ race.id }}">{{ race.name }}</option>
+              {% endif %} {% endfor %}
+            </select>
+            <button type="submit" class="cancel-action-button">
+              🚫 Cancel Race
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="resolved-races-list">
+        <div class="resolved-race-header">
+          <h4>Cancelled Races List</h4>
+        </div>
+        <div class="race-table-container">
+          <table class="race-table">
+            <thead>
+              <tr>
+                <th>Race Name</th>
+                <th>Country</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for race in races %}
+              {% if race.canceled %}
+              <tr class="race-canceled">
+                <td>{{ race.name }}</td>
+                <td>{{ race.country }}</td>
+                <td>{{ race.date }}</td>
+                <td>
+                  <form
+                    method="POST"
+                    action="{{ url_for('admin.uncancel_race') }}"
+                    class="reactivate-form"
+                  >
+                    <input type="hidden" name="race_id" value="{{ race.id }}" />
+                    <button
+                      type="submit"
+                      class="reactivate-button"
+                      title="Reactivate this race"
+                    >
+                      Reactivate
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+          {% set canceled_races = [] %}
+          {% for race in races %}
+          {% if race.canceled %}
+          {% set canceled_races = canceled_races + [race] %}
+          {% endif %}
+          {% endfor %}
+          <!-- Debug info: {{ races|length }} total races, {{ canceled_races|length }} canceled -->
+          {% if canceled_races|length == 0 %}
+          <div class="no-canceled-races">
+            No cancelled races found
+          </div>
+          {% endif %}
+    </div>
+
   </div>
 
   <div class="admin-section">
-    <h2>Application Logs</h2>
-    <div class="log-viewer">
-      {% if log_file_exists %}
+    <!-- Logs Info Box -->
+    <div class="info-box">
+      <h4>📜 Application Logs</h4>
+      <p>View and manage application logs. Use the toggle wrap button to switch between wrapped and unwrapped text display.</p>
+    </div>
+
+    <div class="admin-section log-viewer-section">
       <div class="log-header">
-        <h3>Recent Log Entries</h3>
+        <h2>📜 Application Logs</h2>
         <div class="log-controls">
           <button onclick="toggleLogWrap()" class="log-control-button">
-            Toggle Wrap
+            📄 Toggle Wrap
           </button>
           <form
             method="POST"
@@ -77,27 +179,34 @@
                 );
               "
             >
-              Clear Logs
+              🗑️ Clear Logs
             </button>
           </form>
         </div>
       </div>
+      {% if log_file_exists %}
       <div class="log-container" id="logContainer">
         <pre class="log-content">{{ log_entries|join('') }}</pre>
       </div>
       {% else %}
       <div class="no-logs">
-        <p>
-          No log file found. Logs will appear here once the application
-          generates them.
+        📜 No log file found
+        <p class="log-description">
+          Logs will appear here once the application generates them.
         </p>
       </div>
       {% endif %}
     </div>
   </div>
 
+  <!-- Users Info Box -->
+  <div class="info-box">
+    <h4>👥 Users & Security</h4>
+    <p>Manage user accounts, permissions, and security settings. Toggle notifications and adjust user roles as needed.</p>
+  </div>
+
   <div class="admin-section">
-    <h2>Users & Security</h2>
+    <h2>👥 Users & Security</h2>
     <div class="user-table-container">
       <table class="user-table">
         <thead>

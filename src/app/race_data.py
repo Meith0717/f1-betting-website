@@ -64,16 +64,28 @@ class RaceDataManager:
     def _get_race_datetime(self, race: Dict) -> Optional[datetime]:
         """Helper method to get timezone-aware datetime for a race."""
         try:
-            if race.get("date") and race.get("time"):
-                parsed = self._parse_utc_datetime(race["date"], race.get("time"))
-                if parsed:
-                    return parsed
-
+            # First try to get race datetime from sessions (new structure)
             if race.get("sessions"):
+                # Find the Race session specifically
+                race_session = next((s for s in race["sessions"] if s["type"] == "Race"), None)
+                if race_session:
+                    parsed = self._parse_utc_datetime(
+                        race_session.get("date"), race_session.get("time")
+                    )
+                    if parsed:
+                        return parsed
+                
+                # Fallback to first session if Race session not found
                 first_session = race["sessions"][0]
                 parsed = self._parse_utc_datetime(
                     first_session.get("date"), first_session.get("time")
                 )
+                if parsed:
+                    return parsed
+
+            # Legacy support for old structure (date and time at top level)
+            if race.get("date") and race.get("time"):
+                parsed = self._parse_utc_datetime(race["date"], race.get("time"))
                 if parsed:
                     return parsed
 
@@ -455,22 +467,23 @@ class RaceDataManager:
             if not schedule.get("race") or not schedule["race"].get("date") or not schedule["race"].get("time"):
                 continue
 
+            # Add race as a session for consistency
+            sessions.append(
+                {
+                    "type": "Race",
+                    "date": schedule["race"]["date"],
+                    "time": schedule["race"]["time"],
+                }
+            )
+
             race = {
                 "id": api_race.get("raceId"),
                 "name": api_race.get("raceName"),
                 "country": api_race.get("circuit", {}).get("country", "Unknown"),
                 "circuit": api_race.get("circuit", {}).get("circuitName", "Unknown"),
-                "date": schedule["race"]["date"],
-                "time": schedule["race"]["time"],
                 "sessions": sessions,
                 "round": api_race.get("round"),
-                "laps": api_race.get("laps"),
-                "circuit_length": api_race.get("circuit", {}).get("circuitLength"),
                 "city": api_race.get("circuit", {}).get("city"),
-                "fast_lap": api_race.get("fast_lap", {}).get("fast_lap"),
-                "fast_lap_driver": api_race.get("fast_lap", {}).get("fast_lap_driver_id"),
-                "winner": api_race.get("winner"),
-                "team_winner": api_race.get("teamWinner"),
             }
 
             races.append(race)

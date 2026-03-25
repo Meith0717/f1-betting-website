@@ -19,11 +19,23 @@
           <h3 class="race-title">{{ race_data.race_info.name }}</h3>
           
           <div class="race-meta">
-            {% set first_bet = race_data.bets[0].bet %}
-            {% if first_bet.get('status') == 'resolved' %}
+            {% set race_status = race_data.race_info.status %}
+            {% set first_bet = race_data.bets[0] %}
+            {% set bet_resolved = first_bet.get('resolved_at') is not none %}
+            {% if bet_resolved or race_status == 'resolved' %}
               <span class="status-indicator resolved">✅ Resolved</span>
             {% else %}
               <span class="status-indicator closed">🔒 Closed</span>
+              {% if is_admin %}
+              <!-- Show resolve buttons for closed races that aren't resolved -->
+              <div class="resolve-buttons-group">
+                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
+                  <button type="submit" class="resolve-button" title="Resolve this race using F1 API">
+                    🎯 API Resolve
+                  </button>
+                </form>
+              </div>
+              {% endif %}
             {% endif %}
             
             <span class="race-date">
@@ -46,29 +58,29 @@
               </tr>
             </thead>
             <tbody>
-              {% for user_bet in race_data.bets %}
+              {% for username, bet_data in race_data.bets.items() %}
               <tr class="user-bet-row">
                 <td class="user-cell">
-                  {{ user_bet.username }}
-                  {% if user_bet.username == username %}
+                  {{ username }}
+                  {% if username == username %}
                     <span class="you-badge">(You)</span>
                   {% endif %}
                 </td>
                 <td class="position-cell">
-                  {{ user_bet.bet.drivers_short[0] if user_bet.bet.drivers_short else user_bet.bet.drivers[0] }}
+                  {{ bet_data.drivers[0] }}
                 </td>
                 <td class="position-cell">
-                  {{ user_bet.bet.drivers_short[1] if user_bet.bet.drivers_short else user_bet.bet.drivers[1] }}
+                  {{ bet_data.drivers[1] }}
                 </td>
                 <td class="position-cell">
-                  {{ user_bet.bet.drivers_short[2] if user_bet.bet.drivers_short else user_bet.bet.drivers[2] }}
+                  {{ bet_data.drivers[2] }}
                 </td>
                 <td class="position-cell">
-                  {{ user_bet.bet.fastest_lap_short if user_bet.bet.fastest_lap_short else (user_bet.bet.fastest_lap if user_bet.bet.fastest_lap else '-') }}
+                  {{ bet_data.fastest_lap if bet_data.fastest_lap else '-' }}
                 </td>
                 <td class="points-cell">
-                  {% if user_bet.bet.status == 'resolved' and user_bet.bet.points_awarded %}
-                    +{{ user_bet.bet.points_awarded }}
+                  {% if bet_data.resolved_at and bet_data.points_awarded %}
+                    +{{ bet_data.points_awarded }}
                   {% else %}
                     -
                   {% endif %}
@@ -80,14 +92,22 @@
         </div>
 
         <!-- Actual results -->
-        {% if first_bet.get('status') == 'resolved' and first_bet.get('actual_results') %}
+        {% if first_bet.get('resolved_at') %}
         <div class="actual-results">
           <span class="results-label">🏆 Actual Results:</span>
           <div class="drivers-compact">
-            <span class="driver-podium actual">1. {{ first_bet.actual_results_short[0] if first_bet.get('actual_results_short') else first_bet.actual_results[0] }}</span>
-            <span class="driver-podium actual">2. {{ first_bet.actual_results_short[1] if first_bet.get('actual_results_short') else first_bet.actual_results[1] }}</span>
-            <span class="driver-podium actual">3. {{ first_bet.actual_results_short[2] if first_bet.get('actual_results_short') else first_bet.actual_results[2] }}</span>
+            {% if first_bet.get('actual_results') %}
+            <span class="driver-podium actual">1. {{ first_bet.actual_results[0] }}</span>
+            <span class="driver-podium actual">2. {{ first_bet.actual_results[1] }}</span>
+            <span class="driver-podium actual">3. {{ first_bet.actual_results[2] }}</span>
+            {% endif %}
           </div>
+          {% if first_bet.get('actual_fastest_lap') %}
+          <div class="fastest-lap-result">
+            <span class="results-label">🏎️ Fastest Lap:</span>
+            <span class="driver-podium fastest">{{ first_bet.actual_fastest_lap }}</span>
+          </div>
+          {% endif %}
         </div>
         {% endif %}
 

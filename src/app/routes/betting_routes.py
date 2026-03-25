@@ -22,6 +22,7 @@ def betting_dashboard():
         
         # Get user's bets
         username = session["username"]
+        users = load_users()  # Load all users to check admin status
         user_bets = betting_manager.get_user_bets(username)
         
         # Get all races for context
@@ -36,7 +37,7 @@ def betting_dashboard():
                 # Skip races without proper ID
                 continue
         
-        # Collect resolved and closed bets (closed/past bets)
+        # Collect closed and resolved bets
         closed_resolved_bets = []
         
         for race_id, bet_data in user_bets.items():
@@ -44,70 +45,75 @@ def betting_dashboard():
             if not isinstance(bet_data, dict):
                 continue
                 
-            # Process resolved and closed bets for the dashboard
-            bet_status = bet_data.get("status")
-            if bet_status not in ["resolved", "closed"]:
-                continue
-                
+            # Check if bet is resolved (has resolved_at) or race is closed/resolved
+            bet_is_resolved = bet_data.get("resolved_at") is not None
+            race_status = race_dict.get(race_id, {}).get("status")
+            
+            # Get race info for all bets
             race_info = race_dict.get(race_id, {"name": "Unknown Race", "id": race_id})
             bet_data["race_info"] = race_info
             
-            # Use session times for proper race datetime
-            if race_info and race_info.get("sessions"):
-                try:
-                    # Find the first future session to determine when betting closes
-                    now = datetime.now()
-                    first_future_session = None
-                    
-                    for race_session in race_info["sessions"]:
-                        if race_session.get("time"):
-                            # Use timezone-converted time if available
-                            if race_session.get("time_info"):
-                                # Use the already converted local time
-                                session_time = race_session["time_info"].get("datetime_obj")
-                                if session_time:
-                                    # Ensure we're comparing compatible datetimes
-                                    if hasattr(session_time, 'tzinfo') and session_time.tzinfo is not None:
-                                        # Timezone-aware datetime, make now timezone-aware for comparison
-                                        if not hasattr(now, 'tzinfo') or now.tzinfo is None:
-                                            now = datetime.now(pytz.UTC)
-                                        if session_time > now:
-                                            first_future_session = race_session
-                                            break
-                                    else:
-                                        # Naive datetime, ensure now is also naive
-                                        if hasattr(now, 'tzinfo') and now.tzinfo is not None:
-                                            now = datetime.now()  # Make naive
-                                        if session_time > now:
-                                            first_future_session = race_session
-                                            break
-                            else:
-                                # Fallback to parsing raw time string
-                                session_time_str = race_session["time"]
-                                # Handle different time formats
-                                if "T" in session_time_str:
-                                    session_time = datetime.fromisoformat(session_time_str.replace("Z", "+00:00"))
-                                else:
-                                    # Fallback for other formats
-                                    session_time = datetime.strptime(session_time_str, "%Y-%m-%d %H:%M:%S")
-                                
-                                if session_time > now:
-                                    first_future_session = race_session
-                                    break
-                    
-                    if first_future_session:
-                        bet_data["race_datetime"] = first_future_session.get("time", "")
-                        bet_data["betting_closes_at"] = first_future_session.get("time", "")
-                    else:
-                        # If no future sessions, use the last session time
-                        bet_data["race_datetime"] = race_info["sessions"][-1].get("time", "") if race_info["sessions"] else ""
-                except Exception as e:
-                    current_app.logger.error(f"Error getting race session time: {e}")
-                    bet_data["race_datetime"] = ""
-                    bet_data["betting_closes_at"] = ""
+            # Get bet status
+            bet_status = bet_data.get("status", "")
             
-            if bet_status == "resolved" or bet_status == "closed":
-                closed_resolved_bets.append(bet_data)
+            # Include if bet is resolved or race is closed/resolved
+            if bet_is_resolved or race_status in ["closed", "resolved"]:
+                # Use session times for proper race datetime
+                if race_info and race_info.get("sessions"):
+                    try:
+                        # Find the first future session to determine when betting closes
+                        now = datetime.now()
+                        first_future_session = None
+                        
+                        for race_session in race_info["sessions"]:
+                            if race_session.get("time"):
+                                # Use timezone-converted time if available
+                                if race_session.get("time_info"):
+                                    # Use the already converted local time
+                                    session_time = race_session["time_info"].get("datetime_obj")
+                                    if session_time:
+                                        # Ensure we're comparing compatible datetimes
+                                        if hasattr(session_time, 'tzinfo') and session_time.tzinfo is not None:
+                                            # Timezone-aware datetime, make now timezone-aware for comparison
+                                            if not hasattr(now, 'tzinfo') or now.tzinfo is None:
+                                                now = datetime.now(pytz.UTC)
+                                            if session_time > now:
+                                                first_future_session = race_session
+                                                break
+                                        else:
+                                            # Naive datetime, ensure now is also naive
+                                            if hasattr(now, 'tzinfo') and now.tzinfo is not None:
+                                                now = datetime.now()  # Make naive
+                                            if session_time > now:
+                                                first_future_session = race_session
+                                                break
+                                else:
+                                    # Fallback to parsing raw time string
+                                    session_time_str = race_session["time"]
+                                    # Handle different time formats
+                                    if "T" in session_time_str:
+                                        session_time = datetime.fromisoformat(session_time_str.replace("Z", "+00:00"))
+                                    else:
+                                        # Fallback for other formats
+                                        session_time = datetime.strptime(session_time_str, "%Y-%m-%d %H:%M:%S")
+                                    
+                                    if session_time > now:
+                                        first_future_session = race_session
+                                        break
+                    
+                        if first_future_session:
+                            bet_data["race_datetime"] = first_future_session.get("time", "")
+                            bet_data["betting_closes_at"] = first_future_session.get("time", "")
+                        else:
+                            # If no future sessions, use the last session time
+                            bet_data["race_datetime"] = race_info["sessions"][-1].get("time", "") if race_info["sessions"] else ""
+                    except Exception as e:
+                        current_app.logger.error(f"Error getting race session time: {e}")
+                        bet_data["race_datetime"] = ""
+                        bet_data["betting_closes_at"] = ""
+                
+                if bet_status == "resolved" or bet_status == "closed":
+                    closed_resolved_bets.append(bet_data)
         
         # Sort by race date (newest first)
         closed_resolved_bets.sort(key=lambda x: x["race_info"].get("date", ""), reverse=True)
@@ -218,13 +224,15 @@ def betting_dashboard():
             reverse=True
         ))
         
+        print("betting_dashboard")
+        print(all_races)
+
         return render_template(
             "betting/dashboard.html",
             username=username,
             races_with_bets=races_with_bets,
-            all_races=all_races,
-            all_users=all_users,
-            betting_manager=betting_manager
+            betting_manager=betting_manager,
+            is_admin=users.get(username, {}).get("is_admin", False)
         )
         
     except Exception as e:
@@ -331,16 +339,14 @@ def edit_bet(race_id):
             
             bets = [position_1, position_2, position_3]
             
-            # Remove old bet and place new one
+            # Remove old bet and place new one - new structure
             data = betting_manager.load_bets()
-            if username in data["bets"] and race_id in data["bets"][username]:
-                del data["bets"][username][race_id]
+            if race_id in data["races"] and "bets" in data["races"][race_id] and username in data["races"][race_id]["bets"]:
+                del data["races"][race_id]["bets"][username]
                 
-                # Remove from race tracking if no other users have bets
-                if race_id in data["races"] and username in data["races"][race_id]["users"]:
-                    data["races"][race_id]["users"].remove(username)
-                    if not data["races"][race_id]["users"]:
-                        del data["races"][race_id]
+                # Remove race entry if no other users have bets
+                if not data["races"][race_id]["bets"]:
+                    del data["races"][race_id]
                 
                 betting_manager.save_bets(data)
             
@@ -376,25 +382,23 @@ def cancel_bet(race_id):
     try:
         username = session["username"]
         
-        # Remove the bet
+        # Remove the bet - new structure
         data = betting_manager.load_bets()
         if betting_manager.is_betting_closed(race_id):
             flash("You can no longer delete this bet.", "error")
             return redirect(url_for("main.index"))
 
-        if username in data["bets"] and race_id in data["bets"][username]:
-            bet_status = data["bets"][username][race_id]["status"]
+        if race_id in data["races"] and "bets" in data["races"][race_id] and username in data["races"][race_id]["bets"]:
+            bet_status = data["races"][race_id]["bets"][username]["status"]
             if bet_status != "active":
                 flash("Cannot cancel a resolved bet", "error")
                 return redirect(url_for("main.index"))
             
-            del data["bets"][username][race_id]
+            del data["races"][race_id]["bets"][username]
             
-            # Remove from race tracking if no other users have bets
-            if race_id in data["races"] and username in data["races"][race_id]["users"]:
-                data["races"][race_id]["users"].remove(username)
-                if not data["races"][race_id]["users"]:
-                    del data["races"][race_id]
+            # Remove race entry if no other users have bets
+            if not data["races"][race_id]["bets"]:
+                del data["races"][race_id]
             
             betting_manager.save_bets(data)
             flash("Bet canceled successfully!", "success")
@@ -415,13 +419,21 @@ def betting_history():
 
     username = session["username"]
 
-    all_bets = betting_manager.get_all_bets().get("bets", {})
+    all_bets = betting_manager.get_all_bets()
 
     races_with_bets = {}
 
-    for user, user_bets in all_bets.items():
-        for race_id, bet in user_bets.items():
-            if bet.get("status") not in ["resolved", "closed"]:
+    # New structure: iterate through races and their bets
+    for race_id, race_data in all_bets.get("races", {}).items():
+        if "bets" not in race_data:
+            continue
+            
+        for user, bet in race_data["bets"].items():
+            # Check if bet is resolved or race is closed/resolved
+            bet_is_resolved = bet.get("resolved_at") is not None
+            race_status = race_data.get("status")
+            
+            if not (bet_is_resolved or race_status in ["closed", "resolved"]):
                 continue
 
             race_info = race_data_manager.get_race_by_id(race_id)
@@ -455,3 +467,88 @@ def betting_history():
         races_with_bets=races_with_bets,
         username=username
     )
+
+
+@betting_bp.route("/betting/resolve/<race_id>", methods=["POST"])
+@login_required
+def resolve_race_from_api(race_id):
+    """Resolve a race by fetching results from F1 API"""
+    try:
+        # Check if user is admin
+        users = load_users()
+        username = session["username"]
+        
+        if not users.get(username, {}).get("is_admin", False):
+            flash("Only admins can resolve races", "error")
+            return redirect(url_for("betting.betting_dashboard"))
+        
+        # Resolve the race using API
+        success = betting_manager.resolve_race_from_api(race_id)
+        
+        if success:
+            flash(f"Race {race_id} resolved successfully using F1 API results!", "success")
+        else:
+            flash(f"Failed to resolve race {race_id} from F1 API. The race may be too far in the future or the API may not have results yet. Try using manual resolution or check back later.", "error")
+            
+        return redirect(url_for("betting.betting_dashboard"))
+        
+    except Exception as e:
+        from flask import current_app
+        current_app.logger.error(f"Error resolving race {race_id}: {e}")
+        flash("Error resolving race", "error")
+        return redirect(url_for("betting.betting_dashboard"))
+
+
+@betting_bp.route("/betting/manual-resolve/<race_id>", methods=["GET", "POST"])
+@login_required
+def manual_resolve_race(race_id):
+    """Manually resolve a race (for testing or when API unavailable)"""
+    try:
+        # Check if user is admin
+        users = load_users()
+        username = session["username"]
+        
+        if not users.get(username, {}).get("is_admin", False):
+            flash("Only admins can manually resolve races", "error")
+            return redirect(url_for("betting.betting_dashboard"))
+        
+        if request.method == "GET":
+            # Show manual resolution form
+            from .betting import betting_manager
+            drivers = betting_manager.get_available_drivers_for_race(race_id)
+            
+            return render_template(
+                "betting/manual_resolve.html",
+                race_id=race_id,
+                drivers=drivers
+            )
+        
+        else:  # POST - process manual resolution
+            # Get manual results from form
+            driver_1 = request.form.get("position_1")
+            driver_2 = request.form.get("position_2")
+            driver_3 = request.form.get("position_3")
+            fastest_lap = request.form.get("fastest_lap")
+            
+            if not all([driver_1, driver_2, driver_3, fastest_lap]):
+                flash("Please select all positions and fastest lap", "error")
+                return redirect(url_for("betting.manual_resolve_race", race_id=race_id))
+            
+            # Resolve the race with manual results
+            actual_results = [driver_1, driver_2, driver_3]
+            success = betting_manager.resolve_race_with_fastest_lap(
+                race_id, actual_results, fastest_lap
+            )
+            
+            if success:
+                flash(f"Race {race_id} resolved successfully with manual results!", "success")
+            else:
+                flash(f"Failed to resolve race {race_id} with manual results", "error")
+            
+            return redirect(url_for("betting.betting_dashboard"))
+            
+    except Exception as e:
+        from flask import current_app
+        current_app.logger.error(f"Error manually resolving race {race_id}: {e}")
+        flash("Error manually resolving race", "error")
+        return redirect(url_for("betting.betting_dashboard"))

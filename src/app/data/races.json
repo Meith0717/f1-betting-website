@@ -5,118 +5,76 @@
       "name": "Formula 1 Qatar Airways Australian Grand Prix",
       "country": "Australia",
       "circuit": "Albert Park Circuit",
-      "date": "2026-03-08",
-      "time": "04:00:00Z",
       "sessions": [
         {
           "type": "FP1",
-          "date": "2026-03-06",
-          "time": "01:30:00Z"
+          "date": "2026-03-23",
+          "time": "13:10:00Z"
         },
         {
           "type": "FP2",
-          "date": "2026-03-06",
-          "time": "05:00:00Z"
+          "date": "2026-03-23",
+          "time": "13:10:00Z"
         },
         {
           "type": "FP3",
-          "date": "2026-03-07",
-          "time": "01:30:00Z"
+          "date": "2026-03-23",
+          "time": "13:10:00Z"
         },
         {
           "type": "Qualifying",
-          "date": "2026-03-07",
-          "time": "05:00:00Z"
+          "date": "2026-03-23",
+          "time": "13:11:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-03-25",
+          "time": "15:28:00Z"
         }
       ],
       "round": 1,
-      "laps": 58,
-      "circuit_length": "5278km",
-      "city": "Melbourne",
-      "fast_lap": "1:22.091",
-      "fast_lap_driver": "max_verstappen",
-      "winner": {
-        "driverId": "russell",
-        "name": "George",
-        "surname": "Russell",
-        "country": "Great Britain",
-        "birthday": "15/02/1998",
-        "number": 63,
-        "shortName": "RUS",
-        "url": "https://en.wikipedia.org/wiki/George_Russell_(racing_driver)"
-      },
-      "team_winner": {
-        "teamId": "mercedes",
-        "teamName": "Mercedes Formula 1 Team",
-        "country": "Germany",
-        "firstAppearance": 1954,
-        "constructorsChampionships": 8,
-        "driversChampionships": 9,
-        "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_in_Formula_One"
-      }
+      "city": "Melbourne"
     },
     {
       "id": "chinese_2026",
       "name": "Formula 1 Heineken Chinese Grand Prix 2026",
       "country": "China",
       "circuit": "Shanghai International Circuit",
-      "date": "2026-03-15",
-      "time": "07:00:00Z",
       "sessions": [
         {
           "type": "FP1",
-          "date": "2026-03-13",
-          "time": "03:30:00Z"
+          "date": "2026-03-23",
+          "time": "13:12:00Z"
         },
         {
-          "type": "Sprint Qualifying",
-          "date": "2026-03-13",
-          "time": "07:30:00Z"
+          "type": "FP2",
+          "date": "2026-03-23",
+          "time": "13:12:00Z"
+        },
+        {
+          "type": "FP3",
+          "date": "2026-03-23",
+          "time": "13:12:00Z"
         },
         {
           "type": "Qualifying",
-          "date": "2026-03-14",
-          "time": "07:00:00Z"
+          "date": "2026-03-23",
+          "time": "13:13:00Z"
         },
         {
-          "type": "Sprint Race",
-          "date": "2026-03-14",
-          "time": "03:00:00Z"
+          "type": "Race",
+          "date": "2026-03-23",
+          "time": "13:14:00Z"
         }
       ],
       "round": 2,
-      "laps": 56,
-      "circuit_length": "5451km",
-      "city": "Shanghai",
-      "fast_lap": "1:35.275",
-      "fast_lap_driver": "antonelli",
-      "winner": {
-        "driverId": "antonelli",
-        "name": "Andrea",
-        "surname": "Kimi Antonelli",
-        "country": "Italy",
-        "birthday": "2006-08-25",
-        "number": 12,
-        "shortName": "ANT",
-        "url": "https://en.wikipedia.org/wiki/Andrea_Kimi_Antonelli"
-      },
-      "team_winner": {
-        "teamId": "mercedes",
-        "teamName": "Mercedes Formula 1 Team",
-        "country": "Germany",
-        "firstAppearance": 1954,
-        "constructorsChampionships": 8,
-        "driversChampionships": 9,
-        "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_in_Formula_One"
-      }
+      "city": "Shanghai"
     },
     {
       "id": "japanese_2026",
       "name": "Formula 1 Aramco Japanese Grand Prix 2026",
       "country": "Japan",
       "circuit": "Suzuka International Circuit",
-      "date": "2026-03-29",
-      "time": "05:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -137,24 +95,21 @@
           "type": "Qualifying",
           "date": "2026-03-28",
           "time": "06:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-03-29",
+          "time": "05:00:00Z"
         }
       ],
       "round": 3,
-      "laps": 53,
-      "circuit_length": "5807km",
-      "city": "Suzuka",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Suzuka"
     },
     {
       "id": "bahrain_2026",
       "name": "Formula 1 Gulf Air Bahrain Grand Prix 2026",
       "country": "Bahrain",
       "circuit": "Bahrain International Circuit",
-      "date": "2026-04-12",
-      "time": "15:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -175,24 +130,21 @@
           "type": "Qualifying",
           "date": "2026-04-11",
           "time": "16:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-04-12",
+          "time": "15:00:00Z"
         }
       ],
       "round": 4,
-      "laps": 57,
-      "circuit_length": "5412km",
-      "city": "Sakhir",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Sakhir"
     },
     {
       "id": "saudi_arabia_2026",
       "name": "Formula 1 STC Saudi Arabian Grand Prix 2026",
       "country": "Saudi Arabia",
       "circuit": "Jeddah Corniche Circuit",
-      "date": "2026-04-19",
-      "time": "17:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -213,24 +165,21 @@
           "type": "Qualifying",
           "date": "2026-04-18",
           "time": "17:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-04-19",
+          "time": "17:00:00Z"
         }
       ],
       "round": 5,
-      "laps": 50,
-      "circuit_length": "6174km",
-      "city": "Jedda",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Jedda"
     },
     {
       "id": "miami_2026",
       "name": "Formula 1 Crypto.com Miami Grand Prix 2026",
       "country": "United States",
       "circuit": "Miami International Autodrome",
-      "date": "2026-05-03",
-      "time": "20:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -251,24 +200,21 @@
           "type": "Sprint Race",
           "date": "2026-05-02",
           "time": "16:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-05-03",
+          "time": "20:00:00Z"
         }
       ],
       "round": 6,
-      "laps": 57,
-      "circuit_length": "5412km",
-      "city": "Miami",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Miami"
     },
     {
       "id": "canadian_2026",
       "name": "Formula 1 Lenovo Grand Prix Du Canada 2026",
       "country": "Canada",
       "circuit": "Circuit Gilles Villeneuve",
-      "date": "2026-05-24",
-      "time": "18:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -289,24 +235,21 @@
           "type": "Sprint Race",
           "date": "2026-05-23",
           "time": "16:30:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-05-24",
+          "time": "18:00:00Z"
         }
       ],
       "round": 7,
-      "laps": 70,
-      "circuit_length": "4361km",
-      "city": "Montreal",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Montreal"
     },
     {
       "id": "monaco_2026",
       "name": "Formula 1 Louis Vuitton Grand Prix de Monaco 2026",
       "country": "Monaco",
       "circuit": "Circuit de Monaco",
-      "date": "2026-06-07",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -327,24 +270,21 @@
           "type": "Qualifying",
           "date": "2026-06-06",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-06-07",
+          "time": "13:00:00Z"
         }
       ],
       "round": 8,
-      "laps": 78,
-      "circuit_length": "3337km",
-      "city": "Monte Carlo",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Monte Carlo"
     },
     {
       "id": "barcelona_catalunya_2026",
       "name": "Formula 1 MSC Cruises Gran Premio de Barcelona-Catalunya 2026",
       "country": "Spain",
       "circuit": "Circuit de Barcelona-Catalunya",
-      "date": "2026-06-14",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -365,24 +305,21 @@
           "type": "Qualifying",
           "date": "2026-06-13",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-06-14",
+          "time": "13:00:00Z"
         }
       ],
       "round": 9,
-      "laps": 66,
-      "circuit_length": "4657km",
-      "city": "Barcelona",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Barcelona"
     },
     {
       "id": "austrian_2026",
       "name": "Formula 1 Lenovo Austrian Grand Prix 2026",
       "country": "Austria",
       "circuit": "Red Bull Ring",
-      "date": "2026-06-28",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -403,24 +340,21 @@
           "type": "Qualifying",
           "date": "2026-06-27",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-06-28",
+          "time": "13:00:00Z"
         }
       ],
       "round": 10,
-      "laps": 71,
-      "circuit_length": "4318km",
-      "city": "Spielberg",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Spielberg"
     },
     {
       "id": "british_2026",
       "name": "Formula 1 Pirelli British Grand Prix 2026",
       "country": "Great Britain",
       "circuit": "Silverstone Circuit",
-      "date": "2026-07-05",
-      "time": "14:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -441,24 +375,21 @@
           "type": "Sprint Race",
           "date": "2026-07-04",
           "time": "10:30:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-07-05",
+          "time": "14:00:00Z"
         }
       ],
       "round": 11,
-      "laps": 52,
-      "circuit_length": "5891km",
-      "city": "Silverstone",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Silverstone"
     },
     {
       "id": "belgian_2026",
       "name": "Formula 1 Belgian Grand Prix 2026",
       "country": "Belgium",
       "circuit": "Circuit de Spa-Francorchamps",
-      "date": "2026-07-19",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -479,24 +410,21 @@
           "type": "Qualifying",
           "date": "2026-07-18",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-07-19",
+          "time": "13:00:00Z"
         }
       ],
       "round": 12,
-      "laps": 44,
-      "circuit_length": "7004km",
-      "city": "Stavelot",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Stavelot"
     },
     {
       "id": "hungarian_2026",
       "name": "Formula 1 AWS Hungarian Grand Prix 2026",
       "country": "Hungary",
       "circuit": "Hungaroring",
-      "date": "2026-07-26",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -517,24 +445,21 @@
           "type": "Qualifying",
           "date": "2026-07-25",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-07-26",
+          "time": "13:00:00Z"
         }
       ],
       "round": 13,
-      "laps": 70,
-      "circuit_length": "4381km",
-      "city": "Mogyorod",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Mogyorod"
     },
     {
       "id": "dutch_2026",
       "name": "Formula 1 Heineken Dutch Grand Prix 2026",
       "country": "Netherlands",
       "circuit": "Circuit Zandvoort",
-      "date": "2026-08-23",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -555,24 +480,21 @@
           "type": "Sprint Race",
           "date": "2026-08-22",
           "time": "09:30:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-08-23",
+          "time": "13:00:00Z"
         }
       ],
       "round": 14,
-      "laps": 72,
-      "circuit_length": "4259km",
-      "city": "Zandvoort",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Zandvoort"
     },
     {
       "id": "italian_2026",
       "name": "Formula 1 Pirelli Gran D'Italia 2026",
       "country": "Italy",
       "circuit": "Autodromo Nazionale Monza",
-      "date": "2026-09-06",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -593,24 +515,21 @@
           "type": "Qualifying",
           "date": "2026-09-05",
           "time": "13:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-09-06",
+          "time": "13:00:00Z"
         }
       ],
       "round": 15,
-      "laps": 53,
-      "circuit_length": "5793km",
-      "city": "Monza",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Monza"
     },
     {
       "id": "spanish_2026",
       "name": "Formula 1 Tag Heuer Gran Premio de Espa\u00f1a 2026",
       "country": "Spain",
       "circuit": "Circuito de Madring",
-      "date": "2026-09-13",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -631,24 +550,21 @@
           "type": "Qualifying",
           "date": "2026-09-12",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-09-13",
+          "time": "13:00:00Z"
         }
       ],
       "round": 16,
-      "laps": null,
-      "circuit_length": "5474km",
-      "city": "Madrid",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Madrid"
     },
     {
       "id": "azerbaijan_2026",
       "name": "Formula 1 Qatar Airways Azerbaijan Grand Prix 2026",
       "country": "Azerbaijan",
       "circuit": "Baku City Circuit",
-      "date": "2026-09-26",
-      "time": "11:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -669,24 +585,21 @@
           "type": "Qualifying",
           "date": "2026-09-25",
           "time": "12:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-09-26",
+          "time": "11:00:00Z"
         }
       ],
       "round": 17,
-      "laps": 51,
-      "circuit_length": "6003km",
-      "city": "Baku",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Baku"
     },
     {
       "id": "singapore_2026",
       "name": "Formula 1 Singapore Airlanes Singapore Grand Prix 2026",
       "country": "Singapore",
       "circuit": "Marina Bay Street Circuit",
-      "date": "2026-10-11",
-      "time": "12:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -707,24 +620,21 @@
           "type": "Qualifying",
           "date": "2026-10-10",
           "time": "13:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-10-11",
+          "time": "12:00:00Z"
         }
       ],
       "round": 18,
-      "laps": 62,
-      "circuit_length": "4940km",
-      "city": "Singapore",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Singapore"
     },
     {
       "id": "united_states_2026",
       "name": "Formula 1 MSC Cruises United States Grand Prix 2026",
       "country": "United States",
       "circuit": "Circuit of The Americas",
-      "date": "2026-10-25",
-      "time": "19:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -745,24 +655,21 @@
           "type": "Qualifying",
           "date": "2026-10-24",
           "time": "21:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-10-25",
+          "time": "19:00:00Z"
         }
       ],
       "round": 19,
-      "laps": 56,
-      "circuit_length": "3426km",
-      "city": "Austin",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Austin"
     },
     {
       "id": "mexican_2026",
       "name": "Formula 1 Gran Premio de La Ciudad de M\u00e9xico 2026",
       "country": "Mexico",
       "circuit": "Aut\u00f3dromo Hermanos Rodr\u00edguez",
-      "date": "2026-11-01",
-      "time": "20:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -783,24 +690,21 @@
           "type": "Qualifying",
           "date": "2026-10-31",
           "time": "21:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-11-01",
+          "time": "20:00:00Z"
         }
       ],
       "round": 20,
-      "laps": 71,
-      "circuit_length": "4304km",
-      "city": "Mexico City",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Mexico City"
     },
     {
       "id": "brazilian_2026",
       "name": "Formula 1 MSC Cruises Grande Premio de Sao Paulo 2026",
       "country": "Brazil",
       "circuit": "Autodromo Jos\u00e9 Carlos Pace | Interlagos",
-      "date": "2026-11-08",
-      "time": "17:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -821,24 +725,21 @@
           "type": "Qualifying",
           "date": "2026-11-07",
           "time": "18:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-11-08",
+          "time": "17:00:00Z"
         }
       ],
       "round": 21,
-      "laps": 71,
-      "circuit_length": "4309km",
-      "city": "Sao Paulo",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Sao Paulo"
     },
     {
       "id": "las_vegas_2026",
       "name": "Formula 1 Heineken Las Vegas Grand Prix 2026",
       "country": "United States",
       "circuit": "Las Vegas Strip Circuit",
-      "date": "2026-11-22",
-      "time": "04:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -859,24 +760,21 @@
           "type": "Qualifying",
           "date": "2026-11-21",
           "time": "04:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-11-22",
+          "time": "04:00:00Z"
         }
       ],
       "round": 22,
-      "laps": 50,
-      "circuit_length": "3853km",
-      "city": "Las Vegas",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Las Vegas"
     },
     {
       "id": "qatar_2026",
       "name": "Formula 1 Qatar Airways Qatar Grand Prix 2026",
       "country": "Qatar",
       "circuit": "Lusail International Circuit",
-      "date": "2026-11-29",
-      "time": "16:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -897,24 +795,21 @@
           "type": "Qualifying",
           "date": "2026-11-28",
           "time": "18:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-11-29",
+          "time": "16:00:00Z"
         }
       ],
       "round": 23,
-      "laps": 57,
-      "circuit_length": "5419km",
-      "city": "Lusail",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Lusail"
     },
     {
       "id": "abu_dhabi_2026",
       "name": "Formula 1 Etihad Airways Abu Dhabi Grand Prix 2026",
       "country": "United Arab Emirates",
       "circuit": "Yas Marina Circuit",
-      "date": "2026-12-06",
-      "time": "13:00:00Z",
       "sessions": [
         {
           "type": "FP1",
@@ -935,16 +830,15 @@
           "type": "Qualifying",
           "date": "2026-12-05",
           "time": "14:00:00Z"
+        },
+        {
+          "type": "Race",
+          "date": "2026-12-06",
+          "time": "13:00:00Z"
         }
       ],
       "round": 24,
-      "laps": 58,
-      "circuit_length": "5281km",
-      "city": "Abu Dhabi",
-      "fast_lap": null,
-      "fast_lap_driver": null,
-      "winner": null,
-      "team_winner": null
+      "city": "Abu Dhabi"
     }
   ]
 }
