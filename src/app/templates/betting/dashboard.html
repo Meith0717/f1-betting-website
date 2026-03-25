@@ -38,14 +38,14 @@
             {% endif %}
             
             <span class="race-date">
-              📅 {{ race_data.race_info.date }}
+              📅 {{ race_data.race_info.sessions[-1].date }}
             </span>
           </div>
         </div>
 
         <!-- Bets Table -->
         <div class="table-responsive">
-          <table class="bets-table">
+          <table class="table bets-table">
             <thead>
               <tr>
                 <th>User</th>
@@ -58,18 +58,18 @@
             </thead>
             <tbody>
               {% for bet in race_data.bets %}
-              <tr class="user-bet-row">
+              <tr class="{% if bet.username == username %}current-user{% endif %}">
                 <td>
                   {{ bet.username }}
                   {% if bet.username == username %}
                     <span class="you-badge">(You)</span>
                   {% endif %}
                 </td>
-                <td>{{ bet.drivers[0] }}</td>
-                <td>{{ bet.drivers[1] }}</td>
-                <td>{{ bet.drivers[2] }}</td>
-                <td>{{ bet.fastest_lap if bet.fastest_lap else '-' }}</td>
-                <td>
+                <td class="position-cell">{{ bet.drivers[0] }}</td>
+                <td class="position-cell">{{ bet.drivers[1] }}</td>
+                <td class="position-cell">{{ bet.drivers[2] }}</td>
+                <td class="position-cell">{{ bet.fastest_lap if bet.fastest_lap else '-' }}</td>
+                <td class="points-cell">
                   {% if bet.resolved_at and bet.points_awarded %}
                     +{{ bet.points_awarded }}
                   {% else %}
@@ -84,11 +84,11 @@
               {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
               <tr class="actual-results-row">
                 <td>🏆 Actual Results</td>
-                <td>{{ race_results.get('results', [])[0].driverId if race_results and race_results.get('results') and race_results['results']|length > 0 else '-' }}</td>
-                <td>{{ race_results.get('results', [])[1].driverId if race_results and race_results.get('results') and race_results['results']|length > 1 else '-' }}</td>
-                <td>{{ race_results.get('results', [])[2].driverId if race_results and race_results.get('results') and race_results['results']|length > 2 else '-' }}</td>
-                <td>{{ race_results.get('overall_fastest_lap', {}).driverId if race_results and race_results.get('overall_fastest_lap') else '-' }}</td>
-                <td>—</td>
+                <td class="position-cell">{{ race_results.get('results', [])[0].driverId if race_results and race_results.get('results') and race_results['results']|length > 0 else '-' }}</td>
+                <td class="position-cell">{{ race_results.get('results', [])[1].driverId if race_results and race_results.get('results') and race_results['results']|length > 1 else '-' }}</td>
+                <td class="position-cell">{{ race_results.get('results', [])[2].driverId if race_results and race_results.get('results') and race_results['results']|length > 2 else '-' }}</td>
+                <td class="position-cell">{{ race_results.get('overall_fastest_lap', {}).driverId if race_results and race_results.get('overall_fastest_lap') else '-' }}</td>
+                <td class="points-cell">—</td>
               </tr>
               {% endif %}
             </tbody>
@@ -121,7 +121,7 @@
             {% endif %}
             
             <span class="race-date">
-              📅 {{ race_data.race_info.date }}
+              📅 {{ race_data.race_info.sessions[-1].date }}
             </span>
           </div>
         </div>

@@ -144,6 +144,8 @@ def betting_dashboard():
         users = load_users()
         is_admin = users.get(username, {}).get("is_admin", False)
         
+        print(races_with_bets)
+
         return render_template(
             "betting/dashboard.html",
             username=username,

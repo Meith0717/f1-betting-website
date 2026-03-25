@@ -13,8 +13,13 @@
   {% if next_session %}
   <div class="card info-card">
     <div class="card-header">
-      <h3 class="card-title">🏁 Next Race</h3>
-      <p class="card-subtitle">Round {{next_race.round}} - {{ next_race.name }}</p>
+      <div class="card-header-content">
+        <div>
+          <h3 class="card-title">🏁 Next Race</h3>
+          <p class="card-subtitle">Round {{next_race.round}} - {{ next_race.name }}</p>
+        </div>
+        <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">📅 View All Races</a>
+      </div>
     </div>
     <div class="card-content">
       <div class="race-info-line mb-4">
@@ -102,22 +107,23 @@
           <span class="prediction-value">{{ bet_data.drivers[2] if bet_data.drivers and bet_data.drivers|length > 2 else '—' }}</span>
         </div>
         <div class="prediction-item fastest-lap">
-          <span class="prediction-label">🏎️ Fastest:</span>
+          <span class="prediction-label">Fastest:</span>
           <span class="prediction-value">{{ bet_data.fastest_lap if bet_data.fastest_lap else '—' }}</span>
         </div>
       </div>
-      
-      <div class="bet-meta mt-4">
-        <span class="meta-text">Placed: {{ bet_data.created_at[:16] if bet_data.created_at else 'N/A' }}</span>
-      </div>
     </div>
     <div class="card-footer">
-      <a href="{{ url_for('betting.edit_bet', race_id=race_id) }}" class="btn btn-secondary btn-small">✏️ Edit</a>
-      <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=race_id) }}" style="display: inline;">
-        <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this bet?');">
-          🗑️ Delete
-        </button>
-      </form>
+      <div class="bet-meta">
+        <span class="meta-text">🕒 Placed: {{ bet_data.created_at[:16] if bet_data.created_at else 'N/A' }}</span>
+      </div>
+      <div class="bet-actions">
+        <a href="{{ url_for('betting.edit_bet', race_id=race_id) }}" class="btn btn-secondary btn-small">✏️ Edit</a>
+        <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=race_id) }}" style="display: inline;">
+          <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this bet?');">
+            🗑️ Delete
+          </button>
+        </form>
+      </div>
     </div>
   </div>
   {% endif %}
