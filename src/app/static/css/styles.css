@@ -5,7 +5,7 @@
     --brand-primary: #e10600;
     --brand-accent: #9b1a37;
     --brand-highlight: #ff0000;
-    --interactive-hover: #ffc400;
+    --interactive-hover: #FF8000;
     --success: #00d2be;
     --success-light: rgba(0, 210, 190, 0.1);
     --error: #e10600;
@@ -14,10 +14,10 @@
     --text: #ffffff;
     --text-light: #949498;
     --text-lighter: #67676d;
-    --background: #000000;
-    --surface: #37376b;
-    --surface-variant: #2b2b35;
-    --border: #38383f;
+    --background: #15151E;
+    --surface: #15151e;
+    --surface-variant: #1b1b27;
+    --border: #FF8000;
     --divider: #2b2b35;
     --overlay-white: rgba(255, 255, 255, 0.1);
     --card-bg: var(--surface);
@@ -243,7 +243,7 @@ nav {
 .form-group select,
 .form-group textarea {
     padding: 12px;
-    border: 2px solid var(--border);
+    border: none;
     border-radius: 4px;
     font-size: 16px;
     transition: border-color 0.3s;
@@ -333,7 +333,7 @@ nav {
     width: 100%;
     padding: 12px;
     border-radius: 4px;
-    border: 1px solid var(--border);
+    border: none;
     background-color: var(--surface);
     color: var(--text);
     font-size: 14px;
@@ -586,7 +586,7 @@ nav {
 .past-race {
     opacity: 0.9;
     background-color: var(--surface-variant);
-    border-color: var(--border);
+    border-color: none;
 }
 .race-card[data-canceled="true"] {
     border-left: 4px solid var(--error);
@@ -670,7 +670,7 @@ nav {
     background-color: var(--surface-variant);
     padding: 12px;
     border-radius: 6px;
-    border: 1px solid var(--border);
+    border: none;
 }
 .profile-info-item strong {
     display: block;
@@ -911,7 +911,7 @@ nav {
     background-color: var(--surface);
     border-radius: 12px;
     padding: 28px;
-    border: 1px solid var(--border);
+    border: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -1002,7 +1002,7 @@ nav {
     background-color: var(--surface);
     border-radius: 12px;
     padding: 24px;
-    border: 1px solid var(--border);
+    border: none;
     max-height: 500px;
     overflow-y: auto;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
@@ -1038,7 +1038,7 @@ nav {
 .log-control-button {
     background-color: var(--surface-variant);
     color: var(--text);
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 14px;
@@ -1200,7 +1200,7 @@ nav {
 .race-select-dropdown {
     padding: 10px 16px;
     border-radius: 8px;
-    border: 1px solid var(--border);
+    border: none;
     background-color: var(--surface);
     color: var(--text);
     font-size: 15px;
@@ -1250,7 +1250,7 @@ nav {
     background-color: var(--surface);
     border-radius: 8px;
     padding: 16px 20px;
-    border: 1px solid var(--border);
+    border: none;
     margin-bottom: 12px;
     transition: all 0.3s ease;
 }
@@ -1342,7 +1342,7 @@ nav {
     min-width: 250px;
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid var(--border);
+    border: none;
     background-color: var(--surface-variant);
     color: var(--text);
 }
@@ -1390,7 +1390,7 @@ nav {
 .race-table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid var(--border);
+    border-bottom: none;
 }
 .user-table th,
 .race-table th {
@@ -1574,7 +1574,7 @@ nav {
     padding: 12px;
     background: var(--surface-light);
     border-radius: 6px;
-    border: 1px solid var(--border-light);
+    border: none;
 }
 .race-details-inline {
     display: flex;
@@ -1657,7 +1657,7 @@ nav {
 }
 .driver-select {
     padding: 8px 10px;
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 4px;
     background: var(--surface);
     color: var(--text);
@@ -1802,7 +1802,7 @@ nav {
     background-color: var(--surface);
     border-radius: 8px;
     padding: 20px;
-    border: 1px solid var(--border);
+    border: none;
 }
 .betting-section h2 {
     color: var(--brand-primary);
@@ -1842,7 +1842,7 @@ nav {
     color: var(--text-light);
     background-color: var(--surface-variant);
     border-radius: 4px;
-    border: 1px solid var(--border);
+    border: none;
 }
 .no-bets p {
     margin: 0;
@@ -1884,7 +1884,7 @@ nav {
     background-color: var(--surface-variant);
     padding: 4px 8px;
     border-radius: 4px;
-    border: 1px solid var(--border);
+    border: none;
     font-size: 13px;
 }
 .pos-badge {
@@ -2012,7 +2012,7 @@ nav {
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
-    border: 1px solid var(--border);
+    border: none;
 }
 /* Table Format */
 .bets-table-container {

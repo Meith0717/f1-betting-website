@@ -238,7 +238,8 @@ def edit_bet(race_id):
             return redirect(url_for("betting.betting_dashboard"))
 
         existing_bet = user_bets[race_id]
-        if existing_bet["status"] != "active":
+        # Check if bet has been resolved (has resolved_at timestamp)
+        if existing_bet.get("resolved_at"):
             flash("Cannot edit a resolved bet", "error")
             return redirect(url_for("betting.betting_dashboard"))
         
@@ -260,12 +261,12 @@ def edit_bet(race_id):
             
             # Remove old bet and place new one - new structure
             data = betting_manager.load_bets()
-            if race_id in data["races"] and "bets" in data["races"][race_id] and username in data["races"][race_id]["bets"]:
-                del data["races"][race_id]["bets"][username]
+            if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id] and username in data["race_bets"][race_id]["user_bets"]:
+                del data["race_bets"][race_id]["user_bets"][username]
                 
                 # Remove race entry if no other users have bets
-                if not data["races"][race_id]["bets"]:
-                    del data["races"][race_id]
+                if not data["race_bets"][race_id]["user_bets"]:
+                    del data["race_bets"][race_id]
                 
                 betting_manager.save_bets(data)
             
@@ -307,17 +308,18 @@ def cancel_bet(race_id):
             flash("You can no longer delete this bet.", "error")
             return redirect(url_for("main.index"))
 
-        if race_id in data["races"] and "bets" in data["races"][race_id] and username in data["races"][race_id]["bets"]:
-            bet_status = data["races"][race_id]["bets"][username]["status"]
-            if bet_status != "active":
-                flash("Cannot cancel a resolved bet", "error")
+        if race_id in data["race_bets"] and "user_bets" in data["race_bets"][race_id] and username in data["race_bets"][race_id]["user_bets"]:
+            # Check if race is closed (no individual bet status in new structure)
+            race_status = data["race_bets"][race_id].get("status")
+            if race_status == "closed" or race_status == "resolved":
+                flash("Cannot cancel a closed or resolved bet", "error")
                 return redirect(url_for("main.index"))
             
-            del data["races"][race_id]["bets"][username]
+            del data["race_bets"][race_id]["user_bets"][username]
             
             # Remove race entry if no other users have bets
-            if not data["races"][race_id]["bets"]:
-                del data["races"][race_id]
+            if not data["race_bets"][race_id]["user_bets"]:
+                del data["race_bets"][race_id]
             
             betting_manager.save_bets(data)
             flash("Bet canceled successfully!", "success")

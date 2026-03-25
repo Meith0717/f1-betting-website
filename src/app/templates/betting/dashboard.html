@@ -89,29 +89,36 @@
                 </td>
               </tr>
               {% endfor %}
+              
+              <!-- Actual results row - get from race_results instead of bets -->
+              {% if first_bet.get('resolved_at') %}
+              {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
+              <tr class="actual-results-row">
+                <td class="user-cell actual-results-label">
+                  🏆 Actual Results
+                </td>
+                <td class="position-cell actual-result">
+                  {{ race_results.get('results', [])[0].driverId if race_results and race_results.get('results') and race_results['results']|length > 0 else '-' }}
+                </td>
+                <td class="position-cell actual-result">
+                  {{ race_results.get('results', [])[1].driverId if race_results and race_results.get('results') and race_results['results']|length > 1 else '-' }}
+                </td>
+                <td class="position-cell actual-result">
+                  {{ race_results.get('results', [])[2].driverId if race_results and race_results.get('results') and race_results['results']|length > 2 else '-' }}
+                </td>
+                <td class="position-cell actual-result">
+                  {{ race_results.get('overall_fastest_lap', {}).driverId if race_results and race_results.get('overall_fastest_lap') else '-' }}
+                </td>
+                <td class="points-cell actual-result">
+                  —
+                </td>
+              </tr>
+              {% endif %}
             </tbody>
           </table>
         </div>
 
-        <!-- Actual results -->
-        {% if first_bet.get('resolved_at') %}
-        <div class="actual-results">
-          <span class="results-label">🏆 Actual Results:</span>
-          <div class="drivers-compact">
-            {% if first_bet.get('actual_results') %}
-            <span class="driver-podium actual">1. {{ first_bet.actual_results[0] }}</span>
-            <span class="driver-podium actual">2. {{ first_bet.actual_results[1] }}</span>
-            <span class="driver-podium actual">3. {{ first_bet.actual_results[2] }}</span>
-            {% endif %}
-          </div>
-          {% if first_bet.get('actual_fastest_lap') %}
-          <div class="fastest-lap-result">
-            <span class="results-label">🏎️ Fastest Lap:</span>
-            <span class="driver-podium fastest">{{ first_bet.actual_fastest_lap }}</span>
-          </div>
-          {% endif %}
-        </div>
-        {% endif %}
+        <!-- Remove duplicate actual results display since they're now in the table -->
 
       </div>
       {% endfor %}

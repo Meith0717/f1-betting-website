@@ -1,4 +1,133 @@
 {% extends 'base.html' %} {% block content %}
+<style>
+  /* Compact bet predictions - uses existing F1 theme colors */
+  .bet-predictions.compact {
+    padding: 12px 0;
+  }
+  
+  .prediction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--divider);
+  }
+  
+  .prediction-title {
+    color: var(--text);
+    font-size: 1.1rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Standard Section Header - reusable across all templates */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider);
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+  }
+  
+  .section-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  /* Specific for race header */
+  .race-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .race-actions {
+    margin-left: auto;
+  }
+  
+  .bet-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .bet-actions .btn {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+    min-width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    line-height: 1;
+  }
+  
+  .btn-error {
+    background-color: var(--error);
+    color: var(--surface);
+  }
+  
+  .predictions-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  
+  .prediction-item {
+    background: var(--surface-variant);
+    border-radius: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+  
+  .prediction-item.fastest-lap {
+    background: var(--warning);
+    color: var(--background);
+  }
+  
+  .prediction-label {
+    font-weight: 600;
+    color: var(--text-light);
+  }
+  
+  .prediction-value {
+    font-weight: 700;
+    font-family: 'F1', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--brand-primary);
+  }
+  
+  .driver-code {
+    color: var(--brand-primary);
+  }
+  
+  .bet-meta {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--text-lighter);
+  }
+</style>
+
 <div class="main-container dashboard-container">
   <div class="dashboard-header">
     <h1>Welcome to F1 Betting Platform, {{ username }}!</h1>
@@ -14,9 +143,9 @@
     {% if next_session %}
     <div class="card-base card info-card">
       <div class="race-header">
-        <div class="race-header-top">
-          <h3>Next: Round {{next_race.round}} - {{ next_race.name }}</h3>
-          <div class="race-actions">
+        <div class="section-header">
+          <h3 class="section-title">Next: Round {{next_race.round}} - {{ next_race.name }}</h3>
+          <div class="section-actions">
             <a href="{{ url_for('main.races') }}" class="btn btn-secondary"
               >View All Races</a
             >
@@ -112,44 +241,45 @@
         </div>
         {% endif %}
       </div>
-      <strong class="prediction-label">Your Prediction:</strong>
-      <div class="prediction-and-controls">
-        <div class="prediction-drivers">
-          <span class="driver-prediction">
-            <span class="pos-badge">1st</span> {{ bet_data.drivers[0] if bet_data.drivers and bet_data.drivers|length > 0 else 'N/A' }}
-          </span>
-          <span class="driver-prediction">
-            <span class="pos-badge">2nd</span> {{ bet_data.drivers[1] if bet_data.drivers and bet_data.drivers|length > 1 else 'N/A' }}
-          </span>
-          <span class="driver-prediction">
-            <span class="pos-badge">3rd</span> {{ bet_data.drivers[2] if bet_data.drivers and bet_data.drivers|length > 2 else 'N/A' }}
-          </span>
+      <div class="bet-predictions compact">
+        <div class="section-header">
+          <h4 class="section-title">🏁 Your Prediction</h4>
+          <div class="section-actions">
+            <a href="{{ url_for('betting.edit_bet', race_id=race_id) }}" 
+               class="btn btn-secondary" title="Edit bet">✏️ Edit</a>
+            <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=race_id) }}" 
+                  class="cancel-form" style="display: inline;">
+              <button type="submit" class="btn btn-error" 
+                      title="Delete bet" 
+                      onclick="return confirm('Are you sure you want to delete this bet?');">
+                🗑️ Delete
+              </button>
+            </form>
+          </div>
         </div>
-        <div class="bet-controls">
-          <a
-            href="{{ url_for('betting.edit_bet', race_id=race_id) }}"
-            class="control-button edit-control"
-            >Edit</a
-          >
-          <form
-            method="POST"
-            action="{{ url_for('betting.cancel_bet', race_id=race_id) }}"
-            class="cancel-form"
-          >
-            <button
-              type="submit"
-              class="control-button cancel-control"
-              onclick="
-                return confirm('Are you sure you want to delete this bet?');
-              "
-            >
-              Delete
-            </button>
-          </form>
+        
+        <div class="predictions-summary">
+          <div class="prediction-item">
+            <span class="prediction-label">1st:</span>
+            <span class="prediction-value">{{ bet_data.drivers[0] if bet_data.drivers and bet_data.drivers|length > 0 else '—' }}</span>
+          </div>
+          <div class="prediction-item">
+            <span class="prediction-label">2nd:</span>
+            <span class="prediction-value">{{ bet_data.drivers[1] if bet_data.drivers and bet_data.drivers|length > 1 else '—' }}</span>
+          </div>
+          <div class="prediction-item">
+            <span class="prediction-label">3rd:</span>
+            <span class="prediction-value">{{ bet_data.drivers[2] if bet_data.drivers and bet_data.drivers|length > 2 else '—' }}</span>
+          </div>
+          <div class="prediction-item fastest-lap">
+            <span class="prediction-label">🏎️:</span>
+            <span class="prediction-value">{{ bet_data.fastest_lap if bet_data.fastest_lap else '—' }}</span>
+          </div>
         </div>
-      </div>
-      <div class="bet-info">
-        <span class="bet-timestamp">Placed: {{ bet_data.created_at[:19] if bet_data.created_at else 'N/A' }}</span>
+        
+        <div class="bet-meta">
+          <span class="meta-text">Placed: {{ bet_data.created_at[:16] if bet_data.created_at else 'N/A' }}</span>
+        </div>
       </div>
     </div>
     {% endif %}

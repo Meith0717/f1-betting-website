@@ -360,7 +360,6 @@ class BettingManager:
                             points += 2
 
                 bet_data["resolved_at"] = self._now_iso()
-                bet_data["actual_results"] = actual_results
                 bet_data["points_awarded"] = points
 
                 # Update bet in new structure
@@ -430,7 +429,6 @@ class BettingManager:
                 # Update bet with resolution results
                 bet_data.update({
                     "resolved_at": self._now_iso(),
-                    "actual_results": actual_results,
                     "actual_fastest_lap": fastest_lap_driver,
                     "points_awarded": points
                 })

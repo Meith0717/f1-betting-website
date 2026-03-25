@@ -69,34 +69,38 @@
       <div class="race-list">
         {% for race in past_races %}
         <div class="race-card past-race">
-          <h3>{{ race.name }}</h3>
-          <div class="race-details">
-            <div class="race-detail">
-              <strong>Country:</strong> {{ race.country }}
-            </div>
-            <div class="race-detail">
-              <strong>Circuit:</strong> {{ race.circuit }}
-            </div>
-            <div class="race-detail">
-              <strong>Race Date:</strong>
+          <div class="race-header">
+            <h3 class="race-title">{{ race.name }}</h3>
+            <span class="race-status completed">✅ Completed</span>
+          </div>
+          <div class="race-meta">
+            <span class="meta-item country">🌍 {{ race.country }}</span>
+            <span class="meta-item circuit">{{ race.circuit }}</span>
+            <span class="meta-item date">
+              📅 
               {% if race.sessions and race.sessions|length >= 2 %}
               {% set first_session = race.sessions[0] %}
               {% set last_session = race.sessions[-1] %}
               {% if first_session.date and last_session.date %}
-              {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }}.{{ first_session.date[0:4] }} - {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
+              {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }} - {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
               {% else %}
               {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
               {% endif %}
               {% else %}
               {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
               {% endif %}
-            </div>
+            </span>
           </div>
+          {% if race.city %}
+          <div class="race-location">
+            📍 {{ race.city }}
+          </div>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <p>No past races available.</p>
+      <p class="no-races">No past races available.</p>
       {% endif %}
     </div>
   </div>
