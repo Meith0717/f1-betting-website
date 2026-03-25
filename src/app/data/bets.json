@@ -2,46 +2,77 @@
   "race_bets": {
     "chinese_2026": {
       "status": "resolved",
-      "closed_at": "2026-03-25T19:42:37.269376+00:00",
+      "closed_at": "2026-03-25T21:29:52.572008+00:00",
       "user_bets": {},
-      "resolved_at": "2026-03-25T19:42:59.782118+00:00"
+      "resolved_at": "2026-03-25T21:37:43.013866+00:00"
     },
     "australian_2026": {
       "user_bets": {
         "Thierry": {
           "drivers": [
-            "stroll",
-            "alonso",
-            "perez"
+            "antonelli",
+            "russell",
+            "hamilton"
           ],
-          "fastest_lap": "stroll",
-          "created_at": "2026-03-25T19:42:52.103826+00:00",
-          "resolved_at": "2026-03-25T19:45:09.018898+00:00",
+          "fastest_lap": "max_verstappen",
+          "created_at": "2026-03-25T21:30:04.324437+00:00",
           "actual_fastest_lap": "max_verstappen",
-          "points_awarded": 0
-        }
-      },
-      "status": "resolved",
-      "closed_at": "2026-03-25T19:45:05.285055+00:00",
-      "resolved_at": "2026-03-25T19:45:09.018973+00:00"
-    },
-    "japanese_2026": {
-      "user_bets": {
-        "Thierry": {
+          "resolved_at": "2026-03-25T21:38:06.503861+00:00",
+          "points_awarded": 4,
+          "points_breakdown": {
+            "position_1": 1,
+            "position_2": 1,
+            "position_3": 1,
+            "fastest_lap": 1,
+            "perfect_podium": 0
+          }
+        },
+        "Neal": {
+          "drivers": [
+            "russell",
+            "leclerc",
+            "antonelli"
+          ],
+          "fastest_lap": "hamilton",
+          "created_at": "2026-03-25T21:30:24.476958+00:00",
+          "actual_fastest_lap": "max_verstappen",
+          "resolved_at": "2026-03-25T21:38:06.503946+00:00",
+          "points_awarded": 2,
+          "points_breakdown": {
+            "position_1": 2,
+            "position_2": 0,
+            "position_3": 0,
+            "fastest_lap": 0,
+            "perfect_podium": 0
+          }
+        },
+        "Gwen": {
           "drivers": [
             "russell",
             "antonelli",
             "leclerc"
           ],
           "fastest_lap": "hamilton",
-          "created_at": "2026-03-25T20:25:32.731629+00:00"
+          "created_at": "2026-03-25T21:30:44.381987+00:00",
+          "actual_fastest_lap": "max_verstappen",
+          "resolved_at": "2026-03-25T21:38:06.504006+00:00",
+          "points_awarded": 7,
+          "points_breakdown": {
+            "position_1": 2,
+            "position_2": 2,
+            "position_3": 2,
+            "fastest_lap": 0,
+            "perfect_podium": 1
+          }
         }
       },
-      "status": "active"
+      "status": "resolved",
+      "closed_at": "2026-03-25T21:31:01.152715+00:00",
+      "resolved_at": "2026-03-25T21:38:06.504055+00:00"
     }
   },
   "metadata": {
-    "created_at": "2026-03-25T19:42:37.268820+00:00",
+    "created_at": "2026-03-25T21:29:52.571389+00:00",
     "version": "1.0"
   }
 }

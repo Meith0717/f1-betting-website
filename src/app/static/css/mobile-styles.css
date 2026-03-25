@@ -273,6 +273,12 @@ nav {
     gap: 16px;
 }
 
+.card-header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 .card-title {
     font-size: 18px;
     font-weight: 700;
@@ -380,6 +386,36 @@ nav {
     background-color: rgba(255, 136, 0, 0.2);
     color: var(--accent);
     border-left: 4px solid var(--accent);
+}
+
+/*****************************
+* Timer Styles - Consistent look for all timers
+*****************************/
+.next-session-timer {
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+}
+
+.next-session-label,
+.betting-timer-label {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.next-session-type {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.betting-timer-row {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
 }
 
 /*****************************

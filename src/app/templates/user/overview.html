@@ -18,7 +18,17 @@
           <h3 class="card-title">🏁 Next Race</h3>
           <p class="card-subtitle">Round {{next_race.round}} - {{ next_race.name }}</p>
         </div>
-        <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">📅 View All Races</a>
+        <div class="card-header-actions">
+          <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">📅 View All Races</a>
+          {% if betting_manager.can_bet_on_race(next_race.id, username) %}
+          {% set user_bets = betting_manager.get_user_bets(username) %}
+          {% if next_race.id not in user_bets %}
+          <a href="{{ url_for('betting.place_bet', race_id=next_race.id) }}" class="btn btn-primary btn-small">
+            💰 Place Bet
+          </a>
+          {% endif %}
+          {% endif %}
+        </div>
       </div>
     </div>
     <div class="card-content">
@@ -57,20 +67,17 @@
         </span>
       </div>
       {% endif %}
-
+      
       <!-- Betting Section -->
       {% if betting_manager.can_bet_on_race(next_race.id, username) %}
       {% set user_bets = betting_manager.get_user_bets(username) %}
       {% if next_race.id not in user_bets %}
       <div class="betting-timer-row">
         <span class="betting-timer-label">⏰ Betting closes in:</span>
-        <span id="betting-countdown-{{ next_race.id }}" class="betting-countdown-timer"
+        <span id="betting-countdown-{{ next_race.id }}" class="countdown-timer"
               data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(next_race) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}">
           <span class="countdown-loading">Loading...</span>
         </span>
-        <a href="{{ url_for('betting.place_bet', race_id=next_race.id) }}" class="btn btn-primary btn-small">
-          💰 Place Bet
-        </a>
       </div>
       {% endif %}
       {% endif %}

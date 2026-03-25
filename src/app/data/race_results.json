@@ -1,316 +1,6 @@
 {
-  "chinese_2026": {
-    "fetched_at": "2026-03-25T19:37:02.253878+00:00",
-    "api_url": "https://f1api.dev/api/2026/2/race",
-    "race_id": "chinese_2026",
-    "results": [
-      {
-        "position": 1,
-        "driverId": "antonelli",
-        "driverName": "Andrea Kimi Antonelli",
-        "driverNumber": 12,
-        "teamId": "mercedes",
-        "teamName": "Mercedes Formula 1 Team",
-        "points": 25,
-        "status": "Finished",
-        "fastLapTime": "1:35.275",
-        "fastestLap": {
-          "time": "1:35.275"
-        }
-      },
-      {
-        "position": 2,
-        "driverId": "russell",
-        "driverName": "George Russell",
-        "driverNumber": 63,
-        "teamId": "mercedes",
-        "teamName": "Mercedes Formula 1 Team",
-        "points": 18,
-        "status": "Finished",
-        "fastLapTime": "1:35.400",
-        "fastestLap": {
-          "time": "1:35.400"
-        }
-      },
-      {
-        "position": 3,
-        "driverId": "hamilton",
-        "driverName": "Lewis Hamilton",
-        "driverNumber": 44,
-        "teamId": "ferrari",
-        "teamName": "Scuderia Ferrari",
-        "points": 15,
-        "status": "Finished",
-        "fastLapTime": "1:36.092",
-        "fastestLap": {
-          "time": "1:36.092"
-        }
-      },
-      {
-        "position": 4,
-        "driverId": "leclerc",
-        "driverName": "Charles Leclerc",
-        "driverNumber": 16,
-        "teamId": "ferrari",
-        "teamName": "Scuderia Ferrari",
-        "points": 12,
-        "status": "Finished",
-        "fastLapTime": "1:36.011",
-        "fastestLap": {
-          "time": "1:36.011"
-        }
-      },
-      {
-        "position": 5,
-        "driverId": "bearman",
-        "driverName": "Oliver Bearman",
-        "driverNumber": 87,
-        "teamId": "haas",
-        "teamName": "Haas F1 Team",
-        "points": 10,
-        "status": "Finished",
-        "fastLapTime": "1:36.429",
-        "fastestLap": {
-          "time": "1:36.429"
-        }
-      },
-      {
-        "position": 6,
-        "driverId": "gasly",
-        "driverName": "Pierre Gasly",
-        "driverNumber": 10,
-        "teamId": "alpine",
-        "teamName": "Alpine F1 Team",
-        "points": 8,
-        "status": "Finished",
-        "fastLapTime": "1:36.505",
-        "fastestLap": {
-          "time": "1:36.505"
-        }
-      },
-      {
-        "position": 7,
-        "driverId": "lawson",
-        "driverName": "Liam Lawson",
-        "driverNumber": 30,
-        "teamId": "rb",
-        "teamName": "RB F1 Team",
-        "points": 6,
-        "status": "Finished",
-        "fastLapTime": "1:37.096",
-        "fastestLap": {
-          "time": "1:37.096"
-        }
-      },
-      {
-        "position": 8,
-        "driverId": "hadjar",
-        "driverName": "Isack Hadjar",
-        "driverNumber": 6,
-        "teamId": "red_bull",
-        "teamName": "Red Bull Racing",
-        "points": 4,
-        "status": "Finished",
-        "fastLapTime": "1:37.311",
-        "fastestLap": {
-          "time": "1:37.311"
-        }
-      },
-      {
-        "position": 9,
-        "driverId": "sainz",
-        "driverName": "Carlos Sainz",
-        "driverNumber": 55,
-        "teamId": "williams",
-        "teamName": "Williams Racing",
-        "points": 2,
-        "status": "Finished",
-        "fastLapTime": "1:37.981",
-        "fastestLap": {
-          "time": "1:37.981"
-        }
-      },
-      {
-        "position": 10,
-        "driverId": "colapinto",
-        "driverName": "Franco Colapinto",
-        "driverNumber": 43,
-        "teamId": "alpine",
-        "teamName": "Alpine F1 Team",
-        "points": 1,
-        "status": "Finished",
-        "fastLapTime": "1:36.783",
-        "fastestLap": {
-          "time": "1:36.783"
-        }
-      },
-      {
-        "position": 11,
-        "driverId": "hulkenberg",
-        "driverName": "Nico Hulkenberg",
-        "driverNumber": 27,
-        "teamId": "audi",
-        "teamName": "Audi Revolut F1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:36.180",
-        "fastestLap": {
-          "time": "1:36.180"
-        }
-      },
-      {
-        "position": 12,
-        "driverId": "lindblad",
-        "driverName": "Arvid Lindblad",
-        "driverNumber": 36,
-        "teamId": "rb",
-        "teamName": "RB F1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:36.099",
-        "fastestLap": {
-          "time": "1:36.099"
-        }
-      },
-      {
-        "position": 13,
-        "driverId": "bottas",
-        "driverName": "Valtteri Bottas",
-        "driverNumber": 77,
-        "teamId": "cadillac",
-        "teamName": "Cadillac Formula 1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:38.393",
-        "fastestLap": {
-          "time": "1:38.393"
-        }
-      },
-      {
-        "position": 14,
-        "driverId": "ocon",
-        "driverName": "Esteban Ocon",
-        "driverNumber": 31,
-        "teamId": "haas",
-        "teamName": "Haas F1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:35.964",
-        "fastestLap": {
-          "time": "1:35.964"
-        }
-      },
-      {
-        "position": 15,
-        "driverId": "perez",
-        "driverName": "Sergio P\u00e9rez",
-        "driverNumber": 11,
-        "teamId": "cadillac",
-        "teamName": "Cadillac Formula 1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:38.523",
-        "fastestLap": {
-          "time": "1:38.523"
-        }
-      },
-      {
-        "position": "NC",
-        "driverId": "max_verstappen",
-        "driverName": "Max Verstappen",
-        "driverNumber": 33,
-        "teamId": "red_bull",
-        "teamName": "Red Bull Racing",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:37.046",
-        "fastestLap": {
-          "time": "1:37.046"
-        }
-      },
-      {
-        "position": "NC",
-        "driverId": "alonso",
-        "driverName": "Fernando Alonso",
-        "driverNumber": 14,
-        "teamId": "aston_martin",
-        "teamName": "Aston Martin F1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:39.721",
-        "fastestLap": {
-          "time": "1:39.721"
-        }
-      },
-      {
-        "position": "NC",
-        "driverId": "stroll",
-        "driverName": "Lance Stroll",
-        "driverNumber": 18,
-        "teamId": "aston_martin",
-        "teamName": "Aston Martin F1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": "1:40.883",
-        "fastestLap": {
-          "time": "1:40.883"
-        }
-      },
-      {
-        "position": "NC",
-        "driverId": "piastri",
-        "driverName": "Oscar Piastri",
-        "driverNumber": 81,
-        "teamId": "mclaren",
-        "teamName": "McLaren Formula 1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": null
-      },
-      {
-        "position": "NC",
-        "driverId": "norris",
-        "driverName": "Lando Norris",
-        "driverNumber": 4,
-        "teamId": "mclaren",
-        "teamName": "McLaren Formula 1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": null
-      },
-      {
-        "position": "NC",
-        "driverId": "bortoleto",
-        "driverName": "Gabriel Bortoleto",
-        "driverNumber": 5,
-        "teamId": "audi",
-        "teamName": "Audi Revolut F1 Team",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": null
-      },
-      {
-        "position": "NC",
-        "driverId": "albon",
-        "driverName": "Alex Albon",
-        "driverNumber": 23,
-        "teamId": "williams",
-        "teamName": "Williams Racing",
-        "points": 0,
-        "status": "Finished",
-        "fastLapTime": null
-      }
-    ],
-    "race_date": "2026-03-15",
-    "race_time": "07:00:00Z",
-    "race_name": "Formula 1 Heineken Chinese Grand Prix 2026",
-    "overall_fastest_lap": {
-      "driverId": "antonelli",
-      "time": "1:35.275"
-    }
-  },
   "australian_2026": {
-    "fetched_at": "2026-03-25T19:37:08.725203+00:00",
+    "fetched_at": "2026-03-25T21:37:39.555559+00:00",
     "api_url": "https://f1api.dev/api/2026/1/race",
     "race_id": "australian_2026",
     "results": [
@@ -623,6 +313,316 @@
     "overall_fastest_lap": {
       "driverId": "max_verstappen",
       "time": "1:22.091"
+    }
+  },
+  "chinese_2026": {
+    "fetched_at": "2026-03-25T21:37:43.011445+00:00",
+    "api_url": "https://f1api.dev/api/2026/2/race",
+    "race_id": "chinese_2026",
+    "results": [
+      {
+        "position": 1,
+        "driverId": "antonelli",
+        "driverName": "Andrea Kimi Antonelli",
+        "driverNumber": 12,
+        "teamId": "mercedes",
+        "teamName": "Mercedes Formula 1 Team",
+        "points": 25,
+        "status": "Finished",
+        "fastLapTime": "1:35.275",
+        "fastestLap": {
+          "time": "1:35.275"
+        }
+      },
+      {
+        "position": 2,
+        "driverId": "russell",
+        "driverName": "George Russell",
+        "driverNumber": 63,
+        "teamId": "mercedes",
+        "teamName": "Mercedes Formula 1 Team",
+        "points": 18,
+        "status": "Finished",
+        "fastLapTime": "1:35.400",
+        "fastestLap": {
+          "time": "1:35.400"
+        }
+      },
+      {
+        "position": 3,
+        "driverId": "hamilton",
+        "driverName": "Lewis Hamilton",
+        "driverNumber": 44,
+        "teamId": "ferrari",
+        "teamName": "Scuderia Ferrari",
+        "points": 15,
+        "status": "Finished",
+        "fastLapTime": "1:36.092",
+        "fastestLap": {
+          "time": "1:36.092"
+        }
+      },
+      {
+        "position": 4,
+        "driverId": "leclerc",
+        "driverName": "Charles Leclerc",
+        "driverNumber": 16,
+        "teamId": "ferrari",
+        "teamName": "Scuderia Ferrari",
+        "points": 12,
+        "status": "Finished",
+        "fastLapTime": "1:36.011",
+        "fastestLap": {
+          "time": "1:36.011"
+        }
+      },
+      {
+        "position": 5,
+        "driverId": "bearman",
+        "driverName": "Oliver Bearman",
+        "driverNumber": 87,
+        "teamId": "haas",
+        "teamName": "Haas F1 Team",
+        "points": 10,
+        "status": "Finished",
+        "fastLapTime": "1:36.429",
+        "fastestLap": {
+          "time": "1:36.429"
+        }
+      },
+      {
+        "position": 6,
+        "driverId": "gasly",
+        "driverName": "Pierre Gasly",
+        "driverNumber": 10,
+        "teamId": "alpine",
+        "teamName": "Alpine F1 Team",
+        "points": 8,
+        "status": "Finished",
+        "fastLapTime": "1:36.505",
+        "fastestLap": {
+          "time": "1:36.505"
+        }
+      },
+      {
+        "position": 7,
+        "driverId": "lawson",
+        "driverName": "Liam Lawson",
+        "driverNumber": 30,
+        "teamId": "rb",
+        "teamName": "RB F1 Team",
+        "points": 6,
+        "status": "Finished",
+        "fastLapTime": "1:37.096",
+        "fastestLap": {
+          "time": "1:37.096"
+        }
+      },
+      {
+        "position": 8,
+        "driverId": "hadjar",
+        "driverName": "Isack Hadjar",
+        "driverNumber": 6,
+        "teamId": "red_bull",
+        "teamName": "Red Bull Racing",
+        "points": 4,
+        "status": "Finished",
+        "fastLapTime": "1:37.311",
+        "fastestLap": {
+          "time": "1:37.311"
+        }
+      },
+      {
+        "position": 9,
+        "driverId": "sainz",
+        "driverName": "Carlos Sainz",
+        "driverNumber": 55,
+        "teamId": "williams",
+        "teamName": "Williams Racing",
+        "points": 2,
+        "status": "Finished",
+        "fastLapTime": "1:37.981",
+        "fastestLap": {
+          "time": "1:37.981"
+        }
+      },
+      {
+        "position": 10,
+        "driverId": "colapinto",
+        "driverName": "Franco Colapinto",
+        "driverNumber": 43,
+        "teamId": "alpine",
+        "teamName": "Alpine F1 Team",
+        "points": 1,
+        "status": "Finished",
+        "fastLapTime": "1:36.783",
+        "fastestLap": {
+          "time": "1:36.783"
+        }
+      },
+      {
+        "position": 11,
+        "driverId": "hulkenberg",
+        "driverName": "Nico Hulkenberg",
+        "driverNumber": 27,
+        "teamId": "audi",
+        "teamName": "Audi Revolut F1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:36.180",
+        "fastestLap": {
+          "time": "1:36.180"
+        }
+      },
+      {
+        "position": 12,
+        "driverId": "lindblad",
+        "driverName": "Arvid Lindblad",
+        "driverNumber": 36,
+        "teamId": "rb",
+        "teamName": "RB F1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:36.099",
+        "fastestLap": {
+          "time": "1:36.099"
+        }
+      },
+      {
+        "position": 13,
+        "driverId": "bottas",
+        "driverName": "Valtteri Bottas",
+        "driverNumber": 77,
+        "teamId": "cadillac",
+        "teamName": "Cadillac Formula 1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:38.393",
+        "fastestLap": {
+          "time": "1:38.393"
+        }
+      },
+      {
+        "position": 14,
+        "driverId": "ocon",
+        "driverName": "Esteban Ocon",
+        "driverNumber": 31,
+        "teamId": "haas",
+        "teamName": "Haas F1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:35.964",
+        "fastestLap": {
+          "time": "1:35.964"
+        }
+      },
+      {
+        "position": 15,
+        "driverId": "perez",
+        "driverName": "Sergio P\u00e9rez",
+        "driverNumber": 11,
+        "teamId": "cadillac",
+        "teamName": "Cadillac Formula 1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:38.523",
+        "fastestLap": {
+          "time": "1:38.523"
+        }
+      },
+      {
+        "position": "NC",
+        "driverId": "max_verstappen",
+        "driverName": "Max Verstappen",
+        "driverNumber": 33,
+        "teamId": "red_bull",
+        "teamName": "Red Bull Racing",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:37.046",
+        "fastestLap": {
+          "time": "1:37.046"
+        }
+      },
+      {
+        "position": "NC",
+        "driverId": "alonso",
+        "driverName": "Fernando Alonso",
+        "driverNumber": 14,
+        "teamId": "aston_martin",
+        "teamName": "Aston Martin F1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:39.721",
+        "fastestLap": {
+          "time": "1:39.721"
+        }
+      },
+      {
+        "position": "NC",
+        "driverId": "stroll",
+        "driverName": "Lance Stroll",
+        "driverNumber": 18,
+        "teamId": "aston_martin",
+        "teamName": "Aston Martin F1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": "1:40.883",
+        "fastestLap": {
+          "time": "1:40.883"
+        }
+      },
+      {
+        "position": "NC",
+        "driverId": "piastri",
+        "driverName": "Oscar Piastri",
+        "driverNumber": 81,
+        "teamId": "mclaren",
+        "teamName": "McLaren Formula 1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": null
+      },
+      {
+        "position": "NC",
+        "driverId": "norris",
+        "driverName": "Lando Norris",
+        "driverNumber": 4,
+        "teamId": "mclaren",
+        "teamName": "McLaren Formula 1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": null
+      },
+      {
+        "position": "NC",
+        "driverId": "bortoleto",
+        "driverName": "Gabriel Bortoleto",
+        "driverNumber": 5,
+        "teamId": "audi",
+        "teamName": "Audi Revolut F1 Team",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": null
+      },
+      {
+        "position": "NC",
+        "driverId": "albon",
+        "driverName": "Alex Albon",
+        "driverNumber": 23,
+        "teamId": "williams",
+        "teamName": "Williams Racing",
+        "points": 0,
+        "status": "Finished",
+        "fastLapTime": null
+      }
+    ],
+    "race_date": "2026-03-15",
+    "race_time": "07:00:00Z",
+    "race_name": "Formula 1 Heineken Chinese Grand Prix 2026",
+    "overall_fastest_lap": {
+      "driverId": "antonelli",
+      "time": "1:35.275"
     }
   }
 }

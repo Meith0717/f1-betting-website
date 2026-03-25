@@ -16,7 +16,11 @@ class BettingManager:
         self.data_file = data_file or os.path.join(
             os.path.dirname(__file__), "data", "bets.json"
         )
+        self.drivers_file = os.path.join(
+            os.path.dirname(__file__), "data", "drivers.json"
+        )
         self._ensure_data_file_exists()
+        self._load_driver_data()
 
     def _logger(self):
         try:
@@ -30,6 +34,92 @@ class BettingManager:
 
     def _now_iso(self) -> str:
         return self._utc_now().isoformat()
+
+    def _load_driver_data(self):
+        """Load driver data for team lookup."""
+        try:
+            if os.path.exists(self.drivers_file):
+                with open(self.drivers_file, "r", encoding="utf-8") as f:
+                    driver_data = json.load(f)
+                    # Create driver_id -> team mapping
+                    self.driver_teams = {}
+                    for driver in driver_data.get("drivers", []):
+                        driver_id = driver.get("driverId")
+                        team_id = driver.get("teamId")
+                        if driver_id and team_id:
+                            self.driver_teams[driver_id] = team_id
+            else:
+                self.driver_teams = {}
+                self._logger().warning("Driver data file not found: %s", self.drivers_file)
+        except Exception as e:
+            self.driver_teams = {}
+            self._logger().error("Error loading driver data: %s", e)
+
+    def _get_users_file(self) -> str:
+        """Get path to users data file."""
+        return os.path.join(os.path.dirname(self.data_file), 'users.json')
+
+    def load_users(self) -> Dict:
+        """Load all user data from file."""
+        try:
+            users_file = self._get_users_file()
+            if not os.path.exists(users_file):
+                return {"users": {}}
+
+            with open(users_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            data.setdefault("users", {})
+            self._logger().debug(
+                "Loaded user data with %s users", len(data.get("users", {}))
+            )
+            return data
+        except (json.JSONDecodeError, IOError) as e:
+            self._logger().error("Error loading users: %s", e)
+            return {"users": {}}
+
+    def save_users(self, data: Dict):
+        """Save user data to file with backup."""
+        try:
+            users_file = self._get_users_file()
+            backup_file = users_file + ".bak"
+            
+            # Create backup
+            if os.path.exists(users_file):
+                with open(users_file, "r", encoding="utf-8") as f:
+                    backup_data = json.load(f)
+                with open(backup_file, "w", encoding="utf-8") as f:
+                    json.dump(backup_data, f, indent=2)
+
+            # Save new data
+            with open(users_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+
+            self._logger().info(
+                "Saved user data: %s users", len(data.get("users", {}))
+            )
+
+            # Remove backup
+            if os.path.exists(backup_file):
+                os.remove(backup_file)
+
+        except Exception as e:
+            self._logger().error("Error saving users: %s", e)
+            
+            # Try to restore from backup
+            if os.path.exists(backup_file):
+                try:
+                    with open(backup_file, "r", encoding="utf-8") as f:
+                        restored_data = json.load(f)
+                    with open(users_file, "w", encoding="utf-8") as f:
+                        json.dump(restored_data, f, indent=2)
+                    os.remove(backup_file)
+                    self._logger().error("Restored from backup after save failure")
+                except Exception as restore_error:
+                    self._logger().error(
+                        "Failed to restore backup after save failure: %s", restore_error
+                    )
+            raise
 
     def _ensure_data_file_exists(self):
         """Ensure the bets.json file exists with default structure."""
@@ -131,6 +221,139 @@ class BettingManager:
                         "Failed to restore backup after save failure: %s", restore_error
                     )
             raise
+
+    def _update_user_scores(self, race_id: str, points_summary: Dict):
+        """
+        Update user scores in users.json after race resolution.
+        
+        Args:
+            race_id: ID of the resolved race
+            points_summary: Dictionary of username -> points awarded
+        """
+        try:
+            # Load current user data
+            users_data = self.load_users()
+            
+            # Update each user's score
+            for username, points_data in points_summary.items():
+                if username in users_data["users"]:
+                    # Get current score
+                    current_score = users_data["users"][username].get("score", 0)
+                    
+                    # Add new points
+                    if isinstance(points_data, dict):
+                        total_points = points_data.get("total", 0)
+                    else:
+                        total_points = points_data
+                    
+                    # Update score
+                    users_data["users"][username]["score"] = current_score + total_points
+                    
+                    # Add to score history
+                    score_history = users_data["users"][username].setdefault("score_history", [])
+                    score_history.append({
+                        "race_id": race_id,
+                        "points": total_points,
+                        "total": current_score + total_points,
+                        "timestamp": self._now_iso()
+                    })
+                    
+                    self._logger().info(
+                        "Updated score for %s: %s -> %s (+%s)", 
+                        username, current_score, current_score + total_points, total_points
+                    )
+            
+            # Save updated user data
+            self.save_users(users_data)
+            
+        except Exception as e:
+            self._logger().error("Error updating user scores: %s", e)
+
+    def calculate_points(self, user_bet: Dict, actual_results: Dict) -> Dict:
+        """
+        Calculate points based on the scoring rules:
+        - 1 point per correct driver position
+        - 1 point per correct team position  
+        - 1 point for correct fastest lap
+        - 1 bonus point for perfect podium (all drivers AND teams correct)
+        
+        Args:
+            user_bet: User's bet with drivers and fastest_lap
+            actual_results: Race results with full driver/team data
+            
+        Returns:
+            Dict with total points and breakdown by category
+        """
+        points = 0
+        breakdown = {
+            'position_1': 0,
+            'position_2': 0,
+            'position_3': 0,
+            'fastest_lap': 0,
+            'perfect_podium': 0
+        }
+        
+        # Extract actual results data
+        actual_positions = []
+        actual_teams = []
+        actual_fastest_lap = None
+        
+        for result in actual_results.get('results', []):
+            if len(actual_positions) >= 3:
+                break
+            actual_positions.append(result.get('driverId'))
+            actual_teams.append(result.get('teamId'))
+        
+        # Find fastest lap driver
+        fastest_lap_data = actual_results.get('overall_fastest_lap', {})
+        if fastest_lap_data:
+            actual_fastest_lap = fastest_lap_data.get('driverId')
+        
+        # Check each position (1st, 2nd, 3rd)
+        perfect_podium = True
+        
+        for i in range(3):
+            if i >= len(user_bet.get('drivers', [])):
+                continue
+                
+            bet_driver = user_bet['drivers'][i]
+            
+            # Check if position exists in actual results
+            if i < len(actual_positions):
+                actual_driver = actual_positions[i]
+                actual_team = actual_teams[i]
+                
+                # Get team for bet driver
+                bet_team = self.driver_teams.get(bet_driver)
+                
+                # Award 1 point for correct driver
+                if bet_driver == actual_driver:
+                    points += 1
+                    breakdown[f'position_{i+1}'] += 1
+                
+                # Award 1 point for correct team
+                if bet_team == actual_team:
+                    points += 1
+                    breakdown[f'position_{i+1}'] += 1
+                
+                # Check if this position breaks perfect podium
+                if bet_driver != actual_driver or bet_team != actual_team:
+                    perfect_podium = False
+        
+        # Check fastest lap
+        if user_bet.get('fastest_lap') == actual_fastest_lap:
+            points += 1
+            breakdown['fastest_lap'] = 1
+        
+        # Award perfect podium bonus
+        if perfect_podium:
+            points += 1
+            breakdown['perfect_podium'] = 1
+        
+        return {
+            'total_points': points,
+            'breakdown': breakdown
+        }
 
     def place_bet(self, username: str, race_id: str, bets: List[str], fastest_lap: str = None) -> bool:
         """
@@ -323,14 +546,14 @@ class BettingManager:
 
     def resolve_race(self, race_id: str, actual_results: List[str]) -> Dict:
         """
-        Resolve a race and calculate points for users.
+        Resolve a race and calculate points for users using the new scoring system.
 
         Args:
             race_id: ID of the race to resolve
             actual_results: List of 3 driver IDs in actual finishing order
 
         Returns:
-            Summary of points awarded by user
+            Summary of points awarded by user with breakdowns
         """
         if len(actual_results) != 3:
             self._logger().warning(
@@ -348,26 +571,32 @@ class BettingManager:
                 race_bets = data["race_bets"][race_id]["user_bets"]
 
             for username, bet_data in race_bets.items():
-                user_bets = bet_data.get("drivers", [])
-                points = 0
-
-                for i, predicted_driver in enumerate(user_bets):
-                    if predicted_driver in actual_results:
-                        actual_position = actual_results.index(predicted_driver)
-                        if i == actual_position:
-                            points += 5
-                        else:
-                            points += 2
-
-                bet_data["resolved_at"] = self._now_iso()
+                # Create full actual results structure for scoring
+                actual_results_full = {
+                    'results': [
+                        {'driverId': actual_results[0], 'teamId': self.driver_teams.get(actual_results[0])},
+                        {'driverId': actual_results[1], 'teamId': self.driver_teams.get(actual_results[1])},
+                        {'driverId': actual_results[2], 'teamId': self.driver_teams.get(actual_results[2])}
+                    ]
+                }
+                
+                # Calculate points using new scoring system
+                points_data = self.calculate_points(bet_data, actual_results_full)
+                points = points_data['total_points']
+                
                 bet_data["points_awarded"] = points
+                bet_data["points_breakdown"] = points_data["breakdown"]
 
                 # Update bet in new structure
                 data["race_bets"][race_id]["user_bets"][username] = bet_data
 
-                points_summary[username] = points
+                points_summary[username] = {
+                    'total': points,
+                    'breakdown': points_data['breakdown']
+                }
                 self._logger().info(
-                    "Resolved bet for %s on %s: %s points", username, race_id, points
+                    "Resolved bet for %s on %s: %s points (Breakdown: %s)", 
+                    username, race_id, points, points_data['breakdown']
                 )
 
             if race_id in data["race_bets"]:
@@ -375,6 +604,10 @@ class BettingManager:
                 data["race_bets"][race_id]["resolved_at"] = self._now_iso()
 
             self.save_bets(data)
+            
+            # Update user scores in users.json
+            self._update_user_scores(race_id, points_summary)
+            
             return points_summary
 
         except Exception as e:
@@ -411,37 +644,43 @@ class BettingManager:
             for username, bet_data in race_bets.items():
                 # Calculate points for positions
                 points = 0
-                user_bets_list = bet_data.get("drivers", [])
-
-                for i, predicted_driver in enumerate(user_bets_list):
-                    if predicted_driver in actual_results:
-                        actual_position = actual_results.index(predicted_driver)
-                        if i == actual_position:
-                            points += 5  # Correct position
-                        else:
-                            points += 2  # Correct driver, wrong position
-
-                # Add points for fastest lap prediction
-                user_fastest_lap = bet_data.get("fastest_lap")
-                if user_fastest_lap and fastest_lap_driver and user_fastest_lap == fastest_lap_driver:
-                    points += 3  # Bonus for correct fastest lap prediction
-
-                # Update bet with resolution results
+                # Create full actual results structure for new scoring system
+                actual_results_full = {
+                    'results': [
+                        {'driverId': actual_results[0], 'teamId': self.driver_teams.get(actual_results[0])},
+                        {'driverId': actual_results[1], 'teamId': self.driver_teams.get(actual_results[1])},
+                        {'driverId': actual_results[2], 'teamId': self.driver_teams.get(actual_results[2])}
+                    ]
+                }
+                
+                # Add fastest lap to results if provided
+                if fastest_lap_driver:
+                    actual_results_full['overall_fastest_lap'] = {
+                        'driverId': fastest_lap_driver,
+                        'teamId': self.driver_teams.get(fastest_lap_driver)
+                    }
+                
+                # Calculate points using new scoring system
+                points_data = self.calculate_points(bet_data, actual_results_full)
+                points = points_data['total_points']
+                
+                # Update bet with resolution results and detailed breakdown
                 bet_data.update({
-                    "resolved_at": self._now_iso(),
                     "actual_fastest_lap": fastest_lap_driver,
-                    "points_awarded": points
+                    "points_awarded": points,
+                    "points_breakdown": points_data['breakdown']
                 })
 
                 # Update bet in new structure
                 data["race_bets"][race_id]["user_bets"][username] = bet_data
 
-                points_summary[username] = points
+                points_summary[username] = {
+                    'total': points,
+                    'breakdown': points_data['breakdown']
+                }
                 self._logger().info(
-                    "Resolved bet for %s on %s: %s points (positions: %s, fastest lap: %s)", 
-                    username, race_id, points, 
-                    "+ ".join(str(p) for p in [5 if user_bets_list[i] == actual_results[i] else 2 if user_bets_list[i] in actual_results else 0 for i in range(3)]),
-                    "+3" if user_fastest_lap == fastest_lap_driver else "+0"
+                    "Resolved bet for %s on %s: %s points (Breakdown: %s)", 
+                    username, race_id, points, points_data['breakdown']
                 )
 
             if race_id in data["race_bets"]:
@@ -449,6 +688,10 @@ class BettingManager:
                 data["race_bets"][race_id]["resolved_at"] = self._now_iso()
 
             self.save_bets(data)
+            
+            # Update user scores in users.json
+            self._update_user_scores(race_id, points_summary)
+            
             return points_summary
 
         except Exception as e:
