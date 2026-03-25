@@ -1,60 +1,104 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 
-{% block content %}
-<div class="profile-container">
-    <div class="profile-header">
-        <h1>Your Profile & Overview</h1>
-        <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
+<div class="container">
+  <div class="profile-header">
+    <h1>👤 Your Profile</h1>
+    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
+  </div>
+  
+  <div class="profile-details">
+    <!-- Profile Info -->
+    <div class="card profile-section">
+      <div class="card-header">
+        <h2 class="card-title">👤 Profile Information</h2>
+      </div>
+      <div class="card-content">
+        <div class="profile-info-grid">
+          <div class="profile-info-item">
+            <strong>Username:</strong>
+            <span>{{ username }}</span>
+          </div>
+          <div class="profile-info-item">
+            <strong>Email:</strong>
+            <span>{% if users[username].email %}{{ users[username].email }}{% else %}<em>Not set</em>{% endif %}</span>
+          </div>
+          <div class="profile-info-item">
+            <strong>Account Type:</strong>
+            <span>{% if users[username].is_admin %}👑 Administrator{% else %}👤 Regular User{% endif %}</span>
+          </div>
+          <div class="profile-info-item">
+            <strong>Member Since:</strong>
+            <span>📅 {{ users[username].created_at }}</span>
+          </div>
+          <div class="profile-info-item">
+            <strong>Last Login:</strong>
+            <span>🕒 {{ users[username].last_login if users[username].last_login else 'First time' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
     
-    <div class="profile-details">
-        <div class="profile-section">
-            <h2>👤 Your Profile</h2>
-            <div class="profile-info-grid">
-                <div class="profile-info-item">
-                    <strong>Username:</strong>
-                    <span>{{ username }}</span>
-                </div>
-                <div class="profile-info-item">
-                    <strong>Email:</strong>
-                    <span>{% if users[username].email %}{{ users[username].email }}{% else %}<em>Not set</em>{% endif %}</span>
-                </div>
-                <div class="profile-info-item">
-                    <strong>Account Type:</strong>
-                    <span>{% if users[username].is_admin %}👑 Administrator{% else %}👤 Regular User{% endif %}</span>
-                </div>
-                <div class="profile-info-item">
-                    <strong>Member Since:</strong>
-                    <span>📅 {{ users[username].created_at }}</span>
-                </div>
-                <div class="profile-info-item">
-                    <strong>Last Login:</strong>
-                    <span>🕒 {{ users[username].last_login if users[username].last_login else 'First time' }}</span>
-                </div>
-            </div>
+    <!-- Account Actions -->
+    <div class="card profile-section">
+      <div class="card-header">
+        <h2 class="card-title">⚙️ Account Actions</h2>
+      </div>
+      <div class="card-content">
+        <div class="profile-actions">
+          <a href="{{ url_for('main.change_email') }}" class="btn btn-secondary">📧 Change Email</a>
+          <a href="{{ url_for('main.change_password') }}" class="btn btn-secondary">🔒 Change Password</a>
         </div>
-        
-        <div class="profile-section">
-            <h2>⚙️ Account Actions</h2>
-            <p><a href="{{ url_for('main.change_email') }}" class="button">Change Email</a></p>
-            <p><a href="{{ url_for('main.change_password') }}" class="button">Change Password</a></p>
-        </div>
-        
-        <div class="profile-section">
-            <h2>📧 Notification Preferences</h2>
-            <form method="POST" action="{{ url_for('main.update_notifications') }}">
-                <div class="notification-setting">
-                    <input type="checkbox" id="email_notifications" name="email_notifications"
-                           {% if users[username].get('email_notifications', False) %}checked{% endif %}
-                           {% if not users[username].email %}disabled{% endif %}>
-                    <label for="email_notifications">Receive email notifications</label>
-                </div>
-                {% if not users[username].email %}
-                <p class="notification-hint">⚠️ Set your email address first to enable notifications</p>
-                {% endif %}
-                <button type="submit" class="button">Save Preferences</button>
-            </form>
-        </div>
+      </div>
     </div>
+    
+    <!-- Notification Preferences -->
+    <div class="card profile-section">
+      <div class="card-header">
+        <h2 class="card-title">📧 Notification Preferences</h2>
+      </div>
+      <div class="card-content">
+        <form method="POST" action="{{ url_for('main.update_notifications') }}">
+          <div class="notification-setting">
+            <input type="checkbox" id="email_notifications" name="email_notifications"
+                   {% if users[username].get('email_notifications', False) %}checked{% endif %}
+                   {% if not users[username].email %}disabled{% endif %}>
+            <label for="email_notifications">Receive email notifications</label>
+          </div>
+          {% if not users[username].email %}
+          <p class="notification-hint">⚠️ Set your email address first to enable notifications</p>
+          {% endif %}
+          <button type="submit" class="btn btn-primary mt-4">Save Preferences</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
+<style>
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.notification-setting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.notification-setting input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.notification-hint {
+  color: var(--error);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+</style>
+
 {% endblock %}

@@ -1,23 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 
-{% block content %}
-<div class="main-container betting-container">
+<div class="container">
   <div class="betting-header">
     <h1>🏆 Betting History</h1>
     <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
   </div>
 
-  <div class="betting-section">
-    <h2>🏁 Bets by Race</h2>
-
-    <!-- Combined races display -->
-    {% if races_with_bets or races_without_bets %}
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">🏁 Bets by Race</h2>
+    </div>
+    <div class="card-content">
+      {% if races_with_bets or races_without_bets %}
       
-      <!-- First show races with bets -->
+      <!-- Races with bets -->
       {% for race_id, race_data in races_with_bets.items() %}
       <div class="race-bet-section">
-
-        <!-- Header -->
         <div class="race-bet-header">
           <h3 class="race-title">{{ race_data.race_info.name }}</h3>
           
@@ -29,10 +27,9 @@
             {% else %}
               <span class="status-indicator closed">🔒 Closed</span>
               {% if is_admin %}
-              <!-- Show resolve buttons for closed races that aren't resolved -->
               <div class="resolve-buttons-group">
                 <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
-                  <button type="submit" class="resolve-button" title="Resolve this race using F1 API">
+                  <button type="submit" class="btn btn-success btn-small" title="Resolve this race using F1 API">
                     🎯 API Resolve
                   </button>
                 </form>
@@ -46,41 +43,33 @@
           </div>
         </div>
 
-        <!-- Table format: Users on Y-axis, Positions on X-axis -->
-        <div class="bets-table-container">
+        <!-- Bets Table -->
+        <div class="table-responsive">
           <table class="bets-table">
             <thead>
               <tr>
-                <th class="user-header">User</th>
-                <th class="position-header">1st</th>
-                <th class="position-header">2nd</th>
-                <th class="position-header">3rd</th>
-                <th class="position-header">Fastest Lap</th>
-                <th class="points-header">Points</th>
+                <th>User</th>
+                <th>1st</th>
+                <th>2nd</th>
+                <th>3rd</th>
+                <th>Fastest Lap</th>
+                <th>Points</th>
               </tr>
             </thead>
             <tbody>
               {% for bet in race_data.bets %}
               <tr class="user-bet-row">
-                <td class="user-cell">
+                <td>
                   {{ bet.username }}
                   {% if bet.username == username %}
                     <span class="you-badge">(You)</span>
                   {% endif %}
                 </td>
-                <td class="position-cell">
-                  {{ bet.drivers[0] }}
-                </td>
-                <td class="position-cell">
-                  {{ bet.drivers[1] }}
-                </td>
-                <td class="position-cell">
-                  {{ bet.drivers[2] }}
-                </td>
-                <td class="position-cell">
-                  {{ bet.fastest_lap if bet.fastest_lap else '-' }}
-                </td>
-                <td class="points-cell">
+                <td>{{ bet.drivers[0] }}</td>
+                <td>{{ bet.drivers[1] }}</td>
+                <td>{{ bet.drivers[2] }}</td>
+                <td>{{ bet.fastest_lap if bet.fastest_lap else '-' }}</td>
+                <td>
                   {% if bet.resolved_at and bet.points_awarded %}
                     +{{ bet.points_awarded }}
                   {% else %}
@@ -90,40 +79,25 @@
               </tr>
               {% endfor %}
               
-              <!-- Actual results row - get from race_results instead of bets -->
+              <!-- Actual results -->
               {% if first_bet.get('resolved_at') %}
               {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
               <tr class="actual-results-row">
-                <td class="user-cell actual-results-label">
-                  🏆 Actual Results
-                </td>
-                <td class="position-cell actual-result">
-                  {{ race_results.get('results', [])[0].driverId if race_results and race_results.get('results') and race_results['results']|length > 0 else '-' }}
-                </td>
-                <td class="position-cell actual-result">
-                  {{ race_results.get('results', [])[1].driverId if race_results and race_results.get('results') and race_results['results']|length > 1 else '-' }}
-                </td>
-                <td class="position-cell actual-result">
-                  {{ race_results.get('results', [])[2].driverId if race_results and race_results.get('results') and race_results['results']|length > 2 else '-' }}
-                </td>
-                <td class="position-cell actual-result">
-                  {{ race_results.get('overall_fastest_lap', {}).driverId if race_results and race_results.get('overall_fastest_lap') else '-' }}
-                </td>
-                <td class="points-cell actual-result">
-                  —
-                </td>
+                <td>🏆 Actual Results</td>
+                <td>{{ race_results.get('results', [])[0].driverId if race_results and race_results.get('results') and race_results['results']|length > 0 else '-' }}</td>
+                <td>{{ race_results.get('results', [])[1].driverId if race_results and race_results.get('results') and race_results['results']|length > 1 else '-' }}</td>
+                <td>{{ race_results.get('results', [])[2].driverId if race_results and race_results.get('results') and race_results['results']|length > 2 else '-' }}</td>
+                <td>{{ race_results.get('overall_fastest_lap', {}).driverId if race_results and race_results.get('overall_fastest_lap') else '-' }}</td>
+                <td>—</td>
               </tr>
               {% endif %}
             </tbody>
           </table>
         </div>
-
-        <!-- Remove duplicate actual results display since they're now in the table -->
-
       </div>
       {% endfor %}
 
-      <!-- Then show races without bets -->
+      <!-- Races without bets -->
       {% for race_id, race_data in races_without_bets.items() %}
       <div class="race-bet-section no-bets-race">
         <div class="race-bet-header">
@@ -138,7 +112,7 @@
               {% if is_admin %}
               <div class="resolve-buttons-group">
                 <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
-                  <button type="submit" class="resolve-button" title="Resolve this race using F1 API">
+                  <button type="submit" class="btn btn-success btn-small" title="Resolve this race using F1 API">
                     🎯 API Resolve
                   </button>
                 </form>
@@ -157,11 +131,13 @@
         </div>
       </div>
       {% endfor %}
-    {% else %}
+      {% else %}
       <div class="no-bets">
         <p>No bet history yet.</p>
       </div>
-    {% endif %}
+      {% endif %}
+    </div>
   </div>
 </div>
+
 {% endblock %}

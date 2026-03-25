@@ -6,25 +6,45 @@
     <title>{% block title %}F1 Betting Platform{% endblock %}</title>
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/styles.css') }}"
+      href="{{ url_for('static', filename='css/mobile-styles.css') }}"
     />
   </head>
   <body>
     <nav>
-      <div class="nav-left">F1 Betting</div>
-      <div class="nav-right">
-        {% if 'username' in session %}
-        <a href="{{ url_for('main.index') }}">Overview</a>
-        <a href="{{ url_for('main.races') }}">Races</a>
-        <a href="{{ url_for('auth.logout') }}">Logout</a>
-        {% if session.get('is_admin') %}
-        <a href="{{ url_for('admin.admin_dashboard') }}">Admin</a>
-        {% endif %} {% else %}
-        <a href="{{ url_for('auth.login') }}">Login</a>
-        <a href="{{ url_for('auth.register') }}">Register</a>
-        {% endif %}
+      <div class="nav-content">
+        <div class="nav-left">F1 Betting</div>
+        <button class="menu-button" onclick="toggleMobileMenu()">☰</button>
+        <div class="nav-right">
+          {% if 'username' in session %}
+          <a href="{{ url_for('main.index') }}" class="nav-link">Overview</a>
+          <a href="{{ url_for('main.races') }}" class="nav-link">Races</a>
+          <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
+          {% if session.get('is_admin') %}
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link">Admin</a>
+          {% endif %} {% else %}
+          <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="nav-link">Register</a>
+          {% endif %}
+        </div>
       </div>
     </nav>
+
+    <script>
+    function toggleMobileMenu() {
+      const navRight = document.querySelector('.nav-right');
+      navRight.classList.toggle('mobile-menu');
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const nav = document.querySelector('nav');
+      const menuButton = document.querySelector('.menu-button');
+      
+      if (!nav.contains(event.target) && !menuButton.contains(event.target)) {
+        document.querySelector('.nav-right').classList.remove('mobile-menu');
+      }
+    });
+    </script>
 
     <div class="main-container container">
       {% with messages = get_flashed_messages(with_categories=true) %} {% if

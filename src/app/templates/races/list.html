@@ -1,56 +1,53 @@
 {% extends 'base.html' %} {% block content %}
-<div class="main-container races-container">
+
+<div class="container">
   <div class="races-header">
     <h1>🏎️ F1 Race Calendar</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button"
-      >Back</a
-    >
+    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
   </div>
-  <div class="races-sections">
-    <div class="races-section">
-      <h2>📅 Upcoming Races</h2>
+
+  <!-- Upcoming Races -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">📅 Upcoming Races</h2>
+    </div>
+    <div class="card-content">
       {% if upcoming_races %}
       <div class="race-list">
         {% for race in upcoming_races %}
-        <div
-          class="race-card"
-          data-canceled="{{ race.canceled|default(false, true) }}"
-        >
+        <div class="race-card" data-canceled="{{ race.canceled|default(false, true) }}">
           <div class="race-header">
             {% if race.canceled %}
-            <div class="canceled-badge">CANCELED</div>
+            <div class="canceled-badge">❌ CANCELED</div>
             {% endif %}
-            <h3>{{ race.round }}. {{ race.name }}</h3>
+            <h3 class="race-title">{{ race.round }}. {{ race.name }}</h3>
             <div class="race-info-line">
-              <span class="race-circuit">{{ race.circuit }}</span>
-              {% if race.city %}<span class="race-city">📍 {{ race.city }}</span
-              >{% endif %}
+              <span class="race-circuit">🏁 {{ race.circuit }}</span>
+              {% if race.city %}<span class="race-city">📍 {{ race.city }}</span>{% endif %}
               <span class="race-country">🌍 {{ race.country }}</span>
               {% if race.sessions and race.sessions|length >= 2 %}
               {% set first_session = race.sessions[0] %}
               {% set last_session = race.sessions[-1] %}
               <span class="race-date">
                 📅 {% if first_session.date and last_session.date %}
-                {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }}.{{ first_session.date[0:4] }} - {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
+                {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }}.{{ first_session.date[0:4] }} - 
+                {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
                 {% else %}
                 {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
                 {% endif %}
               </span>
               {% else %}
-              <span class="race-date">📅 {{ race.date }}</span>
+              <span class="race-date">📅 {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}</span>
               {% endif %}
             </div>
-          </div>
-          <div class="race-details">
-            <!-- Details section kept for potential future use, but currently empty -->
           </div>
 
           <div class="sessions-line">
             {% for session in race.sessions %}
             {% if session.date and session.time %}
             <span class="session-inline">
-              {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) {% if session.time_info %}{{
-              session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
+              {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) 
+              {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
             </span>
             {% endif %}
             {% endfor %}
@@ -59,12 +56,17 @@
         {% endfor %}
       </div>
       {% else %}
-      <p>No upcoming races scheduled.</p>
+      <p class="text-center">No upcoming races scheduled.</p>
       {% endif %}
     </div>
+  </div>
 
-    <div class="races-section">
-      <h2>🏁 Past Races</h2>
+  <!-- Past Races -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">🏁 Past Races</h2>
+    </div>
+    <div class="card-content">
       {% if past_races %}
       <div class="race-list">
         {% for race in past_races %}
@@ -75,14 +77,15 @@
           </div>
           <div class="race-meta">
             <span class="meta-item country">🌍 {{ race.country }}</span>
-            <span class="meta-item circuit">{{ race.circuit }}</span>
+            <span class="meta-item circuit">🏁 {{ race.circuit }}</span>
             <span class="meta-item date">
               📅 
               {% if race.sessions and race.sessions|length >= 2 %}
               {% set first_session = race.sessions[0] %}
               {% set last_session = race.sessions[-1] %}
               {% if first_session.date and last_session.date %}
-              {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }} - {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
+              {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }} - 
+              {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
               {% else %}
               {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
               {% endif %}
@@ -100,7 +103,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p class="no-races">No past races available.</p>
+      <p class="text-center">No past races available.</p>
       {% endif %}
     </div>
   </div>

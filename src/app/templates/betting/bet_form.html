@@ -1,16 +1,17 @@
 {% extends 'base.html' %} {% block content %}
-<div class="betting-container">
+
+<div class="container">
   <div class="betting-header">
     <h1>{% if mode == 'edit' %}📝 Edit Your Bet{% else %}💰 Place Your Bet{% endif %}</h1>
     <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
   </div>
 
-  <div class="card-base card bet-form-compact">
-    <div class="card-header bet-header-red">
-      <h2>{{ race.name }}</h2>
+  <div class="card bet-form-compact">
+    <div class="card-header">
+      <h2 class="card-title">🏁 {{ race.name }}</h2>
     </div>
-    <div class="card-body">
-      <div class="race-info-row">
+    <div class="card-content">
+      <div class="race-info-row mb-4">
         <div class="race-details-inline">
           <span class="race-detail-item">🏁 {{ race.circuit }}</span>
           <span class="race-detail-item">🌍 {{ race.country }}</span>
@@ -19,28 +20,16 @@
       </div>
 
       <div class="bet-selections-section">
-          <h3>{% if mode == 'edit' %}🏆 Update Your Prediction{% else %}🏆 Your Prediction{% endif %}</h3>
-          
-          <form
-            method="POST"
-            action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.get('id', race_id)) }}"
-            class="bet-form-inner"
-          >
-            <div class="position-selector-vertical">
+        <h3 class="card-subtitle">{% if mode == 'edit' %}🏆 Update Your Prediction{% else %}🏆 Your Prediction{% endif %}</h3>
+        
+        <form method="POST" action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.get('id', race_id)) }}" class="bet-form-inner">
+          <div class="position-selector-vertical">
             <div class="form-group">
-              <label for="position_1">1st:</label>
-              <select
-                id="position_1"
-                name="position_1"
-                class="driver-select"
-                required
-              >
+              <label for="position_1">1st Position</label>
+              <select id="position_1" name="position_1" class="driver-select form-control select-control" required>
                 <option value="" disabled selected>Select driver...</option>
                 {% for driver in drivers %}
-                <option
-                  value="{{ driver.driver_id }}"
-                  {% if mode == 'edit' and existing_bet and existing_bet.drivers[0] == driver.driver_id %}selected{% endif %}
-                >
+                <option value="{{ driver.driver_id }}" {% if mode == 'edit' and existing_bet and existing_bet.drivers[0] == driver.driver_id %}selected{% endif %}>
                   #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
                 </option>
                 {% endfor %}
@@ -48,19 +37,11 @@
             </div>
 
             <div class="form-group">
-              <label for="position_2">2nd:</label>
-              <select
-                id="position_2"
-                name="position_2"
-                class="driver-select"
-                required
-              >
+              <label for="position_2">2nd Position</label>
+              <select id="position_2" name="position_2" class="driver-select form-control select-control" required>
                 <option value="" disabled selected>Select driver...</option>
                 {% for driver in drivers %}
-                <option
-                  value="{{ driver.driver_id }}"
-                  {% if mode == 'edit' and existing_bet and existing_bet.drivers[1] == driver.driver_id %}selected{% endif %}
-                >
+                <option value="{{ driver.driver_id }}" {% if mode == 'edit' and existing_bet and existing_bet.drivers[1] == driver.driver_id %}selected{% endif %}>
                   #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
                 </option>
                 {% endfor %}
@@ -68,19 +49,11 @@
             </div>
 
             <div class="form-group">
-              <label for="position_3">3rd:</label>
-              <select
-                id="position_3"
-                name="position_3"
-                class="driver-select"
-                required
-              >
+              <label for="position_3">3rd Position</label>
+              <select id="position_3" name="position_3" class="driver-select form-control select-control" required>
                 <option value="" disabled selected>Select driver...</option>
                 {% for driver in drivers %}
-                <option
-                  value="{{ driver.driver_id }}"
-                  {% if mode == 'edit' and existing_bet and existing_bet.drivers[2] == driver.driver_id %}selected{% endif %}
-                >
+                <option value="{{ driver.driver_id }}" {% if mode == 'edit' and existing_bet and existing_bet.drivers[2] == driver.driver_id %}selected{% endif %}>
                   #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
                 </option>
                 {% endfor %}
@@ -88,19 +61,11 @@
             </div>
 
             <div class="form-group">
-              <label for="fastest_lap">Fastest lap:</label>
-              <select
-                id="fastest_lap"
-                name="fastest_lap"
-                class="driver-select"
-                required
-              >
+              <label for="fastest_lap">Fastest Lap</label>
+              <select id="fastest_lap" name="fastest_lap" class="driver-select form-control select-control" required>
                 <option value="" disabled selected>Select driver...</option>
                 {% for driver in drivers %}
-                <option
-                  value="{{ driver.driver_id }}"
-                  {% if mode == 'edit' and existing_bet and existing_bet.fastest_lap == driver.driver_id %}selected{% endif %}
-                >
+                <option value="{{ driver.driver_id }}" {% if mode == 'edit' and existing_bet and existing_bet.fastest_lap == driver.driver_id %}selected{% endif %}>
                   #{{ driver.number }} - {{ driver.name }} ({{ driver.team }})
                 </option>
                 {% endfor %}
@@ -110,7 +75,7 @@
 
           <div class="card-footer">
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary">{% if mode == 'edit' %}Update{% else %}Place Bet{% endif %}</button>
+              <button type="submit" class="btn btn-primary">{% if mode == 'edit' %}Update Bet{% else %}Place Bet{% endif %}</button>
               <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
             </div>
           </div>

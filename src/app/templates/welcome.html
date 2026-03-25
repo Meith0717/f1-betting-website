@@ -1,16 +1,16 @@
 {% extends 'base.html' %} {% block content %}
-<div class="welcome-section">
-  <h1>Welcome to F1 Betting</h1>
-  <div class="card-base welcome-card">
-    <p>
-      Sign in or create an account to start betting on Formula 1 races.
+
+<div class="welcome-section text-center">
+  <h1 class="mb-4">🏎️ F1 Betting Platform</h1>
+  
+  <div class="card welcome-card">
+    <p class="mb-4">
+      Welcome to the ultimate Formula 1 betting experience! Sign in or create an account to start betting on races.
     </p>
 
-    <div class="auth-actions">
-      <a href="{{ url_for('auth.login') }}" class="btn-primary">Sign In</a>
-      <a href="{{ url_for('auth.register') }}" class="btn-secondary"
-        >Create Account</a
-      >
+    <div class="auth-actions gap-4">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block">🔑 Sign In</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block">👤 Create Account</a>
     </div>
   </div>
 </div>

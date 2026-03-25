@@ -1,0 +1,901 @@
+/*****************************
+* Mobile-First F1 Betting Redesign
+* Modern, Minimalistic, Mobile-Optimized
+*****************************/
+
+:root {
+    /* F1 Racing Color Palette - Modernized */
+    --primary: #e10600;
+    --primary-dark: #9b1a37;
+    --primary-light: #ff3333;
+    --accent: #ff8000;
+    --success: #00d2be;
+    --error: #ff4444;
+    --warning: #ffd200;
+    --text: #ffffff;
+    --text-secondary: #cccccc;
+    --text-tertiary: #999999;
+    --background: #0f0f1a;
+    --surface: #15151e;
+    --surface-light: #1e1e2a;
+    --surface-dark: #0a0a12;
+    --border: rgba(255, 255, 255, 0.1);
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/*****************************
+* Base Reset & Typography
+*****************************/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/*****************************
+* Mobile-First Container System
+*****************************/
+.container {
+    width: 100%;
+    padding: 0 16px;
+    margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+    .container {
+        max-width: 640px;
+        padding: 0 24px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 768px;
+        padding: 0 32px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1024px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: 1280px;
+    }
+}
+
+/*****************************
+* Navigation - Mobile Optimized
+*****************************/
+nav {
+    background-color: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-left {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-left::before {
+    content: "🏎️";
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-link {
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile menu button */
+.menu-button {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+@media (max-width: 768px) {
+    .nav-right {
+        display: none;
+    }
+    
+    .menu-button {
+        display: block;
+    }
+    
+    .nav-right.mobile-menu {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--primary);
+        padding: 16px;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .nav-right.mobile-menu .nav-link {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+}
+
+/*****************************
+* Buttons - Unified System
+*****************************/
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-size: 14px;
+    gap: 6px;
+    min-height: 40px;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--surface-light);
+    color: var(--primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--surface);
+    border-color: var(--primary);
+}
+
+.btn-danger {
+    background-color: var(--error);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #ff6666;
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #00e6d6;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 32px;
+}
+
+.btn-block {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/*****************************
+* Cards - Modern Design
+*****************************/
+.card {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.card-subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.card-content {
+    margin-bottom: 16px;
+}
+
+.card-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/*****************************
+* Forms - Clean & Accessible
+*****************************/
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--surface-light);
+    color: var(--text);
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(225, 6, 0, 0.2);
+}
+
+.select-control {
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+}
+
+/*****************************
+* Flash Messages
+*****************************/
+.flash-message {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.flash-success {
+    background-color: rgba(0, 210, 190, 0.2);
+    color: var(--success);
+    border-left: 4px solid var(--success);
+}
+
+.flash-error {
+    background-color: rgba(225, 6, 0, 0.2);
+    color: var(--error);
+    border-left: 4px solid var(--error);
+}
+
+.flash-info {
+    background-color: rgba(255, 136, 0, 0.2);
+    color: var(--accent);
+    border-left: 4px solid var(--accent);
+}
+
+/*****************************
+* Tables - Responsive
+*****************************/
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.table th {
+    background-color: var(--surface-dark);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table tr.current-user {
+    background-color: rgba(0, 210, 190, 0.1);
+}
+
+/*****************************
+* Auth Pages - Mobile Optimized
+*****************************/
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+}
+
+.auth-card h1 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-form .form-group {
+    margin-bottom: 12px;
+}
+
+.auth-footer {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/*****************************
+* Welcome Page
+*****************************/
+.welcome-section {
+    text-align: center;
+    padding: 48px 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.welcome-card {
+    padding: 24px;
+}
+
+.welcome-card p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+.auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+@media (min-width: 480px) {
+    .auth-actions {
+        flex-direction: row;
+    }
+    
+    .auth-actions .btn {
+        flex: 1;
+    }
+}
+
+/*****************************
+* Dashboard & Overview
+*****************************/
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dashboard-header h1 {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    padding: 16px;
+}
+
+.stat-card .card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 8px 0;
+}
+
+.stat-card .card-description {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/*****************************
+* Race Pages
+*****************************/
+.races-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.race-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.race-card {
+    background-color: var(--surface-light);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease;
+}
+
+.race-card:hover {
+    transform: translateY(-2px);
+}
+
+.race-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.race-title {
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.race-info-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.race-info-line span::after {
+    content: "•";
+    margin-left: 12px;
+    color: var(--text-tertiary);
+}
+
+.race-info-line span:last-child::after {
+    content: "";
+    margin-left: 0;
+}
+
+.sessions-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.session-inline::after {
+    content: "•";
+    margin: 0 8px;
+}
+
+.session-inline:last-child::after {
+    content: "";
+}
+
+/*****************************
+* Betting Pages
+*****************************/
+.betting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.bet-form-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.position-selector-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.driver-select {
+    width: 100%;
+}
+
+.bets-table {
+    width: 100%;
+    font-size: 13px;
+}
+
+.bets-table th,
+.bets-table td {
+    padding: 10px 12px;
+}
+
+.user-bet-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.race-bet-section {
+    margin-bottom: 20px;
+}
+
+.race-bet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/*****************************
+* Profile Pages
+*****************************/
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.profile-section {
+    margin-bottom: 24px;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.profile-info-item {
+    background-color: var(--surface-light);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.profile-info-item strong {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.profile-info-item span {
+    color: var(--text);
+    font-size: 14px;
+}
+
+/*****************************
+* Admin Dashboard
+*****************************/
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.admin-section {
+    margin-bottom: 32px;
+}
+
+.admin-section h2 {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+}
+
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.data-action-card {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.data-action-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-lg);
+}
+
+.log-container {
+    background-color: var(--surface-dark);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/*****************************
+* Countdown Timers
+*****************************/
+.countdown-timer {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 80px;
+    text-align: right;
+}
+
+.countdown-active {
+    color: var(--success);
+}
+
+.countdown-expired {
+    color: var(--error);
+}
+
+/*****************************
+* Utility Classes
+*****************************/
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background-color: var(--surface-light);
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: var(--surface);
+    transform: translateY(-1px);
+}
+
+.back-button::before {
+    content: "←";
+}
+
+
+
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 16px;
+}
+
+.mb-4 {
+    margin-bottom: 16px;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.gap-4 {
+    gap: 16px;
+}
+
+/*****************************
+* Animations
+*****************************/
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/*****************************
+* Prediction Items - User Overview
+*****************************/
+.predictions-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.prediction-item {
+    background: var(--surface-light);
+    border-radius: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.prediction-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.prediction-value {
+    font-weight: 700;
+    font-family: 'F1', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--primary);
+}
+
+.bet-meta {
+    text-align: right;
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+/*****************************
+* Dark Mode Support
+*****************************/
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #0a0a12;
+        --surface: #0f0f1a;
+    }
+}
