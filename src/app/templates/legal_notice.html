@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container legal-content main-content-offset">
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">⚖️ Legal Notice & Game Info</h1>
+    </div>
+    <div class="card-content">
+      <h2 class="section-title">About This Application</h2>
+      <p>This is a <strong>private, non-commercial F1 betting game</strong>. It is a fan-led project built for entertainment, friendly competition, and coding practice. No real money is ever involved.</p>
+      <p>Access is strictly controlled via a registration password to maintain a private community environment.</p>
+
+      <hr class="my-4">
+
+      <h2 class="section-title">The Scoring System</h2>
+      <p>Your goal is to predict the Podium (Top 3) and the Fastest Lap driver. Points are calculated as follows:</p>
+      
+      <div class="table-responsive">
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th>Achievement</th>
+              <th>Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Correct Driver</strong> (per podium spot)</td>
+              <td>+1 pt</td>
+            </tr>
+            <tr>
+              <td><strong>Correct Team</strong> (per podium spot)</td>
+              <td>+1 pt</td>
+            </tr>
+            <tr>
+              <td><strong>Correct Fastest Lap Driver</strong></td>
+              <td>+3 pts</td>
+            </tr>
+            <tr>
+              <td><strong>Perfect Podium Bonus</strong> (All 3 drivers correct)</td>
+              <td>+1 pt</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style="border-top: 2px solid #dee2e6;">
+              <td><strong>Maximum Possible Score</strong></td>
+              <td><strong>10 pts</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <hr class="my-4">
+
+      <h2 class="section-title">Data Source & Credits</h2>
+      <p>We rely on the community to keep the engines running:</p>
+      <ul class="feature-list">
+        <li><strong>Race Data:</strong> Powered by the excellent <a href="http://f1api.dev" target="_blank" rel="noopener">f1api.dev</a>. We thank the maintainers for making F1 data accessible to developers.</li>
+        <li><strong>Code Optimization:</strong> Special thanks to <strong>Mistral AI</strong> for assisting with logic improvements and UI refinements.</li>
+      </ul>
+
+      <h2 class="section-title">Important Notices</h2>
+      <p class="important-notice"><strong>NOT GAMBLING:</strong> There is no buy-in, no payout, and no real-world value attached to points. If you or someone you know is struggling with gambling, please seek professional help.</p>
+      <p><strong>Affiliation:</strong> This site is unofficial and is not associated in any way with the Formula 1 companies.</p>
+    </div>
+  </div>
+
+  <div class="card footer-card" style="margin-top: 20px;">
+    <div class="card-content text-center">
+      <p class="text-muted">© 2026 F1 Betting Game | Private Access | Data via f1api.dev</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

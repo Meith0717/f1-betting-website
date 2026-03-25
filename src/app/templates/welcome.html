@@ -2,6 +2,8 @@
 
 <div class="welcome-section text-center">
   <h1 class="mb-4">🏎️ F1 Betting Platform</h1>
+  <span class="beta-badge">BETA TEST</span>
+  <div style="height: 16px;"></div>
   
   <div class="card welcome-card">
     <p class="mb-4">
@@ -9,8 +11,8 @@
     </p>
 
     <div class="auth-actions gap-4">
-      <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block">🔑 Sign In</a>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block">👤 Create Account</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block" title="Sign in to your existing account">🔑 Sign In</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block" title="Create a new account to start betting">👤 Create Account</a>
     </div>
   </div>
 </div>

@@ -3,10 +3,50 @@ from ..auth_utils import load_users, save_users, hash_password, verify_password
 from ..auth_decorators import login_required
 from ..race_data_manager import race_data_manager
 from ..betting_manager import betting_manager
+from ..messages import message_manager
 from datetime import datetime
 import pytz
 
 main_bp = Blueprint("main", __name__)
+
+
+@main_bp.route("/legal-notice")
+def legal_notice():
+    """Legal notice and information page"""
+    return render_template("legal_notice.html")
+
+
+@main_bp.route("/add-comment", methods=["POST"])
+@login_required
+def add_comment():
+    """Add a comment to the community chat"""
+    from flask import current_app
+
+    current_app.logger.debug("Add comment route accessed")
+
+    try:
+        comment = request.form.get("comment", "").strip()
+        username = session["username"]
+
+        if not comment:
+            flash("Comment cannot be empty", "error")
+            return redirect(url_for("main.index"))
+
+        if len(comment) > 500:
+            flash("Comment is too long (max 500 characters)", "error")
+            return redirect(url_for("main.index"))
+
+        # Add the comment
+        message_manager.add_message(username, comment)
+        current_app.logger.info(f"User {username} added a comment")
+
+        flash("Your comment has been posted!", "success")
+        return redirect(url_for("main.index"))
+
+    except Exception as e:
+        current_app.logger.error(f"Error adding comment: {e}")
+        flash("Error posting your comment", "error")
+        return redirect(url_for("main.index"))
 
 
 @main_bp.route("/")
@@ -86,6 +126,7 @@ def index():
                 upcoming_races=upcoming_races,
                 betting_manager=betting_manager,
                 race_data_manager=race_data_manager,
+                messages=message_manager.get_messages(),
             )
         except Exception as e:
             current_app.logger.error(f"Error rendering user dashboard: {e}")

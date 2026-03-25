@@ -208,6 +208,45 @@
       </div>
     </div>
   </div>
+
+  <!-- Comment Section -->
+  <div class="card comment-section">
+    <div class="card-header">
+      <h2 class="card-title">
+        💬 Community Chat
+        <span class="beta-badge" title="This feature is experimental and may change">EXPERIMENTAL</span>
+      </h2>
+      <button onclick="window.location.reload()" class="btn btn-secondary btn-small refresh-button" title="Refresh comments">
+        🔄 Refresh
+      </button>
+    </div>
+    <div class="card-content">
+      <!-- Comment Form -->
+      <form method="POST" action="{{ url_for('main.add_comment') }}" class="comment-form">
+        <input type="text" name="comment" class="comment-input" placeholder="Type your comment..." required>
+        <button type="submit" class="comment-submit">Post</button>
+      </form>
+
+      <!-- Comments List -->
+      <div class="comments-container">
+        <div class="comments-list">
+          {% if messages %}
+            {% for message in messages[:3] %}
+            <div class="comment-item">
+              <div class="comment-header">
+                <span class="comment-username">{{ message.username }}</span>
+                <span class="comment-timestamp">{{ message.timestamp[:16] }}</span>
+              </div>
+              <div class="comment-text">{{ message.comment }}</div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="no-comments">No messages yet. Be the first to comment!</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>

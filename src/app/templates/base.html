@@ -16,15 +16,24 @@
         <button class="menu-button" onclick="toggleMobileMenu()">☰</button>
         <div class="nav-right">
           {% if 'username' in session %}
-          <a href="{{ url_for('main.index') }}" class="nav-link">Overview</a>
-          <a href="{{ url_for('main.races') }}" class="nav-link">Races</a>
-          <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
-          {% if session.get('is_admin') %}
-          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link">Admin</a>
-          {% endif %} {% else %}
-          <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
-          <a href="{{ url_for('auth.register') }}" class="nav-link">Register</a>
+          <a href="{{ url_for('main.index') }}" class="nav-link" title="Go to your dashboard">Home</a>
+          <a href="{{ url_for('main.races') }}" class="nav-link" title="View all upcoming F1 races">Races</a>
+          {% if betting_manager %}
+          <a href="{{ url_for('betting.betting_dashboard') if betting_manager else '#' }}" class="nav-link" title="View and manage your bets">Betting</a>
           {% endif %}
+          <a href="{{ url_for('auth.logout') }}" class="nav-link" title="Sign out of your account">Logout</a>
+          {% if session.get('is_admin') %}
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link" title="Admin dashboard">Admin</a>
+          {% endif %}
+          {% else %}
+          <!-- Show login/register when no user is logged in -->
+          <a href="{{ url_for('auth.login') }}" class="nav-link login-link">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="nav-link register-link">Register</a>
+          {% endif %}
+          <!-- Info button - always visible -->
+          <a href="{{ url_for('main.legal_notice') }}" class="nav-link info-link" title="Legal Information & Help">
+            Info
+          </a>
         </div>
       </div>
     </nav>
