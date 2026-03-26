@@ -51,33 +51,47 @@ A comprehensive Formula 1 betting platform built with Flask, featuring user auth
 5. **Run the application**:
    
    **Option 1: Using the build script (recommended)**
+   
+   **Linux/macOS**:
    ```bash
    chmod +x build.sh
    ./build.sh
    ```
    
+   **Windows**:
+   ```batch
+   build.bat
+   ```
+   
    **Option 2: Manual execution**
+   
+   **Linux/macOS**:
    ```bash
    source venv/bin/activate  # Activate virtual environment
+   python run.py
+   ```
+   
+   **Windows**:
+   ```batch
+   .\venv\Scripts\activate
    python run.py
    ```
 
    The app will be available at `http://localhost:2121`
 
-## 🛠️ Build Script
+## 🛠️ Build Scripts
 
-The repository includes a `build.sh` script that automates:
-- Virtual environment creation
+The repository includes build scripts for both platforms:
+
+### Linux/macOS: `build.sh`
+
+**Features**:
+- Automatic virtual environment creation
 - Dependency installation
-- Application startup
+- Error handling with clear messages
+- Requirements.txt support
 
-### Features
-- **Automatic setup**: Creates venv if missing
-- **Error handling**: Stops on any failure
-- **Requirements installation**: Uses requirements.txt
-- **Cross-platform**: Works on Linux/macOS (Windows users can use WSL)
-
-### Usage
+**Usage**:
 ```bash
 # Make executable (first time only)
 chmod +x build.sh
@@ -85,6 +99,25 @@ chmod +x build.sh
 # Run the build script
 ./build.sh
 ```
+
+### Windows: `build.bat`
+
+**Features**:
+- Automatic virtual environment creation
+- Dependency installation
+- Error handling with pause on failure
+- Requirements.txt support with fallback to manual Flask install
+
+**Usage**:
+```batch
+build.bat
+```
+
+### Common Features
+- **Automatic setup**: Creates venv if missing
+- **Error handling**: Stops on failures with clear messages
+- **Requirements installation**: Uses requirements.txt with fallback
+- **Cross-platform**: Native support for both Windows and Unix-like systems
 
 ## 📂 Project Structure
 
