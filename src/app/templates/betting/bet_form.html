@@ -23,6 +23,13 @@
         <h3 class="card-subtitle">{% if mode == 'edit' %}🏆 Update Your Prediction{% else %}🏆 Your Prediction{% endif %}</h3>
         
         <form method="POST" action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.get('id', race_id)) }}" class="bet-form-inner">
+          
+          {% if mode != 'edit' %}
+          <div class="form-hint mb-4">
+            🏆 Predict the top 3 drivers and who will get the fastest lap. Points are awarded based on accuracy!
+          </div>
+          {% endif %}
+          
           <div class="position-selector-vertical">
             <div class="form-group">
               <label for="position_1">1st Position</label>

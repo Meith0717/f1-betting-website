@@ -64,6 +64,9 @@
                    {% if not users[username].email %}disabled{% endif %}>
             <label for="email_notifications">Receive email notifications</label>
           </div>
+          <p class="form-hint">
+            Get notified about race results, betting deadlines, and important updates
+          </p>
           {% if not users[username].email %}
           <p class="notification-hint">⚠️ Set your email address first to enable notifications</p>
           {% endif %}
@@ -72,13 +75,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- Legal Notice Link -->
-<div class="legal-notice-link mt-4 text-center">
-  <a href="{{ url_for('main.legal_notice') }}" class="text-muted" title="View legal information and terms">
-    📜 Legal Notice & Terms
-  </a>
 </div>
 
 <style>

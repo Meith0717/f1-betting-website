@@ -41,25 +41,20 @@
         <button class="menu-button" onclick="toggleMobileMenu()">☰</button>
         <div class="nav-right">
           {% if 'username' in session %}
-          <a href="{{ url_for('main.index') }}" class="nav-link" title="Go to your dashboard">Home</a>
-          <a href="{{ url_for('main.races') }}" class="nav-link" title="View all upcoming F1 races">Races</a>
+          <a href="{{ url_for('main.index') }}" class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Go to your dashboard">Home</a>
+          <a href="{{ url_for('main.races') }}" class="nav-link {% if request.endpoint == 'main.races' %}active{% endif %}" title="View all upcoming F1 races">Races</a>
           {% if betting_manager %}
-          <a href="{{ url_for('betting.betting_dashboard') if betting_manager else '#' }}" class="nav-link" title="View and manage your bets">Betting</a>
+          <a href="{{ url_for('betting.betting_dashboard') if betting_manager else '#' }}" class="nav-link {% if request.endpoint.startswith('betting.') %}active{% endif %}" title="View and manage your bets">Betting</a>
           {% endif %}
-          <a href="{{ url_for('main.help_page') }}" class="nav-link" title="How to play and game rules">Help</a>
           <a href="{{ url_for('auth.logout') }}" class="nav-link" title="Sign out of your account">Logout</a>
           {% if session.get('is_admin') %}
-          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link" title="Admin dashboard">Admin</a>
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint.startswith('admin.') %}active{% endif %}" title="Admin dashboard">Admin</a>
           {% endif %}
           {% else %}
           <!-- Show login/register when no user is logged in -->
-          <a href="{{ url_for('auth.login') }}" class="nav-link login-link">Login</a>
-          <a href="{{ url_for('auth.register') }}" class="nav-link register-link">Register</a>
+          <a href="{{ url_for('auth.login') }}" class="nav-link login-link {% if request.endpoint == 'auth.login' %}active{% endif %}">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="nav-link register-link {% if request.endpoint == 'auth.register' %}active{% endif %}">Register</a>
           {% endif %}
-          <!-- Help button - always visible -->
-          <a href="{{ url_for('main.help_page') }}" class="nav-link help-link" title="How to Play - Game Rules & Help">
-            ❓ Help
-          </a>
         </div>
       </div>
     </nav>
@@ -67,17 +62,43 @@
     <script>
     function toggleMobileMenu() {
       const navRight = document.querySelector('.nav-right');
+      const menuButton = document.querySelector('.menu-button');
       navRight.classList.toggle('mobile-menu');
+      menuButton.classList.toggle('active');
+      
+      // Prevent body scroll when mobile menu is open
+      if (navRight.classList.contains('mobile-menu')) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
     }
 
     // Close mobile menu when clicking outside
     document.addEventListener('click', function(event) {
       const nav = document.querySelector('nav');
       const menuButton = document.querySelector('.menu-button');
+      const navRight = document.querySelector('.nav-right');
       
-      if (!nav.contains(event.target) && !menuButton.contains(event.target)) {
-        document.querySelector('.nav-right').classList.remove('mobile-menu');
+      if (!nav.contains(event.target) && !menuButton.contains(event.target) && navRight.classList.contains('mobile-menu')) {
+        navRight.classList.remove('mobile-menu');
+        menuButton.classList.remove('active');
+        document.body.style.overflow = '';
       }
+    });
+    
+    // Close mobile menu when clicking on a nav link
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          const navRight = document.querySelector('.nav-right');
+          const menuButton = document.querySelector('.menu-button');
+          navRight.classList.remove('mobile-menu');
+          menuButton.classList.remove('active');
+          document.body.style.overflow = '';
+        });
+      });
     });
     </script>
 
@@ -87,5 +108,16 @@
       <div class="flash-message flash-{{ category }}">{{ message }}</div>
       {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
     </div>
+    
+    <!-- Persistent Footer with Legal Notice -->
+    <footer class="app-footer">
+      <div class="container">
+        <div class="footer-content">
+          <a href="{{ url_for('main.legal_notice') }}" class="footer-link" title="View legal information and terms">
+            Legal Notice & Terms
+          </a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
