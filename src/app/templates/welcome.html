@@ -3,9 +3,9 @@
 <div class="welcome-section text-center">
   <h1 class="mb-4">🏎️ F1 Betting Platform</h1>
   <span class="beta-badge">BETA TEST</span>
-  <div style="height: 16px;"></div>
   
-  <div class="card welcome-card">
+  <div class="mt-6">
+    <div class="card welcome-card">
     <p class="mb-4">
       Welcome to the ultimate Formula 1 betting experience! Sign in or create an account to start betting on races.
     </p>
@@ -15,9 +15,7 @@
       <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block" title="Create a new account to start betting">👤 Create Account</a>
     </div>
   </div>
-  
-
-</div>
+  </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
 
