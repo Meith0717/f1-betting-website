@@ -122,23 +122,16 @@ chmod +x build.sh
 **Features**:
 - Automatic virtual environment creation
 - Dependency installation
-- **Environment modes**: Test vs Production
+- **Production mode only**: Simplified for deployment
 - **Custom port support**: Override default ports
 - Error handling with pause on failure
 - Requirements.txt support with fallback to manual Flask install
 
 **Usage**:
 
-**Test mode (port 5000, debug=True)**:
-```batch
-build.bat --test
-build.bat -t
-```
-
 **Production mode (port 8080, debug=False)**:
 ```batch
-build.bat --prod
-build.bat -p
+build.bat
 ```
 
 **Custom port**:

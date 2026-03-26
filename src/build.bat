@@ -1,38 +1,16 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: F1 Betting Website Build Script for Windows
+:: F1 Betting Website Build Script for Windows - PRODUCTION ONLY
 :: Automates virtual environment setup and application launch
 
-:: Default configuration
 set VENV_DIR=.venv
 set APP_FILE=run.py
-set ENVIRONMENT=production
 set CUSTOM_PORT=
 
-:: Parse command line arguments
+:: Parse command line arguments (port only)
 :parse_args
 if "%~1"=="" goto end_parse
-if "%~1"=="--test" (
-    set ENVIRONMENT=test
-    shift
-    goto parse_args
-)
-if "%~1"=="-t" (
-    set ENVIRONMENT=test
-    shift
-    goto parse_args
-)
-if "%~1"=="--prod" (
-    set ENVIRONMENT=production
-    shift
-    goto parse_args
-)
-if "%~1"=="-p" (
-    set ENVIRONMENT=production
-    shift
-    goto parse_args
-)
 if "%~1"=="--port" (
     set CUSTOM_PORT=%~2
     shift
@@ -47,9 +25,11 @@ if "%~1"=="-P" (
 )
 :end_parse
 
-echo ▶ Starting in %ENVIRONMENT% mode
+echo ▶ Starting in PRODUCTION mode
 if defined CUSTOM_PORT (
     echo ▶ Using custom port: %CUSTOM_PORT%
+) else (
+    echo ▶ Using default port: 8080
 )
 
 echo ▶ Checking for Python 3...
@@ -122,31 +102,20 @@ if exist "requirements.txt" (
 :: 5. Run the application
 echo ▶ Starting Python app: %APP_FILE%...
 if exist "%APP_FILE%" (
-    if "%ENVIRONMENT%" == "test" (
-        echo ▶ Running in TEST mode (port 5000, debug=True)
-        set FLASK_ENV=development
-        set FLASK_DEBUG=1
-        if exist "%VENV_DIR%\Scripts\python.exe" (
-            "%VENV_DIR%\Scripts\python.exe" "%APP_FILE%"
-        ) else if exist "%VENV_DIR%\bin\python" (
-            "%VENV_DIR%\bin\python" "%APP_FILE%"
-        ) else (
-            python "%APP_FILE%"
-        )
+    if defined CUSTOM_PORT (
+        echo ▶ Running in PRODUCTION mode with custom port %CUSTOM_PORT%
+        set APP_PORT=%CUSTOM_PORT%
     ) else (
-        if defined CUSTOM_PORT (
-            echo ▶ Running in PRODUCTION mode with custom port %CUSTOM_PORT%
-            set APP_PORT=%CUSTOM_PORT%
-        ) else (
-            echo ▶ Running in PRODUCTION mode (port 8080, debug=False)
-        )
-        if exist "%VENV_DIR%\Scripts\python.exe" (
-            "%VENV_DIR%\Scripts\python.exe" "%APP_FILE%"
-        ) else if exist "%VENV_DIR%\bin\python" (
-            "%VENV_DIR%\bin\python" "%APP_FILE%"
-        ) else (
-            python "%APP_FILE%"
-        )
+        echo ▶ Running in PRODUCTION mode (port 8080, debug=False)
+    )
+    
+    :: Execute using virtual environment Python or fallback
+    if exist "%VENV_DIR%\Scripts\python.exe" (
+        "%VENV_DIR%\Scripts\python.exe" "%APP_FILE%"
+    ) else if exist "%VENV_DIR%\bin\python" (
+        "%VENV_DIR%\bin\python" "%APP_FILE%"
+    ) else (
+        python "%APP_FILE%"
     )
 ) else (
     echo ❌ %APP_FILE% not found
