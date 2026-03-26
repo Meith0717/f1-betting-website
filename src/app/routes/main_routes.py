@@ -16,6 +16,12 @@ def legal_notice():
     return render_template("legal_notice.html")
 
 
+@main_bp.route("/help")
+def help_page():
+    """Help page explaining how to play the game"""
+    return render_template("help.html")
+
+
 @main_bp.route("/add-comment", methods=["POST"])
 @login_required
 def add_comment():

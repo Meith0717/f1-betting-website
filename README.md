@@ -253,6 +253,20 @@ The **Community Chat** feature is marked as EXPERIMENTAL and may:
 - Have limited functionality
 - Be removed or replaced
 
+## 🎯 Features Overview
+
+### Core Features
+- **User Authentication**: Secure login/registration system
+- **Race Betting**: Predict podium finishes and fastest laps
+- **Scoring System**: Earn points for accurate predictions
+- **Leaderboard**: Compete with other F1 fans
+- **Admin Dashboard**: Manage users and races
+
+### Help & Documentation
+- **Help Page**: `/help` - Complete guide on how to play
+- **Legal Notice**: `/legal-notice` - Terms and conditions
+- **PWA Support**: Install as mobile app
+
 ## 📱 Mobile Installation (PWA)
 
 The application supports Progressive Web App (PWA) installation for mobile devices:
