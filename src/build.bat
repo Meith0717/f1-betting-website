@@ -4,6 +4,54 @@ setlocal enabledelayedexpansion
 :: F1 Betting Website Build Script for Windows
 :: Automates virtual environment setup and application launch
 
+:: Default configuration
+set VENV_DIR=.venv
+set APP_FILE=run.py
+set ENVIRONMENT=production
+set CUSTOM_PORT=
+
+:: Parse command line arguments
+:parse_args
+if "%~1"=="" goto end_parse
+if "%~1"=="--test" (
+    set ENVIRONMENT=test
+    shift
+    goto parse_args
+)
+if "%~1"=="-t" (
+    set ENVIRONMENT=test
+    shift
+    goto parse_args
+)
+if "%~1"=="--prod" (
+    set ENVIRONMENT=production
+    shift
+    goto parse_args
+)
+if "%~1"=="-p" (
+    set ENVIRONMENT=production
+    shift
+    goto parse_args
+)
+if "%~1"=="--port" (
+    set CUSTOM_PORT=%~2
+    shift
+    shift
+    goto parse_args
+)
+if "%~1"=="-P" (
+    set CUSTOM_PORT=%~2
+    shift
+    shift
+    goto parse_args
+)
+:end_parse
+
+echo ▶ Starting in %ENVIRONMENT% mode
+if defined CUSTOM_PORT (
+    echo ▶ Using custom port: %CUSTOM_PORT%
+)
+
 echo ▶ Checking for Python 3...
 where python >nul 2>&1
 if %ERRORLEVEL% neq 0 (
@@ -11,9 +59,6 @@ if %ERRORLEVEL% neq 0 (
     pause
     exit /b 1
 )
-
-set VENV_DIR=.venv
-set APP_FILE=run.py
 
 :: 1. Create virtual environment if missing
 echo ▶ Checking virtual environment...
@@ -68,7 +113,20 @@ if exist "requirements.txt" (
 :: 5. Run the application
 echo ▶ Starting Python app: %APP_FILE%...
 if exist "%APP_FILE%" (
-    python "%APP_FILE%"
+    if "%ENVIRONMENT%" == "test" (
+        echo ▶ Running in TEST mode (port 5000, debug=True)
+        set FLASK_ENV=development
+        set FLASK_DEBUG=1
+        python "%APP_FILE%"
+    ) else (
+        if defined CUSTOM_PORT (
+            echo ▶ Running in PRODUCTION mode with custom port %CUSTOM_PORT%
+            set APP_PORT=%CUSTOM_PORT%
+        ) else (
+            echo ▶ Running in PRODUCTION mode (port 8080, debug=False)
+        )
+        python "%APP_FILE%"
+    )
 ) else (
     echo ❌ %APP_FILE% not found
     pause

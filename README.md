@@ -81,23 +81,40 @@ A comprehensive Formula 1 betting platform built with Flask, featuring user auth
 
 ## 🛠️ Build Scripts
 
-The repository includes build scripts for both platforms:
+The repository includes flexible build scripts for both platforms with environment support:
 
 ### Linux/macOS: `build.sh`
 
 **Features**:
 - Automatic virtual environment creation
 - Dependency installation
+- **Environment modes**: Test vs Production
+- **Custom port support**: Override default ports
 - Error handling with clear messages
 - Requirements.txt support
 
 **Usage**:
-```bash
-# Make executable (first time only)
-chmod +x build.sh
 
-# Run the build script
-./build.sh
+**Test mode (port 5000, debug=True)**:
+```bash
+chmod +x build.sh
+./build.sh --test
+# or
+./build.sh -t
+```
+
+**Production mode (port 8080, debug=False)**:
+```bash
+./build.sh --prod
+# or
+./build.sh -p
+```
+
+**Custom port**:
+```bash
+./build.sh --port 8000
+# or
+./build.sh -P 8000
 ```
 
 ### Windows: `build.bat`
@@ -105,19 +122,45 @@ chmod +x build.sh
 **Features**:
 - Automatic virtual environment creation
 - Dependency installation
+- **Environment modes**: Test vs Production
+- **Custom port support**: Override default ports
 - Error handling with pause on failure
 - Requirements.txt support with fallback to manual Flask install
 
 **Usage**:
+
+**Test mode (port 5000, debug=True)**:
 ```batch
-build.bat
+build.bat --test
+build.bat -t
 ```
+
+**Production mode (port 8080, debug=False)**:
+```batch
+build.bat --prod
+build.bat -p
+```
+
+**Custom port**:
+```batch
+build.bat --port 8000
+build.bat -P 8000
+```
+
+### Environment Configuration
+
+| Mode | Port | Debug | Use Case |
+|------|------|-------|----------|
+| **Test** (`--test`) | 5000 | ON | Development, debugging |
+| **Production** (`--prod`) | 8080 | OFF | Staging, production |
+| **Custom** (`--port X`) | X | OFF | Specific port requirements |
 
 ### Common Features
 - **Automatic setup**: Creates venv if missing
 - **Error handling**: Stops on failures with clear messages
 - **Requirements installation**: Uses requirements.txt with fallback
 - **Cross-platform**: Native support for both Windows and Unix-like systems
+- **Environment awareness**: Sets appropriate Flask environment variables
 
 ## 📂 Project Structure
 
