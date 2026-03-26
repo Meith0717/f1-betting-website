@@ -4,47 +4,53 @@
 <div class="container legal-content main-content-offset">
   <div class="card">
     <div class="card-header">
-      <h1 class="card-title">⚖️ Legal Notice & Game Info</h1>
+      <h1 class="card-title">⚖️ Legal Notice & Game Information</h1>
     </div>
     <div class="card-content">
-      <h2 class="section-title">About This Application</h2>
-      <p>This is a <strong>private, non-commercial F1 betting game</strong>. It is a fan-led project built for entertainment, friendly competition, and coding practice. No real money is ever involved.</p>
-      <p>Access is strictly controlled via a registration password to maintain a private community environment.</p>
+      
+      <h2 class="section-title">1. About This Application</h2>
+      <p>This is a <strong>private, non-commercial F1 prediction game</strong> created for a small circle of friends. It is a fan-led project built for entertainment and coding practice. This platform is <strong>not</strong> affiliated with, sponsored by, or endorsed by the Formula 1 group of companies, the FIA, or any participating teams.</p>
+      <p>Access is strictly restricted to invited users via a registration password to maintain a private, non-public environment.</p>
 
       <hr class="my-4">
 
-      <h2 class="section-title">The Scoring System</h2>
-      <p>Your goal is to predict the Podium (Top 3) and the Fastest Lap driver. Points are calculated as follows:</p>
+      <h2 class="section-title">2. Detailed Scoring System</h2>
+      <p>Points are calculated automatically based on official race results. The maximum achievable score per Grand Prix is <strong>10 points</strong>:</p>
       
       <div class="table-responsive">
-        <table class="table table-borderless">
-          <thead>
+        <table class="table table-bordered mt-2">
+          <thead class="table-light">
             <tr>
-              <th>Achievement</th>
+              <th>Category</th>
+              <th>Requirement</th>
               <th>Points</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Correct Driver</strong> (per podium spot)</td>
-              <td>+1 pt</td>
+              <td><strong>Driver Match</strong></td>
+              <td>Correct driver in the specific podium spot (P1, P2, or P3).</td>
+              <td>+1 pt (ea)</td>
             </tr>
             <tr>
-              <td><strong>Correct Team</strong> (per podium spot)</td>
-              <td>+1 pt</td>
+              <td><strong>Team Match</strong></td>
+              <td>Correct constructor in the specific podium spot.</td>
+              <td>+1 pt (ea)</td>
             </tr>
             <tr>
-              <td><strong>Correct Fastest Lap Driver</strong></td>
+              <td><strong>Fastest Lap</strong></td>
+              <td>Correctly predicting the driver who sets the official fastest lap.</td>
               <td>+3 pts</td>
             </tr>
             <tr>
-              <td><strong>Perfect Podium Bonus</strong> (All 3 drivers correct)</td>
+              <td><strong>Perfect Podium</strong></td>
+              <td>Bonus for getting the exact 1-2-3 driver order correct.</td>
               <td>+1 pt</td>
             </tr>
           </tbody>
           <tfoot>
-            <tr style="border-top: 2px solid #dee2e6;">
-              <td><strong>Maximum Possible Score</strong></td>
+            <tr class="table-info">
+              <td colspan="2"><strong>Maximum Possible Score per Race</strong></td>
               <td><strong>10 pts</strong></td>
             </tr>
           </tfoot>
@@ -53,22 +59,43 @@
 
       <hr class="my-4">
 
-      <h2 class="section-title">Data Source & Credits</h2>
-      <p>We rely on the community to keep the engines running:</p>
+      <h2 class="section-title">3. Privacy & Data (GDPR / Luxembourg)</h2>
+      <p>As this is a <strong>purely personal and household activity</strong>, data processing is kept to the absolute minimum required for the game to function:</p>
       <ul class="feature-list">
-        <li><strong>Race Data:</strong> Powered by the excellent <a href="http://f1api.dev" target="_blank" rel="noopener">f1api.dev</a>. We thank the maintainers for making F1 data accessible to developers.</li>
-        <li><strong>Code Optimization:</strong> Special thanks to <strong>Mistral AI</strong> for assisting with logic improvements and UI refinements.</li>
+        <li><strong>Infrastructure:</strong> This site is <strong>self-hosted on a private server</strong> (personal hardware) located in Luxembourg.</li>
+        <li><strong>Data Minimization:</strong> We only store your chosen username and a hashed version of your password. We do not sell or share your data.</li>
+        <li><strong>Security:</strong> All session data is cryptographically signed using Flask's security layers.</li>
+        <li><strong>Right to be Forgotten:</strong> If you wish to leave the game and have your data deleted, simply contact the administrator.</li>
       </ul>
 
-      <h2 class="section-title">Important Notices</h2>
-      <p class="important-notice"><strong>NOT GAMBLING:</strong> There is no buy-in, no payout, and no real-world value attached to points. If you or someone you know is struggling with gambling, please seek professional help.</p>
-      <p><strong>Affiliation:</strong> This site is unofficial and is not associated in any way with the Formula 1 companies.</p>
+      <h2 class="section-title">4. Cookie Policy</h2>
+      <p>We use a single <strong>session cookie</strong> (strictly necessary). This cookie is required to keep you logged in and link your predictions to your account. We do not use any tracking or marketing cookies.</p>
+
+      <h2 class="section-title">5. Transparency & Credits</h2>
+      <ul class="feature-list">
+        <li><strong>Source Code:</strong> The application logic is open for review at our <a href="https://github.com/Meith0717/f1-betting-website" target="_blank" rel="noopener"><strong>GitHub Repository</strong></a>.</li>
+        <li><strong>AI Disclosure:</strong> <strong>Mistral AI</strong> assisted in the majority of the code generation and logic optimization for this project.</li>
+        <li><strong>Data Source:</strong> Real-time race data is provided by <a href="http://f1api.dev" target="_blank" rel="noopener">f1api.dev</a>.</li>
+        <li><strong>Zero-Profit:</strong> This site is 100% free. No real money or gambling is permitted.</li>
+      </ul>
     </div>
   </div>
 
-  <div class="card footer-card" style="margin-top: 20px;">
+  <div class="card footer-card mt-4">
     <div class="card-content text-center">
-      <p class="text-muted">© 2026 F1 Betting Game | Private Access | Data via f1api.dev</p>
+      <h3 class="section-title" style="font-size: 1.1rem;">Mentions Légales / Contact</h3>
+      <p class="text-muted small">
+        <strong>Editeur:</strong> Thierry Meiers<br>
+        <strong>Localisation:</strong> Contern, LU<br>
+        <strong>Contact:</strong> f1betting@icloud.com</p>
+      <div class="mt-2">
+        <a href="https://github.com/Meith0717/f1-betting-website" target="_blank" class="btn btn-sm btn-outline-dark">
+          <i class="fab fa-github"></i> View on GitHub
+        </a>
+      </div>
+      <p class="text-muted mt-3" style="font-size: 0.85rem;">
+        © 2026 F1 Betting Game | Privately Hosted | Version 0.1
+      </p>
     </div>
   </div>
 </div>
