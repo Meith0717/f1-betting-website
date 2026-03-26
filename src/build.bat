@@ -76,7 +76,16 @@ if not exist "%VENV_DIR%" (
 
 :: 2. Activate virtual environment
 echo ▶ Activating virtual environment...
-call %VENV_DIR%\Scripts\activate.bat
+if exist "%VENV_DIR%\Scripts\activate.bat" (
+    call %VENV_DIR%\Scripts\activate.bat
+) else if exist "%VENV_DIR%\bin\activate" (
+    call %VENV_DIR%\bin\activate
+) else (
+    echo ❌ Failed to activate virtual environment
+    echo ❌ Neither Scripts\activate.bat nor bin\activate found
+    pause
+    exit /b 1
+)
 if %ERRORLEVEL% neq 0 (
     echo ❌ Failed to activate virtual environment
     pause
@@ -117,7 +126,13 @@ if exist "%APP_FILE%" (
         echo ▶ Running in TEST mode (port 5000, debug=True)
         set FLASK_ENV=development
         set FLASK_DEBUG=1
-        python "%APP_FILE%"
+        if exist "%VENV_DIR%\Scripts\python.exe" (
+            "%VENV_DIR%\Scripts\python.exe" "%APP_FILE%"
+        ) else if exist "%VENV_DIR%\bin\python" (
+            "%VENV_DIR%\bin\python" "%APP_FILE%"
+        ) else (
+            python "%APP_FILE%"
+        )
     ) else (
         if defined CUSTOM_PORT (
             echo ▶ Running in PRODUCTION mode with custom port %CUSTOM_PORT%
@@ -125,7 +140,13 @@ if exist "%APP_FILE%" (
         ) else (
             echo ▶ Running in PRODUCTION mode (port 8080, debug=False)
         )
-        python "%APP_FILE%"
+        if exist "%VENV_DIR%\Scripts\python.exe" (
+            "%VENV_DIR%\Scripts\python.exe" "%APP_FILE%"
+        ) else if exist "%VENV_DIR%\bin\python" (
+            "%VENV_DIR%\bin\python" "%APP_FILE%"
+        ) else (
+            python "%APP_FILE%"
+        )
     )
 ) else (
     echo ❌ %APP_FILE% not found
