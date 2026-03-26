@@ -49,11 +49,42 @@ A comprehensive Formula 1 betting platform built with Flask, featuring user auth
    ```
 
 5. **Run the application**:
+   
+   **Option 1: Using the build script (recommended)**
    ```bash
+   chmod +x build.sh
+   ./build.sh
+   ```
+   
+   **Option 2: Manual execution**
+   ```bash
+   source venv/bin/activate  # Activate virtual environment
    python run.py
    ```
 
    The app will be available at `http://localhost:2121`
+
+## 🛠️ Build Script
+
+The repository includes a `build.sh` script that automates:
+- Virtual environment creation
+- Dependency installation
+- Application startup
+
+### Features
+- **Automatic setup**: Creates venv if missing
+- **Error handling**: Stops on any failure
+- **Requirements installation**: Uses requirements.txt
+- **Cross-platform**: Works on Linux/macOS (Windows users can use WSL)
+
+### Usage
+```bash
+# Make executable (first time only)
+chmod +x build.sh
+
+# Run the build script
+./build.sh
+```
 
 ## 📂 Project Structure
 
