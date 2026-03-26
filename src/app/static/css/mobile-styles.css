@@ -1293,6 +1293,17 @@ nav {
     text-decoration: none;
 }
 
+/* Help link in navigation */
+.nav-link.help-link {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.nav-link.help-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
 /*****************************
 * Dark Mode Support
 *****************************/
