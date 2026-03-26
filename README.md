@@ -260,6 +260,33 @@ The **Community Chat** feature is marked as EXPERIMENTAL and may:
 - Have limited functionality
 - Be removed or replaced
 
+## 📱 Mobile Installation (PWA)
+
+The application supports Progressive Web App (PWA) installation for mobile devices:
+
+### iOS (iPhone/iPad)
+1. Open the website in Safari
+2. Tap the "Share" button (square with arrow)
+3. Select "Add to Home Screen"
+4. Confirm the installation
+
+### Android
+1. Open the website in Chrome
+2. Tap the three-dot menu
+3. Select "Add to Home screen"
+4. Confirm the installation
+
+### Features
+- **Home Screen Icon**: Custom F1-themed icon
+- **Standalone Mode**: Runs without browser chrome
+- **Offline Support**: Basic caching for improved performance
+- **Full Screen**: Immersive experience
+
+### Requirements
+- iOS: Safari (iOS 11.3+)
+- Android: Chrome (or other modern browsers)
+- HTTPS required for service worker (use ngrok for local testing)
+
 ## 📝 License
 
 This project is for educational and personal use. See the legal notice in the application for full details.
