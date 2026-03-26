@@ -1277,6 +1277,22 @@ nav {
     font-style: italic;
 }
 
+.legal-notice-link {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.legal-notice-link a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.legal-notice-link a:hover {
+    color: var(--primary);
+    text-decoration: none;
+}
+
 /*****************************
 * Dark Mode Support
 *****************************/

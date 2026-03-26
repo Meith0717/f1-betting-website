@@ -15,6 +15,13 @@
       <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block" title="Create a new account to start betting">👤 Create Account</a>
     </div>
   </div>
+  
+  <!-- Legal Notice Link - Easy Access -->
+  <div class="legal-notice-link mt-4 text-center">
+    <a href="{{ url_for('main.legal_notice') }}" class="text-muted" title="View legal information and terms">
+      📜 Legal Notice & Terms
+    </a>
+  </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
