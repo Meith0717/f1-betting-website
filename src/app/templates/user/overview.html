@@ -229,25 +229,29 @@
       <h2 class="card-title">🏆 Leaderboard</h2>
     </div>
     <div class="card-content">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Username</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for username, user_data in sorted_users %}
-            <tr class="{% if username == session['username'] %}current-user{% endif %}">
-              <td>{{ loop.index }}</td>
-              <td>{{ username }}</td>
-              <td>{{ user_data.score }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="mobile-leaderboard">
+        {% for username, user_data in sorted_users %}
+        <div class="leaderboard-item {% if username == session['username'] %}current-user{% endif %}">
+          <div class="leaderboard-rank">
+            <span class="rank-number">{{ loop.index }}</span>
+            {% if loop.index <= 3 %}
+            <span class="rank-medal">
+              {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+            </span>
+            {% endif %}
+          </div>
+          <div class="leaderboard-user">
+            <span class="username">{{ username }}</span>
+            {% if username == session['username'] %}
+            <span class="you-badge">(You)</span>
+            {% endif %}
+          </div>
+          <div class="leaderboard-score">
+            <span class="score-value">{{ user_data.score }}</span>
+            <span class="score-icon">🎯</span>
+          </div>
+        </div>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -617,7 +621,112 @@
     margin: 8px 0;
   }
 
-  /* Leaderboard - make mobile-friendly */
+  /* Mobile-first leaderboard */
+  .mobile-leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .leaderboard-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    min-height: 60px;
+  }
+
+  .leaderboard-item:hover {
+    background-color: var(--background);
+    border-color: var(--primary);
+  }
+
+  .leaderboard-item.current-user {
+    border-color: var(--primary);
+    background-color: rgba(225, 6, 0, 0.05);
+  }
+
+  .leaderboard-rank {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 60px;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .rank-number {
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  .rank-medal {
+    font-size: 20px;
+  }
+
+  .leaderboard-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding: 0 16px;
+  }
+
+  .username {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .you-badge {
+    background-color: var(--primary);
+    color: var(--surface);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .leaderboard-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--primary);
+  }
+
+  .score-icon {
+    font-size: 16px;
+  }
+
+  /* Top 3 special styling */
+  .leaderboard-item:nth-child(1) {
+    background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+    border-color: #FFA500;
+  }
+
+  .leaderboard-item:nth-child(2) {
+    background: linear-gradient(90deg, #C0C0C0 0%, #A9A9A9 100%);
+    border-color: #A9A9A9;
+  }
+
+  .leaderboard-item:nth-child(3) {
+    background: linear-gradient(90deg, #CD7F32 0%, #B8860B 100%);
+    border-color: #B8860B;
+  }
+
+  /* Current user highlight */
+  .leaderboard-item.current-user .username {
+    color: var(--primary);
+  }
+
+  /* Table fallback for older browsers */
   .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
