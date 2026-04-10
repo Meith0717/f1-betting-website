@@ -47,22 +47,28 @@
         </div>
       </div>
 
-      <!-- Mobile Sessions -->
+      <!-- Mobile Sessions - Using bet prediction style with inline timers -->
       <div class="mobile-sessions-container">
         <h4 class="sessions-title">📋 Race Weekend</h4>
         {% if next_race.sessions and next_race.sessions|length > 0 %}
-        <div class="mobile-sessions-grid">
+        <div class="sessions-list">
           {% for session in next_race.sessions %}
-          <div class="mobile-session-item">
+          <div class="session-row">
             <span class="session-type">{{ session.type }}</span>
-            <div class="session-date-time">
-              <span class="session-date">
-                {% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}
+            <span class="session-time">
+              {% if next_session and session.type == next_session.type %}
+              <span id="session-countdown-{{ session.type }}" class="countdown-timer inline-countdown"
+                    data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}">
+                {% if next_session.time_info %}
+                <span class="countdown-loading">Loading...</span>
+                {% else %}
+                <span class="countdown-unavailable">--:--:--</span>
+                {% endif %}
               </span>
-              <span class="session-time">
-                {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
-              </span>
-            </div>
+              {% endif %}
+              {% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %} |
+              {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
+            </span>
           </div>
           {% endfor %}
         </div>
@@ -71,25 +77,8 @@
         {% endif %}
       </div>
 
-      <!-- Mobile Timers -->
+      <!-- Mobile Timers - Keep only betting timer -->
       <div class="mobile-timers-container">
-        {% if next_session %}
-        <div class="mobile-timer-item">
-          <span class="timer-label">🕒 Next Session:</span>
-          <div class="timer-right-content">
-            <span class="timer-session-type">{{ next_session.type }}</span>
-            <span id="session-countdown-inline" class="countdown-timer mobile-countdown"
-                  data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}">
-              {% if next_session.time_info %}
-              <span class="countdown-loading">Loading...</span>
-              {% else %}
-              <span class="countdown-unavailable">--:--:--</span>
-              {% endif %}
-            </span>
-          </div>
-        </div>
-        {% endif %}
-        
         {% if betting_manager.can_bet_on_race(next_race.id, username) %}
         {% set user_bets = betting_manager.get_user_bets(username) %}
         {% if next_race.id not in user_bets %}
@@ -114,15 +103,15 @@
   {% if betting_manager %}
   {% set user_bets = betting_manager.get_user_bets(username) %}
   {% if user_bets %}
+  {% for race_id, bet_data in user_bets.items() %}
+  {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
+  {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
+  {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
   <div class="card mobile-bet-list-card">
     <div class="card-header">
       <h3 class="card-title">🏁 Your Active Bets</h3>
     </div>
     <div class="card-content">
-      {% for race_id, bet_data in user_bets.items() %}
-      {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
-      {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
-      {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
       <div class="compact-bet-item">
         <div class="bet-race-header">
           <span class="bet-race-name">{{ race_info.name if race_info else 'Unknown Race' }}</span>
@@ -174,10 +163,10 @@
           </div>
         </div>
       </div>
-      {% endif %}
-      {% endfor %}
     </div>
   </div>
+  {% endif %}
+  {% endfor %}
   {% endif %}
   {% endif %}
 
@@ -297,533 +286,4 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
-
-<style>
-  /* Mobile-first user overview styles */
-  .mobile-dashboard-header {
-    margin-bottom: 24px;
-  }
-
-  .user-greeting {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .mobile-page-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 0;
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .mobile-profile-btn {
-    min-height: 40px;
-  }
-
-  /* Mobile race card */
-  .mobile-race-card {
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .mobile-card-header-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .race-info-header {
-    text-align: center;
-  }
-
-  .mobile-card-header-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .mobile-race-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .race-info-item {
-    background-color: rgba(255, 255, 255, 0.03);
-    border-radius: 6px;
-    padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    min-height: 32px;
-  }
-
-  .info-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-
-  .info-value {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  /* Mobile sessions - ultra-thin row format */
-  .mobile-sessions-container {
-    margin-bottom: 12px;
-  }
-
-  .sessions-title {
-    color: var(--primary);
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  .mobile-sessions-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .mobile-session-item {
-    background-color: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
-    padding: 4px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    font-size: 11px;
-    min-height: 22px;
-    line-height: 1;
-  }
-
-  .session-type {
-    font-weight: 600;
-    color: var(--primary);
-  }
-
-  .session-date-time {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-muted);
-    margin-left: auto;
-  }
-
-  .session-date {
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-
-  .session-time {
-    font-weight: 600;
-    color: var(--text);
-    position: relative;
-  }
-
-  .session-time::before {
-    content: "|";
-    color: var(--text-muted);
-    margin-right: 4px;
-    font-weight: 300;
-  }
-
-  .no-sessions {
-    text-align: center;
-    color: var(--text-muted);
-    font-style: italic;
-    padding: 12px;
-  }
-
-  /* Mobile timers - right-aligned */
-  .mobile-timers-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-  }
-
-  .mobile-timer-item {
-    background-color: rgba(255, 255, 255, 0.03);
-    border-radius: 6px;
-    padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    min-height: 32px;
-  }
-
-  .betting-timer {
-    background-color: rgba(0, 210, 190, 0.05);
-    border-color: rgba(0, 210, 190, 0.1);
-  }
-
-  .timer-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-
-  .timer-session-type {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary);
-  }
-
-  .timer-right-content {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-  }
-
-  .mobile-countdown {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--success);
-    font-family: monospace;
-  }
-
-  /* Mobile bet card - improved layout */
-  .mobile-bet-card {
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .mobile-bet-card .card-content {
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  /* Compact bet list layout */
-  .mobile-bet-list-card {
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .compact-bet-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .compact-bet-item:last-child {
-    border-bottom: none;
-  }
-
-  .bet-race-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 8px;
-  }
-
-  .bet-race-name {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 14px;
-    flex: 1;
-  }
-
-  .bet-predictions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-
-  .bet-prediction-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 13px;
-  }
-
-  .prediction-position {
-    font-weight: 600;
-    color: var(--text-muted);
-    min-width: 35px;
-  }
-
-  .prediction-driver {
-    color: var(--text);
-    font-weight: 500;
-    text-align: right;
-    flex: 1;
-  }
-
-  .bet-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-top: 8px;
-  }
-
-  .bet-timestamp {
-    font-size: 12px;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-
-  .bet-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .bet-actions .btn {
-    min-width: 80px;
-    font-size: 12px;
-    padding: 4px 8px;
-    min-height: 28px;
-  }
-
-
-
-  /* Stats section - keep existing but make mobile-friendly */
-  .stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    padding: 16px;
-    border-radius: 16px;
-  }
-
-  .card-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--success);
-    margin: 8px 0;
-  }
-
-  /* Mobile-first leaderboard */
-  .mobile-leaderboard {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .leaderboard-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    background-color: var(--surface);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    transition: all 0.2s ease;
-    min-height: 60px;
-  }
-
-  .leaderboard-item:hover {
-    background-color: var(--background);
-    border-color: var(--primary);
-  }
-
-  .leaderboard-item.current-user {
-    border-color: var(--primary);
-    background-color: rgba(225, 6, 0, 0.05);
-  }
-
-  .leaderboard-rank {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 60px;
-    font-weight: 700;
-    font-size: 18px;
-  }
-
-  .rank-number {
-    color: var(--text-muted);
-    font-size: 16px;
-  }
-
-  .rank-medal {
-    font-size: 20px;
-  }
-
-  .leaderboard-user {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    padding: 0 16px;
-  }
-
-  .username {
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--text);
-  }
-
-  .you-badge {
-    background-color: var(--primary);
-    color: var(--surface);
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .leaderboard-score {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 80px;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--primary);
-  }
-
-  .score-icon {
-    font-size: 16px;
-  }
-
-  /* Top 3 special styling */
-  .leaderboard-item:nth-child(1) {
-    background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
-    border-color: #FFA500;
-  }
-
-  .leaderboard-item:nth-child(2) {
-    background: linear-gradient(90deg, #C0C0C0 0%, #A9A9A9 100%);
-    border-color: #A9A9A9;
-  }
-
-  .leaderboard-item:nth-child(3) {
-    background: linear-gradient(90deg, #CD7F32 0%, #B8860B 100%);
-    border-color: #B8860B;
-  }
-
-  /* Current user highlight */
-  .leaderboard-item.current-user .username {
-    color: var(--primary);
-  }
-
-  /* Table fallback for older browsers */
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .table {
-    width: 100%;
-    min-width: 400px;
-  }
-
-  .table th,
-  .table td {
-    padding: 12px;
-    white-space: nowrap;
-  }
-
-  /* Comment section - mobile friendly */
-  .comment-section {
-    margin-top: 24px;
-  }
-
-  .comment-form {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .comment-input {
-    flex: 1;
-    min-height: 44px;
-    padding: 12px;
-    border-radius: 10px;
-  }
-
-  .comment-submit {
-    min-width: 80px;
-    min-height: 44px;
-  }
-
-  .comments-container {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-  .comment-item {
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
-
-  /* Responsive adjustments */
-  @media (min-width: 768px) {
-    .mobile-predictions-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-
-    /* Compact bet list responsive adjustments */
-    .compact-bet-item {
-      padding: 16px 0;
-    }
-
-    .bet-prediction-row {
-      gap: 12px;
-      font-size: 14px;
-    }
-
-    .prediction-position {
-      min-width: 40px;
-    }
-
-    .bet-actions .btn {
-      min-width: 90px;
-      font-size: 13px;
-      padding: 6px 12px;
-      min-height: 32px;
-    }
-
-    .table {
-      min-width: auto;
-    }
-
-    .mobile-bet-actions {
-      justify-content: flex-start;
-    }
-  }
-
-  /* Touch targets */
-  .btn-small {
-    min-height: 36px;
-    min-width: 80px;
-  }
-
-  .mobile-session-item,
-  .mobile-timer-item,
-  .mobile-prediction-item {
-    min-height: 60px;
-  }
-</style>
-
 {% endblock %}
