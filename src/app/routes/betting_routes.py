@@ -42,14 +42,18 @@ def betting_dashboard():
         all_races = race_data_manager.get_all_races()
         race_dict = {race["id"]: race for race in all_races if race.get("id")}
 
-        # Load drivers data for short names
+        # Load drivers data for short names and team mapping
         drivers_data = race_data_manager.load_drivers()
         driver_short_names = {}
+        driver_teams = {}
         for driver in drivers_data.get("drivers", []):
             driver_id = driver.get("driverId")
             short_name = driver.get("shortName", "")
+            team_id = driver.get("teamId", "")
             if driver_id and short_name:
                 driver_short_names[driver_id] = short_name
+            if driver_id and team_id:
+                driver_teams[driver_id] = team_id
 
         # Prepare races with bets for template
         races_with_bets = {}
@@ -179,8 +183,6 @@ def betting_dashboard():
         users = load_users()
         is_admin = users.get(username, {}).get("is_admin", False)
 
-        print(races_with_bets)
-
         return render_template(
             "betting/dashboard.html",
             username=username,
@@ -189,6 +191,7 @@ def betting_dashboard():
             betting_manager=betting_manager,
             is_admin=is_admin,
             driver_short_names=driver_short_names,
+            driver_teams=driver_teams,
         )
 
     except Exception as e:

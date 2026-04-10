@@ -120,6 +120,19 @@ def index():
             )
             current_app.logger.debug(f"User {current_username} rank: {user_rank}")
 
+            # Load driver team mapping for bet display
+            drivers_data = race_data_manager.load_drivers()
+            driver_teams = {}
+            driver_short_names = {}
+            for driver in drivers_data.get("drivers", []):
+                driver_id = driver.get("driverId")
+                team_id = driver.get("teamId", "")
+                short_name = driver.get("shortName", "")
+                if driver_id and team_id:
+                    driver_teams[driver_id] = team_id
+                if driver_id and short_name:
+                    driver_short_names[driver_id] = short_name
+
             return render_template(
                 "user/overview.html",
                 username=session["username"],
@@ -133,6 +146,8 @@ def index():
                 betting_manager=betting_manager,
                 race_data_manager=race_data_manager,
                 messages=message_manager.get_messages(),
+                driver_teams=driver_teams,
+                driver_short_names=driver_short_names,
             )
         except Exception as e:
             current_app.logger.error(f"Error rendering user dashboard: {e}")

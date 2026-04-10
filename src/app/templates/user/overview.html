@@ -110,55 +110,74 @@
   {% endif %}
   {% endif %}
 
-  <!-- Mobile Active Bets Section -->
+  <!-- Mobile Active Bets Section - Compact List Layout -->
   {% if betting_manager %}
   {% set user_bets = betting_manager.get_user_bets(username) %}
   {% if user_bets %}
-  {% for race_id, bet_data in user_bets.items() %}
-  {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
-  {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
-  {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
-  <div class="card mobile-bet-card">
+  <div class="card mobile-bet-list-card">
     <div class="card-header">
-      <h3 class="card-title">🏁 Your Bet</h3>
-      <p class="card-subtitle">{{ race_info.name if race_info else 'Unknown Race' }}</p>
+      <h3 class="card-title">🏁 Your Active Bets</h3>
     </div>
     <div class="card-content">
-      <div class="mobile-predictions-grid">
-        <div class="mobile-prediction-item">
-          <span class="prediction-label">1st:</span>
-          <span class="prediction-value">{{ bet_data.drivers[0] if bet_data.drivers and bet_data.drivers|length > 0 else '—' }}</span>
+      {% for race_id, bet_data in user_bets.items() %}
+      {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
+      {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
+      {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
+      <div class="compact-bet-item">
+        <div class="bet-race-header">
+          <span class="bet-race-name">{{ race_info.name if race_info else 'Unknown Race' }}</span>
         </div>
-        <div class="mobile-prediction-item">
-          <span class="prediction-label">2nd:</span>
-          <span class="prediction-value">{{ bet_data.drivers[1] if bet_data.drivers and bet_data.drivers|length > 1 else '—' }}</span>
+        <div class="bet-predictions-list">
+          <div class="bet-prediction-row">
+            <span class="prediction-position">1st:</span>
+            <span class="prediction-driver">
+              {{ driver_short_names.get(bet_data.drivers[0], bet_data.drivers[0]) if bet_data.drivers and bet_data.drivers|length > 0 else '—' }}
+              {% if bet_data.drivers and bet_data.drivers|length > 0 %}
+                <span class="team-info">({{ driver_teams.get(bet_data.drivers[0], '?') }})</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="bet-prediction-row">
+            <span class="prediction-position">2nd:</span>
+            <span class="prediction-driver">
+              {{ driver_short_names.get(bet_data.drivers[1], bet_data.drivers[1]) if bet_data.drivers and bet_data.drivers|length > 1 else '—' }}
+              {% if bet_data.drivers and bet_data.drivers|length > 1 %}
+                <span class="team-info">({{ driver_teams.get(bet_data.drivers[1], '?') }})</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="bet-prediction-row">
+            <span class="prediction-position">3rd:</span>
+            <span class="prediction-driver">
+              {{ driver_short_names.get(bet_data.drivers[2], bet_data.drivers[2]) if bet_data.drivers and bet_data.drivers|length > 2 else '—' }}
+              {% if bet_data.drivers and bet_data.drivers|length > 2 %}
+                <span class="team-info">({{ driver_teams.get(bet_data.drivers[2], '?') }})</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="bet-prediction-row">
+            <span class="prediction-position">Fastest:</span>
+            <span class="prediction-driver">
+              {{ driver_short_names.get(bet_data.fastest_lap, bet_data.fastest_lap) if bet_data.fastest_lap else '—' }}
+            </span>
+          </div>
         </div>
-        <div class="mobile-prediction-item">
-          <span class="prediction-label">3rd:</span>
-          <span class="prediction-value">{{ bet_data.drivers[2] if bet_data.drivers and bet_data.drivers|length > 2 else '—' }}</span>
-        </div>
-        <div class="mobile-prediction-item fastest-lap">
-          <span class="prediction-label">Fastest:</span>
-          <span class="prediction-value">{{ bet_data.fastest_lap if bet_data.fastest_lap else '—' }}</span>
+        <div class="bet-footer">
+          <span class="bet-timestamp">🕒 {{ bet_data.created_at[:16] if bet_data.created_at else 'N/A' }}</span>
+          <div class="bet-actions">
+            <a href="{{ url_for('betting.edit_bet', race_id=race_id) }}" class="btn btn-secondary btn-small">✏️ Edit</a>
+            <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=race_id) }}" style="display: inline;">
+              <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this bet?');">
+                🗑️ Delete
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card-footer">
-      <div class="mobile-bet-meta">
-        <span class="meta-text">🕒 Placed: {{ bet_data.created_at[:16] if bet_data.created_at else 'N/A' }}</span>
-      </div>
-      <div class="mobile-bet-actions">
-        <a href="{{ url_for('betting.edit_bet', race_id=race_id) }}" class="btn btn-secondary btn-small">✏️ Edit</a>
-        <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=race_id) }}" style="display: inline;">
-          <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this bet?');">
-            🗑️ Delete
-          </button>
-        </form>
-      </div>
+      {% endif %}
+      {% endfor %}
     </div>
   </div>
-  {% endif %}
-  {% endfor %}
   {% endif %}
   {% endif %}
 
@@ -478,55 +497,105 @@
     font-family: monospace;
   }
 
-  /* Mobile bet card */
+  /* Mobile bet card - improved layout */
   .mobile-bet-card {
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 24px;
   }
 
-  .mobile-predictions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+  .mobile-bet-card .card-content {
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 
-  .mobile-prediction-item {
-    background-color: var(--surface);
-    border-radius: 10px;
-    padding: 12px;
-    border: 1px solid var(--border);
+  /* Compact bet list layout */
+  .mobile-bet-list-card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .compact-bet-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compact-bet-item:last-child {
+    border-bottom: none;
+  }
+
+  .bet-race-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 8px;
     gap: 8px;
   }
 
-  .prediction-label {
+  .bet-race-name {
     font-weight: 600;
-    color: var(--text-muted);
-    min-width: 40px;
-  }
-
-  .prediction-value {
-    font-weight: 500;
-    color: var(--text);
+    color: var(--primary);
+    font-size: 14px;
     flex: 1;
   }
 
-  .mobile-bet-meta {
-    margin-bottom: 12px;
+  .bet-predictions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
   }
 
-  .meta-text {
+  .bet-prediction-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .prediction-position {
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 35px;
+  }
+
+  .prediction-driver {
+    color: var(--text);
+    font-weight: 500;
+    text-align: right;
+    flex: 1;
+  }
+
+  .bet-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .bet-timestamp {
     font-size: 12px;
     color: var(--text-muted);
+    white-space: nowrap;
   }
 
-  .mobile-bet-actions {
+  .bet-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
   }
+
+  .bet-actions .btn {
+    min-width: 80px;
+    font-size: 12px;
+    padding: 4px 8px;
+    min-height: 28px;
+  }
+
+
 
   /* Stats section - keep existing but make mobile-friendly */
   .stats-container {
@@ -605,19 +674,33 @@
       grid-template-columns: repeat(4, 1fr);
     }
 
-    .mobile-prediction-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      text-align: center;
+    /* Compact bet list responsive adjustments */
+    .compact-bet-item {
+      padding: 16px 0;
     }
 
-    .prediction-label {
-      min-width: auto;
+    .bet-prediction-row {
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .prediction-position {
+      min-width: 40px;
+    }
+
+    .bet-actions .btn {
+      min-width: 90px;
+      font-size: 13px;
+      padding: 6px 12px;
+      min-height: 32px;
     }
 
     .table {
       min-width: auto;
+    }
+
+    .mobile-bet-actions {
+      justify-content: flex-start;
     }
   }
 

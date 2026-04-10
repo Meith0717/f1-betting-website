@@ -56,4 +56,6 @@ class MessageManager:
 
 
 # Message manager instance - create with explicit path to ensure correct location
-message_manager = MessageManager(os.path.join(os.path.dirname(__file__), "data", "messages.txt"))
+message_manager = MessageManager(
+    os.path.join(os.path.dirname(__file__), "data", "messages.txt")
+)

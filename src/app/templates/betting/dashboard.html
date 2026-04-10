@@ -42,109 +42,113 @@
           </div>
         </div>
 
-        <!-- Mobile Bets Table -->
-        <div class="mobile-table-responsive">
-          <div class="mobile-bets-container">
-            {% for bet in race_data.bets %}
-            <div class="mobile-bet-card {% if bet.username == username %}current-user{% endif %}">
-              <div class="mobile-bet-header">
-                <span class="mobile-bet-username">
-                  {{ bet.username }}
-                  {% if bet.username == username %}
-                    <span class="you-badge">(You)</span>
-                  {% endif %}
+        <!-- Compact Bet List Layout -->
+        <div class="compact-bets-list">
+          {% for bet in race_data.bets %}
+          <div class="compact-bet-item {% if bet.username == username %}current-user{% endif %}">
+            <div class="bet-user-header">
+              <span class="bet-username">
+                {{ bet.username }}
+                {% if bet.username == username %}
+                  <span class="you-badge">(You)</span>
+                {% endif %}
+              </span>
+              {% if race_data.race_bet_info.status == 'resolved' and bet.points_awarded %}
+              <span class="bet-total-points">+{{ bet.points_awarded }} pts</span>
+              {% endif %}
+            </div>
+            <div class="bet-predictions-list">
+              <div class="bet-prediction-row">
+                <span class="prediction-position">1st:</span>
+                <span class="prediction-driver">
+                  {{ bet.drivers_short[0] if bet.drivers_short and bet.drivers_short|length > 0 else bet.drivers[0] }}
+                  <span class="team-info">({{ driver_teams.get(bet.drivers[0], '?') }})</span>
                 </span>
-                {% if race_data.race_bet_info.status == 'resolved' and bet.points_awarded %}
-                <span class="mobile-bet-points">+{{ bet.points_awarded }} pts</span>
+                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                <span class="points-badge">+{{ bet.points_breakdown.position_1 }}</span>
                 {% endif %}
               </div>
-              
-              <div class="mobile-bet-predictions">
-                <div class="mobile-prediction-item">
-                  <span class="prediction-label">1st:</span>
-                  <span class="prediction-value">
-                    {{ bet.drivers_short[0] if bet.drivers_short and bet.drivers_short|length > 0 else bet.drivers[0] }}
-                  </span>
-                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                    <span class="points-badge">+{{ bet.points_breakdown.position_1 }}</span>
-                  {% endif %}
-                </div>
-                
-                <div class="mobile-prediction-item">
-                  <span class="prediction-label">2nd:</span>
-                  <span class="prediction-value">
-                    {{ bet.drivers_short[1] if bet.drivers_short and bet.drivers_short|length > 1 else bet.drivers[1] }}
-                  </span>
-                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                    <span class="points-badge">+{{ bet.points_breakdown.position_2 }}</span>
-                  {% endif %}
-                </div>
-                
-                <div class="mobile-prediction-item">
-                  <span class="prediction-label">3rd:</span>
-                  <span class="prediction-value">
-                    {{ bet.drivers_short[2] if bet.drivers_short and bet.drivers_short|length > 2 else bet.drivers[2] }}
-                  </span>
-                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                    <span class="points-badge">+{{ bet.points_breakdown.position_3 }}</span>
-                  {% endif %}
-                </div>
-                
-                <div class="mobile-prediction-item">
-                  <span class="prediction-label">Fastest:</span>
-                  <span class="prediction-value">
-                    {{ bet.fastest_lap_short if bet.fastest_lap_short else '-' }}
-                  </span>
-                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                    <span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>
-                  {% endif %}
-                </div>
+              <div class="bet-prediction-row">
+                <span class="prediction-position">2nd:</span>
+                <span class="prediction-driver">
+                  {{ bet.drivers_short[1] if bet.drivers_short and bet.drivers_short|length > 1 else bet.drivers[1] }}
+                  <span class="team-info">({{ driver_teams.get(bet.drivers[1], '?') }})</span>
+                </span>
+                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                <span class="points-badge">+{{ bet.points_breakdown.position_2 }}</span>
+                {% endif %}
+              </div>
+              <div class="bet-prediction-row">
+                <span class="prediction-position">3rd:</span>
+                <span class="prediction-driver">
+                  {{ bet.drivers_short[2] if bet.drivers_short and bet.drivers_short|length > 2 else bet.drivers[2] }}
+                  <span class="team-info">({{ driver_teams.get(bet.drivers[2], '?') }})</span>
+                </span>
+                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                <span class="points-badge">+{{ bet.points_breakdown.position_3 }}</span>
+                {% endif %}
+              </div>
+              <div class="bet-prediction-row">
+                <span class="prediction-position">Fastest:</span>
+                <span class="prediction-driver">
+                  {{ bet.fastest_lap_short if bet.fastest_lap_short else '-' }}
+                </span>
+                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                <span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>
+                {% endif %}
               </div>
             </div>
-            {% endfor %}
+            {% if bet.created_at %}
+            <div class="bet-timestamp">
+              🕒 {{ bet.created_at[:16] }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
             
             <!-- Actual results -->
             {% if race_data.race_bet_info.status == 'resolved' %}
             {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
             <div class="mobile-actual-results">
               <div class="results-header">🏆 Actual Results</div>
-              <div class="mobile-results-grid">
-                <div class="result-item">
-                  <span class="result-label">1st:</span>
-                  <span class="result-value">
+              <div class="bet-predictions-list">
+                <div class="bet-prediction-row">
+                  <span class="prediction-position">1st:</span>
+                  <span class="prediction-driver">
                     {% if race_results and race_results.get('results') and race_results['results']|length > 0 %}
                       {{ driver_short_names.get(race_results['results'][0].driverId, race_results['results'][0].driverId) }}
+                      <span class="team-info">({{ race_results['results'][0].teamId }})</span>
                     {% else %}
                       -
                     {% endif %}
                   </span>
                 </div>
-                
-                <div class="result-item">
-                  <span class="result-label">2nd:</span>
-                  <span class="result-value">
+                <div class="bet-prediction-row">
+                  <span class="prediction-position">2nd:</span>
+                  <span class="prediction-driver">
                     {% if race_results and race_results.get('results') and race_results['results']|length > 1 %}
                       {{ driver_short_names.get(race_results['results'][1].driverId, race_results['results'][1].driverId) }}
+                      <span class="team-info">({{ race_results['results'][1].teamId }})</span>
                     {% else %}
                       -
                     {% endif %}
                   </span>
                 </div>
-                
-                <div class="result-item">
-                  <span class="result-label">3rd:</span>
-                  <span class="result-value">
+                <div class="bet-prediction-row">
+                  <span class="prediction-position">3rd:</span>
+                  <span class="prediction-driver">
                     {% if race_results and race_results.get('results') and race_results['results']|length > 2 %}
                       {{ driver_short_names.get(race_results['results'][2].driverId, race_results['results'][2].driverId) }}
+                      <span class="team-info">({{ race_results['results'][2].teamId }})</span>
                     {% else %}
                       -
                     {% endif %}
                   </span>
                 </div>
-                
-                <div class="result-item">
-                  <span class="result-label">Fastest:</span>
-                  <span class="result-value">
+                <div class="bet-prediction-row">
+                  <span class="prediction-position">Fastest:</span>
+                  <span class="prediction-driver">
                     {% if race_results and race_results.get('overall_fastest_lap') %}
                       {{ driver_short_names.get(race_results['overall_fastest_lap'].driverId, race_results['overall_fastest_lap'].driverId) }}
                     {% else %}
@@ -155,12 +159,11 @@
               </div>
             </div>
             {% endif %}
-          </div>
-        </div>
-      </div>
       {% endfor %}
+      {% endif %}
 
       <!-- Races without bets -->
+      {% if races_without_bets %}
       {% for race_id, race_data in races_without_bets.items() %}
       <div class="race-bet-section no-bets-race">
         <div class="race-bet-header">
@@ -192,6 +195,59 @@
         <div class="no-bets-message">
           <p>No bets were placed for this race.</p>
         </div>
+        
+        <!-- Actual results for races without bets -->
+        {% if race_data.race_bet_info.status == 'resolved' %}
+        {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
+        <div class="mobile-actual-results">
+          <div class="results-header">🏆 Actual Results</div>
+          <div class="bet-predictions-list">
+            <div class="bet-prediction-row">
+              <span class="prediction-position">1st:</span>
+              <span class="prediction-driver">
+                {% if race_results and race_results.get('results') and race_results['results']|length > 0 %}
+                  {{ driver_short_names.get(race_results['results'][0].driverId, race_results['results'][0].driverId) }}
+                  <span class="team-info">({{ race_results['results'][0].teamId }})</span>
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+            <div class="bet-prediction-row">
+              <span class="prediction-position">2nd:</span>
+              <span class="prediction-driver">
+                {% if race_results and race_results.get('results') and race_results['results']|length > 1 %}
+                  {{ driver_short_names.get(race_results['results'][1].driverId, race_results['results'][1].driverId) }}
+                  <span class="team-info">({{ race_results['results'][1].teamId }})</span>
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+            <div class="bet-prediction-row">
+              <span class="prediction-position">3rd:</span>
+              <span class="prediction-driver">
+                {% if race_results and race_results.get('results') and race_results['results']|length > 2 %}
+                  {{ driver_short_names.get(race_results['results'][2].driverId, race_results['results'][2].driverId) }}
+                  <span class="team-info">({{ race_results['results'][2].teamId }})</span>
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+            <div class="bet-prediction-row">
+              <span class="prediction-position">Fastest:</span>
+              <span class="prediction-driver">
+                {% if race_results and race_results.get('overall_fastest_lap') %}
+                  {{ driver_short_names.get(race_results['overall_fastest_lap'].driverId, race_results['overall_fastest_lap'].driverId) }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+        {% endif %}
       </div>
       {% endfor %}
       {% else %}
@@ -325,29 +381,85 @@
     font-weight: 600;
   }
 
-  .mobile-bet-predictions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+  /* Compact bets list layout */
+  .compact-bets-list {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
+    margin-top: 12px;
   }
 
-  .mobile-prediction-item {
+  .compact-bet-item {
+    background-color: var(--surface);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .compact-bet-item.current-user {
+    border-color: var(--primary);
+    background-color: rgba(225, 6, 0, 0.05);
+  }
+
+  .bet-user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .bet-username {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .bet-total-points {
+    background-color: var(--success);
+    color: var(--background);
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .bet-predictions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .bet-prediction-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     font-size: 13px;
   }
 
-  .prediction-label {
+  .prediction-position {
     font-weight: 600;
     color: var(--text-muted);
-    min-width: 40px;
+    min-width: 35px;
   }
 
-  .prediction-value {
+  .prediction-driver {
     color: var(--text);
     font-weight: 500;
+    flex: 1;
+    text-align: right;
   }
+
+  .bet-timestamp {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+
 
   .points-badge {
     background-color: var(--success);
@@ -378,25 +490,43 @@
   .mobile-results-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
   }
 
   .result-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     font-size: 13px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-item:last-child {
+    border-bottom: none;
   }
 
   .result-label {
     font-weight: 600;
     color: var(--text-muted);
     min-width: 40px;
+    font-size: 13px;
   }
 
   .result-value {
     color: var(--primary);
     font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+    text-align: right;
+  }
+
+  .team-info {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 12px;
+    margin-left: 4px;
   }
 
   /* No bets message */
@@ -416,14 +546,33 @@
 
     .mobile-prediction-item,
     .result-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+    }
+
+    .mobile-prediction-item:not(:last-child),
+    .result-item:not(:last-child) {
+      border-right: 1px solid var(--border);
     }
 
     .prediction-label,
     .result-label {
       min-width: auto;
+      font-size: 14px;
+    }
+
+    .prediction-value,
+    .result-value {
+      font-size: 15px;
+    }
+
+    .points-badge {
+      margin-left: auto;
     }
   }
 
