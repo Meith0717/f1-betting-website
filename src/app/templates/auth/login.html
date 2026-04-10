@@ -2,11 +2,14 @@
 
 <div class="auth-container">
   <div class="card auth-card">
-    <h1>🔑 Sign In</h1>
+    <div class="auth-header">
+      <h1 class="auth-title">🔑 Sign In</h1>
+      <p class="auth-subtitle">Welcome back! Please sign in to continue</p>
+    </div>
 
     <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username" class="form-label">Username</label>
         <input
           type="text"
           id="username"
@@ -14,12 +17,12 @@
           required
           placeholder="Your username"
           autocomplete="username"
-          class="form-control"
+          class="form-control mobile-input"
         />
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password" class="form-label">Password</label>
         <input
           type="password"
           id="password"
@@ -27,18 +30,159 @@
           required
           placeholder="Your password"
           autocomplete="current-password"
-          class="form-control"
+          class="form-control mobile-input"
         />
-        <p class="form-hint">Forgot your password? Contact an administrator for assistance</p>
+        <p class="form-hint mobile-hint">
+          <span class="hint-icon">ℹ️</span> Forgot your password? Contact an administrator
+        </p>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      <button type="submit" class="btn btn-primary btn-block btn-large">
+        <span class="btn-icon">🔓</span> Sign In
+      </button>
     </form>
 
-    <div class="auth-footer mt-4">
-      <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a></p>
+    <div class="auth-footer">
+      <p class="auth-footer-text">Don't have an account? 
+        <a href="{{ url_for('auth.register') }}" class="auth-link">
+          <span class="link-icon">👤</span> Create one
+        </a>
+      </p>
     </div>
   </div>
 </div>
+
+<style>
+  /* Mobile-first auth styles */
+  .auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 12px;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .auth-title {
+    color: var(--primary);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .auth-subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .mobile-input {
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  .mobile-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+  }
+
+  .mobile-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding: 8px;
+    background-color: rgba(225, 6, 0, 0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hint-icon {
+    font-size: 14px;
+  }
+
+  .btn-large {
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+
+  .btn-icon {
+    margin-right: 8px;
+  }
+
+  .auth-footer {
+    margin-top: 32px;
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .auth-footer-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .auth-link {
+    color: var(--primary);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .auth-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .link-icon {
+    font-size: 16px;
+  }
+
+  /* Touch targets for mobile */
+  .form-control {
+    min-height: 50px;
+  }
+
+  .btn-block {
+    min-height: 50px;
+  }
+</style>
 
 {% endblock %}

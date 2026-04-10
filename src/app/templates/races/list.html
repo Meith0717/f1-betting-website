@@ -1,113 +1,375 @@
 {% extends 'base.html' %} {% block content %}
 
 <div class="container">
-  <div class="races-header">
-    <h1>🏎️ F1 Race Calendar</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
+  <div class="mobile-races-header">
+    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
+    <h1 class="page-title">🏎️ F1 Race Calendar</h1>
   </div>
 
-  <!-- Upcoming Races -->
-  <div class="card">
+  <!-- Mobile Upcoming Races -->
+  <div class="card mobile-races-card">
     <div class="card-header">
       <h2 class="card-title">📅 Upcoming Races</h2>
     </div>
     <div class="card-content">
       {% if upcoming_races %}
-      <div class="race-list">
+      <div class="mobile-race-list">
         {% for race in upcoming_races %}
-        <div class="race-card" data-canceled="{{ race.canceled|default(false, true) }}">
-          <div class="race-header">
+        <div class="mobile-race-card" data-canceled="{{ race.canceled|default(false, true) }}">
+          <div class="mobile-race-header">
+            <div class="race-round-badge">{{ race.round }}</div>
             {% if race.canceled %}
             <div class="canceled-badge">❌ CANCELED</div>
             {% endif %}
-            <h3 class="race-title">{{ race.round }}. {{ race.name }}</h3>
-            <div class="race-info-line">
-              <span class="race-circuit">🏁 {{ race.circuit }}</span>
-              {% if race.city %}<span class="race-city">📍 {{ race.city }}</span>{% endif %}
-              <span class="race-country">🌍 {{ race.country }}</span>
-              {% if race.sessions and race.sessions|length >= 2 %}
-              {% set first_session = race.sessions[0] %}
-              {% set last_session = race.sessions[-1] %}
-              <span class="race-date">
-                📅 {% if first_session.date and last_session.date %}
-                {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }}.{{ first_session.date[0:4] }} - 
+            <h3 class="mobile-race-title">{{ race.name }}</h3>
+          </div>
+
+          <div class="mobile-race-info-grid">
+            <div class="race-info-item">
+              <span class="info-icon">🏁</span>
+              <span class="info-value">{{ race.circuit }}</span>
+            </div>
+            {% if race.city %}
+            <div class="race-info-item">
+              <span class="info-icon">📍</span>
+              <span class="info-value">{{ race.city }}</span>
+            </div>
+            {% endif %}
+            <div class="race-info-item">
+              <span class="info-icon">🌍</span>
+              <span class="info-value">{{ race.country }}</span>
+            </div>
+            <div class="race-info-item">
+              <span class="info-icon">📅</span>
+              <span class="info-value">
+                {% if race.sessions and race.sessions|length >= 2 %}
+                {% set first_session = race.sessions[0] %}
+                {% set last_session = race.sessions[-1] %}
+                {% if first_session.date and last_session.date %}
+                {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }} - 
                 {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
                 {% else %}
                 {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
                 {% endif %}
+                {% else %}
+                {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
+                {% endif %}
               </span>
-              {% else %}
-              <span class="race-date">📅 {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}</span>
-              {% endif %}
             </div>
           </div>
 
-          <div class="sessions-line">
-            {% for session in race.sessions %}
-            {% if session.date and session.time %}
-            <span class="session-inline">
-              {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) 
-              {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
-            </span>
-            {% endif %}
-            {% endfor %}
+          <!-- Mobile Sessions -->
+          <div class="mobile-sessions-container">
+            <h4 class="sessions-title">📋 Sessions</h4>
+            <div class="mobile-sessions-grid">
+              {% for session in race.sessions %}
+              {% if session.date and session.time %}
+              <div class="mobile-session-item">
+                <span class="session-type">{{ session.type }}</span>
+                <div class="session-date-time">
+                  <span class="session-date">
+                    {% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}
+                  </span>
+                  <span class="session-time">
+                    {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
+                  </span>
+                </div>
+              </div>
+              {% endif %}
+              {% endfor %}
+            </div>
           </div>
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-center">No upcoming races scheduled.</p>
+      <div class="no-races-message">
+        <p>No upcoming races scheduled.</p>
+      </div>
       {% endif %}
     </div>
   </div>
 
-  <!-- Past Races -->
-  <div class="card">
+  <!-- Mobile Past Races -->
+  <div class="card mobile-races-card">
     <div class="card-header">
       <h2 class="card-title">🏁 Past Races</h2>
     </div>
     <div class="card-content">
       {% if past_races %}
-      <div class="race-list">
+      <div class="mobile-race-list">
         {% for race in past_races %}
-        <div class="race-card past-race">
-          <div class="race-header">
-            <h3 class="race-title">{{ race.name }}</h3>
+        <div class="mobile-race-card past-race">
+          <div class="mobile-race-header">
+            <h3 class="mobile-race-title">{{ race.name }}</h3>
             <span class="race-status completed">✅ Completed</span>
           </div>
-          <div class="race-meta">
-            <span class="meta-item country">🌍 {{ race.country }}</span>
-            <span class="meta-item circuit">🏁 {{ race.circuit }}</span>
-            <span class="meta-item date">
-              📅 
-              {% if race.sessions and race.sessions|length >= 2 %}
-              {% set first_session = race.sessions[0] %}
-              {% set last_session = race.sessions[-1] %}
-              {% if first_session.date and last_session.date %}
-              {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }} - 
-              {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
-              {% else %}
-              {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
-              {% endif %}
-              {% else %}
-              {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
-              {% endif %}
-            </span>
+
+          <div class="mobile-race-info-grid">
+            <div class="race-info-item">
+              <span class="info-icon">🌍</span>
+              <span class="info-value">{{ race.country }}</span>
+            </div>
+            <div class="race-info-item">
+              <span class="info-icon">🏁</span>
+              <span class="info-value">{{ race.circuit }}</span>
+            </div>
+            <div class="race-info-item">
+              <span class="info-icon">📅</span>
+              <span class="info-value">
+                {% if race.sessions and race.sessions|length >= 2 %}
+                {% set first_session = race.sessions[0] %}
+                {% set last_session = race.sessions[-1] %}
+                {% if first_session.date and last_session.date %}
+                {{ first_session.date[8:10] }}.{{ first_session.date[5:7] }} - 
+                {{ last_session.date[8:10] }}.{{ last_session.date[5:7] }}.{{ last_session.date[0:4] }}
+                {% else %}
+                {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
+                {% endif %}
+                {% else %}
+                {{ race.date[8:10] }}.{{ race.date[5:7] }}.{{ race.date[0:4] }}
+                {% endif %}
+              </span>
+            </div>
+            {% if race.city %}
+            <div class="race-info-item">
+              <span class="info-icon">📍</span>
+              <span class="info-value">{{ race.city }}</span>
+            </div>
+            {% endif %}
           </div>
-          {% if race.city %}
-          <div class="race-location">
-            📍 {{ race.city }}
-          </div>
-          {% endif %}
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-center">No past races available.</p>
+      <div class="no-races-message">
+        <p>No past races available.</p>
+      </div>
       {% endif %}
     </div>
   </div>
 </div>
+
+<style>
+  /* Mobile-first races list styles */
+  .mobile-races-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+  }
+
+  .mobile-races-card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .mobile-race-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .mobile-race-card {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+  }
+
+  .mobile-race-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow);
+  }
+
+  .mobile-race-card.past-race {
+    opacity: 0.8;
+  }
+
+  .mobile-race-card[data-canceled="true"] {
+    opacity: 0.6;
+    border-color: rgba(225, 6, 0, 0.3);
+  }
+
+  .mobile-race-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .race-round-badge {
+    background-color: var(--primary);
+    color: var(--surface);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .canceled-badge {
+    background-color: rgba(225, 6, 0, 0.2);
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .mobile-race-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+    flex: 1;
+  }
+
+  .race-status {
+    background-color: var(--success);
+    color: var(--surface);
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .mobile-race-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .race-info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .info-icon {
+    font-size: 16px;
+  }
+
+  .info-value {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Mobile sessions - ultra-thin row format */
+  .mobile-sessions-container {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sessions-title {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .mobile-sessions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-session-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 11px;
+    min-height: 22px;
+    line-height: 1;
+  }
+
+  .session-type {
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .session-date-time {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .session-date {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .session-time {
+    font-weight: 600;
+    color: var(--text);
+    position: relative;
+  }
+
+  .session-time::before {
+    content: "|";
+    color: var(--text-muted);
+    margin-right: 3px;
+    font-weight: 300;
+  }
+
+  /* No races message */
+  .no-races-message {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .no-races-message p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  /* Touch targets */
+  .mobile-race-card {
+    min-height: 120px;
+  }
+
+  .mobile-session-item {
+    min-height: 60px;
+  }
+
+  /* Responsive adjustments */
+  @media (min-width: 768px) {
+    .mobile-race-info-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mobile-sessions-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
 

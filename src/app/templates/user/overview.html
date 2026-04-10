@@ -1,30 +1,30 @@
 {% extends 'base.html' %} {% block content %}
 
 <div class="container">
-  <div class="dashboard-header">
-    <h1>🏎️ Welcome, {{ username }}!</h1>
-    <div class="user-actions">
-      <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-small">⚙️ Profile</a>
+  <div class="mobile-dashboard-header">
+    <div class="user-greeting">
+      <h1 class="mobile-page-title">🏎️ Welcome, {{ username }}!</h1>
+      <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-small mobile-profile-btn">⚙️ Profile</a>
     </div>
   </div>
 
-  <!-- Next Race Section -->
+  <!-- Mobile Next Race Section -->
   {% if next_race %}
   {% if next_session %}
-  <div class="card info-card">
+  <div class="card mobile-race-card">
     <div class="card-header">
-      <div class="card-header-content">
-        <div>
+      <div class="mobile-card-header-content">
+        <div class="race-info-header">
           <h3 class="card-title">🏁 Next Race</h3>
           <p class="card-subtitle">Round {{next_race.round}} - {{ next_race.name }}</p>
         </div>
-        <div class="card-header-actions">
-          <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">📅 View All Races</a>
+        <div class="mobile-card-header-actions">
+          <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">📅 All Races</a>
           {% if betting_manager.can_bet_on_race(next_race.id, username) %}
           {% set user_bets = betting_manager.get_user_bets(username) %}
           {% if next_race.id not in user_bets %}
           <a href="{{ url_for('betting.place_bet', race_id=next_race.id) }}" class="btn btn-primary btn-small">
-            💰 Place Bet
+            💰 Bet Now
           </a>
           {% endif %}
           {% endif %}
@@ -32,61 +32,85 @@
       </div>
     </div>
     <div class="card-content">
-      <div class="race-info-line mb-4">
-        <span class="race-country">🌍 {{ next_race.country }}</span>
-        <span class="race-circuit">{{ next_race.circuit }}</span>
-        <span class="race-date">📅 {{ next_race.sessions[-1].date[8:10] }}.{{ next_race.sessions[-1].date[5:7] }}.{{ next_race.sessions[-1].date[0:4] }}</span>
+      <div class="mobile-race-info-grid">
+        <div class="race-info-item">
+          <span class="info-label">🌍 Country:</span>
+          <span class="info-value">{{ next_race.country }}</span>
+        </div>
+        <div class="race-info-item">
+          <span class="info-label">🏁 Circuit:</span>
+          <span class="info-value">{{ next_race.circuit }}</span>
+        </div>
+        <div class="race-info-item">
+          <span class="info-label">📅 Date:</span>
+          <span class="info-value">{{ next_race.sessions[-1].date[8:10] }}.{{ next_race.sessions[-1].date[5:7] }}.{{ next_race.sessions[-1].date[0:4] }}</span>
+        </div>
       </div>
 
-      <!-- Sessions -->
-      <div class="sessions-line mb-4">
+      <!-- Mobile Sessions -->
+      <div class="mobile-sessions-container">
+        <h4 class="sessions-title">📋 Race Weekend</h4>
         {% if next_race.sessions and next_race.sessions|length > 0 %}
-        {% for session in next_race.sessions %}
-        <span class="session-inline">
-          {{ session.type }} ({% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}) 
-          {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
-        </span>
-        {% endfor %}
+        <div class="mobile-sessions-grid">
+          {% for session in next_race.sessions %}
+          <div class="mobile-session-item">
+            <span class="session-type">{{ session.type }}</span>
+            <div class="session-date-time">
+              <span class="session-date">
+                {% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %}
+              </span>
+              <span class="session-time">
+                {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
         {% else %}
-        <span class="session-inline">No sessions available</span>
+        <p class="no-sessions">No sessions available</p>
         {% endif %}
       </div>
 
-      <!-- Next Session Timer -->
-      {% if next_session %}
-      <div class="next-session-timer mb-4">
-        <span class="next-session-label">🕒 Next Session:</span>
-        <span class="next-session-type">{{ next_session.type }}</span>
-        <span id="session-countdown-inline" class="countdown-timer"
-              data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}">
-          {% if next_session.time_info %}
-          <span class="countdown-loading">Loading...</span>
-          {% else %}
-          <span class="countdown-unavailable">--:--:--</span>
-          {% endif %}
-        </span>
+      <!-- Mobile Timers -->
+      <div class="mobile-timers-container">
+        {% if next_session %}
+        <div class="mobile-timer-item">
+          <span class="timer-label">🕒 Next Session:</span>
+          <div class="timer-right-content">
+            <span class="timer-session-type">{{ next_session.type }}</span>
+            <span id="session-countdown-inline" class="countdown-timer mobile-countdown"
+                  data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}">
+              {% if next_session.time_info %}
+              <span class="countdown-loading">Loading...</span>
+              {% else %}
+              <span class="countdown-unavailable">--:--:--</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if betting_manager.can_bet_on_race(next_race.id, username) %}
+        {% set user_bets = betting_manager.get_user_bets(username) %}
+        {% if next_race.id not in user_bets %}
+        <div class="mobile-timer-item betting-timer">
+          <span class="timer-label">⏰ Betting closes in:</span>
+          <div class="timer-right-content">
+            <span id="betting-countdown-{{ next_race.id }}" class="countdown-timer mobile-countdown"
+                  data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(next_race) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}">
+              <span class="countdown-loading">Loading...</span>
+            </span>
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
       </div>
-      {% endif %}
-      
-      <!-- Betting Section -->
-      {% if betting_manager.can_bet_on_race(next_race.id, username) %}
-      {% set user_bets = betting_manager.get_user_bets(username) %}
-      {% if next_race.id not in user_bets %}
-      <div class="betting-timer-row">
-        <span class="betting-timer-label">⏰ Betting closes in:</span>
-        <span id="betting-countdown-{{ next_race.id }}" class="countdown-timer"
-              data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(next_race) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}">
-          <span class="countdown-loading">Loading...</span>
-        </span>
-      </div>
-      {% endif %}
-      {% endif %}
     </div>
   </div>
   {% endif %}
   {% endif %}
 
-  <!-- Active Bets Section -->
+  <!-- Mobile Active Bets Section -->
   {% if betting_manager %}
   {% set user_bets = betting_manager.get_user_bets(username) %}
   {% if user_bets %}
@@ -94,36 +118,36 @@
   {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
   {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
   {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
-  <div class="card info-card">
+  <div class="card mobile-bet-card">
     <div class="card-header">
       <h3 class="card-title">🏁 Your Bet</h3>
       <p class="card-subtitle">{{ race_info.name if race_info else 'Unknown Race' }}</p>
     </div>
     <div class="card-content">
-      <div class="predictions-summary gap-2">
-        <div class="prediction-item">
+      <div class="mobile-predictions-grid">
+        <div class="mobile-prediction-item">
           <span class="prediction-label">1st:</span>
           <span class="prediction-value">{{ bet_data.drivers[0] if bet_data.drivers and bet_data.drivers|length > 0 else '—' }}</span>
         </div>
-        <div class="prediction-item">
+        <div class="mobile-prediction-item">
           <span class="prediction-label">2nd:</span>
           <span class="prediction-value">{{ bet_data.drivers[1] if bet_data.drivers and bet_data.drivers|length > 1 else '—' }}</span>
         </div>
-        <div class="prediction-item">
+        <div class="mobile-prediction-item">
           <span class="prediction-label">3rd:</span>
           <span class="prediction-value">{{ bet_data.drivers[2] if bet_data.drivers and bet_data.drivers|length > 2 else '—' }}</span>
         </div>
-        <div class="prediction-item fastest-lap">
+        <div class="mobile-prediction-item fastest-lap">
           <span class="prediction-label">Fastest:</span>
           <span class="prediction-value">{{ bet_data.fastest_lap if bet_data.fastest_lap else '—' }}</span>
         </div>
       </div>
     </div>
     <div class="card-footer">
-      <div class="bet-meta">
+      <div class="mobile-bet-meta">
         <span class="meta-text">🕒 Placed: {{ bet_data.created_at[:16] if bet_data.created_at else 'N/A' }}</span>
       </div>
-      <div class="bet-actions">
+      <div class="mobile-bet-actions">
         <a href="{{ url_for('betting.edit_bet', race_id=race_id) }}" class="btn btn-secondary btn-small">✏️ Edit</a>
         <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=race_id) }}" style="display: inline;">
           <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this bet?');">
@@ -250,5 +274,364 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+
+<style>
+  /* Mobile-first user overview styles */
+  .mobile-dashboard-header {
+    margin-bottom: 24px;
+  }
+
+  .user-greeting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .mobile-page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .mobile-profile-btn {
+    min-height: 40px;
+  }
+
+  /* Mobile race card */
+  .mobile-race-card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .mobile-card-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .race-info-header {
+    text-align: center;
+  }
+
+  .mobile-card-header-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-race-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .race-info-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 32px;
+  }
+
+  .info-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .info-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* Mobile sessions - ultra-thin row format */
+  .mobile-sessions-container {
+    margin-bottom: 12px;
+  }
+
+  .sessions-title {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .mobile-sessions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-session-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 11px;
+    min-height: 22px;
+    line-height: 1;
+  }
+
+  .session-type {
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .session-date-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .session-date {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .session-time {
+    font-weight: 600;
+    color: var(--text);
+    position: relative;
+  }
+
+  .session-time::before {
+    content: "|";
+    color: var(--text-muted);
+    margin-right: 4px;
+    font-weight: 300;
+  }
+
+  .no-sessions {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 12px;
+  }
+
+  /* Mobile timers - right-aligned */
+  .mobile-timers-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .mobile-timer-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 32px;
+  }
+
+  .betting-timer {
+    background-color: rgba(0, 210, 190, 0.05);
+    border-color: rgba(0, 210, 190, 0.1);
+  }
+
+  .timer-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .timer-session-type {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .timer-right-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .mobile-countdown {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--success);
+    font-family: monospace;
+  }
+
+  /* Mobile bet card */
+  .mobile-bet-card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .mobile-predictions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .mobile-prediction-item {
+    background-color: var(--surface);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .prediction-label {
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 40px;
+  }
+
+  .prediction-value {
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .mobile-bet-meta {
+    margin-bottom: 12px;
+  }
+
+  .meta-text {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .mobile-bet-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Stats section - keep existing but make mobile-friendly */
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--success);
+    margin: 8px 0;
+  }
+
+  /* Leaderboard - make mobile-friendly */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    width: 100%;
+    min-width: 400px;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px;
+    white-space: nowrap;
+  }
+
+  /* Comment section - mobile friendly */
+  .comment-section {
+    margin-top: 24px;
+  }
+
+  .comment-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .comment-input {
+    flex: 1;
+    min-height: 44px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .comment-submit {
+    min-width: 80px;
+    min-height: 44px;
+  }
+
+  .comments-container {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .comment-item {
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  /* Responsive adjustments */
+  @media (min-width: 768px) {
+    .mobile-predictions-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .mobile-prediction-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .prediction-label {
+      min-width: auto;
+    }
+
+    .table {
+      min-width: auto;
+    }
+  }
+
+  /* Touch targets */
+  .btn-small {
+    min-height: 36px;
+    min-width: 80px;
+  }
+
+  .mobile-session-item,
+  .mobile-timer-item,
+  .mobile-prediction-item {
+    min-height: 60px;
+  }
+</style>
 
 {% endblock %}

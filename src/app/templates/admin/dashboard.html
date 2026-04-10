@@ -1,39 +1,39 @@
 {% extends 'base.html' %} {% block content %}
 
 <div class="container">
-  <div class="admin-header">
-    <h1>🏎️ Admin Dashboard</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
+  <div class="mobile-admin-header">
+    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
+    <h1 class="page-title">🏎️ Admin Dashboard</h1>
   </div>
 
-  <!-- Admin Info Box -->
-  <div class="card info-box">
+  <!-- Mobile Admin Info Box -->
+  <div class="card mobile-info-box">
     <div class="card-content">
       <h4>⚠️ Administrator Access</h4>
       <p>You have full access to manage the F1 Betting application. Use these tools responsibly.</p>
     </div>
   </div>
 
-  <!-- Data Management Section -->
-  <div class="card admin-section">
+  <!-- Mobile Data Management Section -->
+  <div class="card mobile-admin-section">
     <div class="card-header">
       <h2 class="card-title">📊 Data Management</h2>
     </div>
     <div class="card-content">
-      <div class="admin-actions gap-2">
+      <div class="mobile-admin-actions">
         <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
-          <button type="submit" class="btn btn-primary" title="Update race data from F1 API">
+          <button type="submit" class="btn btn-primary btn-block" title="Update race data from F1 API">
             🔄 Update Races
           </button>
         </form>
         <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
-          <button type="submit" class="btn btn-primary" title="Update driver data from F1 API">
+          <button type="submit" class="btn btn-primary btn-block" title="Update driver data from F1 API">
             🔄 Update Drivers
           </button>
         </form>
         <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form"
               onsubmit="return confirm('Are you sure you want to reset ALL user points to 0? This cannot be undone.');">
-          <button type="submit" class="btn btn-danger">
+          <button type="submit" class="btn btn-danger btn-block">
             🔥 Reset All Points
           </button>
         </form>
@@ -41,8 +41,8 @@
     </div>
   </div>
 
-  <!-- Cancelled Races Section -->
-  <div class="card admin-section">
+  <!-- Mobile Cancelled Races Section -->
+  <div class="card mobile-admin-section">
     <div class="card-header">
       <h2 class="card-title">🚫 Cancelled Races</h2>
     </div>
@@ -51,10 +51,10 @@
         Manage cancelled races and reactivate them if needed
       </p>
       
-      <div class="cancel-controls mb-4">
+      <div class="mobile-cancel-controls mb-4">
         <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form">
-          <div class="race-select-container gap-2">
-            <select name="race_id" id="race-select" class="race-select-dropdown form-control" required>
+          <div class="mobile-race-select-container">
+            <select name="race_id" id="race-select" class="race-select-dropdown form-control mobile-select" required>
               <option value="" disabled selected>Select race to cancel...</option>
               {% for race in races %} 
               {% if not race.canceled %}
@@ -62,59 +62,50 @@
               {% endif %} 
               {% endfor %}
             </select>
-            <button type="submit" class="btn btn-danger">
+            <button type="submit" class="btn btn-danger btn-block">
               🚫 Cancel Race
             </button>
           </div>
         </form>
       </div>
 
-      <div class="resolved-races-list">
+      <div class="mobile-resolved-races-list">
         <div class="resolved-race-header">
           <h4>Cancelled Races List</h4>
         </div>
-        <div class="table-responsive">
-          <table class="race-table">
-            <thead>
-              <tr>
-                <th>Race Name</th>
-                <th>Country</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for race in races %}
-              {% if race.canceled %}
-              <tr class="race-canceled">
-                <td>{{ race.name }}</td>
-                <td>{{ race.country }}</td>
-                <td>{{ race.date }}</td>
-                <td>
-                  <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="reactivate-form">
-                    <input type="hidden" name="race_id" value="{{ race.id }}" />
-                    <button type="submit" class="btn btn-success btn-small" title="Reactivate this race">
-                      ↻ Reactivate
-                    </button>
-                  </form>
-                </td>
-              </tr>
-              {% endif %}
-              {% endfor %}
-            </tbody>
-          </table>
-          {% set canceled_races = [] %}
+        {% set canceled_races = [] %}
+        {% for race in races %}
+        {% if race.canceled %}
+        {% set canceled_races = canceled_races + [race] %}
+        {% endif %}
+        {% endfor %}
+        {% if canceled_races|length > 0 %}
+        <div class="mobile-races-grid">
           {% for race in races %}
           {% if race.canceled %}
-          {% set canceled_races = canceled_races + [race] %}
-          {% endif %}
-          {% endfor %}
-          {% if canceled_races|length == 0 %}
-          <div class="no-canceled-races mt-4 text-center">
-            No cancelled races found
+          <div class="mobile-race-item">
+            <div class="race-info">
+              <div class="race-name">{{ race.name }}</div>
+              <div class="race-country">{{ race.country }}</div>
+              <div class="race-date">{{ race.date }}</div>
+            </div>
+            <div class="race-actions">
+              <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="reactivate-form">
+                <input type="hidden" name="race_id" value="{{ race.id }}" />
+                <button type="submit" class="btn btn-success btn-small" title="Reactivate this race">
+                  ↻ Reactivate
+                </button>
+              </form>
+            </div>
           </div>
           {% endif %}
+          {% endfor %}
         </div>
+        {% else %}
+        <div class="no-canceled-races">
+          No cancelled races found
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -249,68 +240,223 @@
 </div>
 
 <style>
-/* Admin-specific styles */
-.admin-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
+  /* Mobile-first admin dashboard styles */
+  .mobile-admin-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
 
-.race-select-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
+  .page-title {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+  }
 
-.race-select-dropdown {
-  flex: 1;
-  min-width: 250px;
-}
+  .mobile-info-box {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
 
-.log-controls {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+  .mobile-admin-section {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
 
-.admin-badge {
-  background-color: var(--primary-dark);
-  color: var(--surface);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  display: inline-block;
-}
+  /* Mobile admin actions */
+  .mobile-admin-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.regular-badge {
-  background-color: var(--success);
-  color: var(--surface);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  display: inline-block;
-}
+  .btn-block {
+    min-height: 48px;
+  }
 
-.action-cell {
-  white-space: nowrap;
-}
+  /* Mobile cancel controls */
+  .mobile-cancel-controls {
+    margin-bottom: 24px;
+  }
 
-.action-form {
-  display: inline;
-  margin: 0 2px;
-}
+  .mobile-race-select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.btn-warning {
-  background-color: var(--warning);
-  color: var(--background);
-}
+  .mobile-select {
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+    min-height: 50px;
+  }
 
-.btn-warning:hover {
-  background-color: #ffdd00;
-}
+  /* Mobile races grid */
+  .mobile-races-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .mobile-race-item {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .race-info {
+    flex: 1;
+  }
+
+  .race-name {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .race-country {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .race-date {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .race-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .no-canceled-races {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* Logs section - mobile friendly */
+  .log-container {
+    background-color: var(--background);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+
+  .log-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  /* Users table - mobile friendly */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 16px;
+  }
+
+  .user-table {
+    width: 100%;
+    min-width: 800px;
+  }
+
+  .user-table th,
+  .user-table td {
+    padding: 10px 12px;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .action-cell {
+    white-space: nowrap;
+  }
+
+  .action-form {
+    display: inline;
+    margin: 0 4px;
+  }
+
+  .btn-small {
+    min-height: 32px;
+    min-width: 60px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Responsive adjustments */
+  @media (min-width: 768px) {
+    .mobile-admin-actions {
+      flex-direction: row;
+    }
+
+    .mobile-races-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .user-table {
+      min-width: auto;
+    }
+  }
+
+  /* Touch targets */
+  .mobile-race-item {
+    min-height: 80px;
+  }
+
+  .btn-block,
+  .mobile-select {
+    min-height: 50px;
+  }
+
+  /* Admin badges */
+  .admin-badge {
+    background-color: var(--primary);
+    color: var(--surface);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    display: inline-block;
+  }
+
+  .regular-badge {
+    background-color: var(--success);
+    color: var(--surface);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    display: inline-block;
+  }
+
+  .btn-warning {
+    background-color: var(--warning);
+    color: var(--background);
+  }
+
+  .btn-warning:hover {
+    background-color: #ffdd00;
+  }
 </style>
 
 <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>

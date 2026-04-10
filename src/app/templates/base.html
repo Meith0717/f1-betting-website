@@ -35,25 +35,49 @@
         });
       }
     </script>
-    <nav>
+    <nav class="mobile-nav">
       <div class="nav-content">
-        <div class="nav-left">F1 Betting</div>
-        <button class="menu-button" onclick="toggleMobileMenu()">☰</button>
+        <div class="nav-left">
+          <span class="nav-logo">🏎️</span>
+          <span class="nav-title">F1 Betting</span>
+        </div>
+        <button class="menu-button" onclick="toggleMobileMenu()" aria-label="Toggle menu">☰</button>
         <div class="nav-right">
           {% if 'username' in session %}
-          <a href="{{ url_for('main.index') }}" class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Go to your dashboard">Home</a>
-          <a href="{{ url_for('main.races') }}" class="nav-link {% if request.endpoint == 'main.races' %}active{% endif %}" title="View all upcoming F1 races">Races</a>
+          <a href="{{ url_for('main.index') }}" class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Home</span>
+          </a>
+          <a href="{{ url_for('main.races') }}" class="nav-link {% if request.endpoint == 'main.races' %}active{% endif %}" title="Races">
+            <span class="nav-icon">📅</span>
+            <span class="nav-text">Races</span>
+          </a>
           {% if betting_manager %}
-          <a href="{{ url_for('betting.betting_dashboard') if betting_manager else '#' }}" class="nav-link {% if request.endpoint.startswith('betting.') %}active{% endif %}" title="View and manage your bets">Betting</a>
+          <a href="{{ url_for('betting.betting_dashboard') if betting_manager else '#' }}" class="nav-link {% if request.endpoint.startswith('betting.') %}active{% endif %}" title="Betting">
+            <span class="nav-icon">💰</span>
+            <span class="nav-text">Betting</span>
+          </a>
           {% endif %}
-          <a href="{{ url_for('auth.logout') }}" class="nav-link" title="Sign out of your account">Logout</a>
+          <a href="{{ url_for('auth.logout') }}" class="nav-link" title="Logout">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-text">Logout</span>
+          </a>
           {% if session.get('is_admin') %}
-          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint.startswith('admin.') %}active{% endif %}" title="Admin dashboard">Admin</a>
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint.startswith('admin.') %}active{% endif %}" title="Admin">
+            <span class="nav-icon">👑</span>
+            <span class="nav-text">Admin</span>
+          </a>
           {% endif %}
           {% else %}
           <!-- Show login/register when no user is logged in -->
-          <a href="{{ url_for('auth.login') }}" class="nav-link login-link {% if request.endpoint == 'auth.login' %}active{% endif %}">Login</a>
-          <a href="{{ url_for('auth.register') }}" class="nav-link register-link {% if request.endpoint == 'auth.register' %}active{% endif %}">Register</a>
+          <a href="{{ url_for('auth.login') }}" class="nav-link login-link {% if request.endpoint == 'auth.login' %}active{% endif %}" title="Login">
+            <span class="nav-icon">🔑</span>
+            <span class="nav-text">Login</span>
+          </a>
+          <a href="{{ url_for('auth.register') }}" class="nav-link register-link {% if request.endpoint == 'auth.register' %}active{% endif %}" title="Register">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">Register</span>
+          </a>
           {% endif %}
         </div>
       </div>
@@ -63,8 +87,11 @@
     function toggleMobileMenu() {
       const navRight = document.querySelector('.nav-right');
       const menuButton = document.querySelector('.menu-button');
+      const nav = document.querySelector('.mobile-nav');
+      
       navRight.classList.toggle('mobile-menu');
       menuButton.classList.toggle('active');
+      nav.classList.toggle('menu-open');
       
       // Prevent body scroll when mobile menu is open
       if (navRight.classList.contains('mobile-menu')) {
@@ -76,13 +103,14 @@
 
     // Close mobile menu when clicking outside
     document.addEventListener('click', function(event) {
-      const nav = document.querySelector('nav');
+      const nav = document.querySelector('.mobile-nav');
       const menuButton = document.querySelector('.menu-button');
       const navRight = document.querySelector('.nav-right');
       
       if (!nav.contains(event.target) && !menuButton.contains(event.target) && navRight.classList.contains('mobile-menu')) {
         navRight.classList.remove('mobile-menu');
         menuButton.classList.remove('active');
+        nav.classList.remove('menu-open');
         document.body.style.overflow = '';
       }
     });
@@ -94,9 +122,24 @@
         link.addEventListener('click', function() {
           const navRight = document.querySelector('.nav-right');
           const menuButton = document.querySelector('.menu-button');
+          const nav = document.querySelector('.mobile-nav');
           navRight.classList.remove('mobile-menu');
           menuButton.classList.remove('active');
+          nav.classList.remove('menu-open');
           document.body.style.overflow = '';
+        });
+      });
+    });
+    
+    // Add touch-friendly hover effects
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('touchstart', function() {
+          this.classList.add('touch-active');
+        });
+        link.addEventListener('touchend', function() {
+          this.classList.remove('touch-active');
         });
       });
     });
