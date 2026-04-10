@@ -64,12 +64,32 @@
                     <span class="you-badge">(You)</span>
                   {% endif %}
                 </td>
-                <td class="position-cell">{{ bet.drivers[0] }}</td>
-                <td class="position-cell">{{ bet.drivers[1] }}</td>
-                <td class="position-cell">{{ bet.drivers[2] }}</td>
-                <td class="position-cell">{{ bet.fastest_lap if bet.fastest_lap else '-' }}</td>
+                <td class="position-cell">
+                  {{ bet.drivers_short[0] if bet.drivers_short and bet.drivers_short|length > 0 else bet.drivers[0] }}
+                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                    <span class="points-badge">+{{ bet.points_breakdown.position_1 }}</span>
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {{ bet.drivers_short[1] if bet.drivers_short and bet.drivers_short|length > 1 else bet.drivers[1] }}
+                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                    <span class="points-badge">+{{ bet.points_breakdown.position_2 }}</span>
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {{ bet.drivers_short[2] if bet.drivers_short and bet.drivers_short|length > 2 else bet.drivers[2] }}
+                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                    <span class="points-badge">+{{ bet.points_breakdown.position_3 }}</span>
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {{ bet.fastest_lap_short if bet.fastest_lap_short else '-' }}
+                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
+                    <span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>
+                  {% endif %}
+                </td>
                 <td class="points-cell">
-                  {% if bet.resolved_at and bet.points_awarded %}
+                  {% if race_data.race_bet_info.status == 'resolved' and bet.points_awarded %}
                     +{{ bet.points_awarded }}
                   {% else %}
                     -
@@ -83,10 +103,34 @@
               {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
               <tr class="actual-results-row">
                 <td>🏆 Actual Results</td>
-                <td class="position-cell">{{ race_results.get('results', [])[0].driverId if race_results and race_results.get('results') and race_results['results']|length > 0 else '-' }}</td>
-                <td class="position-cell">{{ race_results.get('results', [])[1].driverId if race_results and race_results.get('results') and race_results['results']|length > 1 else '-' }}</td>
-                <td class="position-cell">{{ race_results.get('results', [])[2].driverId if race_results and race_results.get('results') and race_results['results']|length > 2 else '-' }}</td>
-                <td class="position-cell">{{ race_results.get('overall_fastest_lap', {}).driverId if race_results and race_results.get('overall_fastest_lap') else '-' }}</td>
+                <td class="position-cell">
+                  {% if race_results and race_results.get('results') and race_results['results']|length > 0 %}
+                    {{ driver_short_names.get(race_results['results'][0].driverId, race_results['results'][0].driverId) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {% if race_results and race_results.get('results') and race_results['results']|length > 1 %}
+                    {{ driver_short_names.get(race_results['results'][1].driverId, race_results['results'][1].driverId) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {% if race_results and race_results.get('results') and race_results['results']|length > 2 %}
+                    {{ driver_short_names.get(race_results['results'][2].driverId, race_results['results'][2].driverId) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="position-cell">
+                  {% if race_results and race_results.get('overall_fastest_lap') %}
+                    {{ driver_short_names.get(race_results['overall_fastest_lap'].driverId, race_results['overall_fastest_lap'].driverId) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
                 <td class="points-cell">—</td>
               </tr>
               {% endif %}

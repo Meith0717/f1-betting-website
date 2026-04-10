@@ -99,6 +99,7 @@ def betting_dashboard():
                             "fastest_lap": bet_data.get("fastest_lap"),
                             "fastest_lap_short": fastest_lap_short,
                             "points_awarded": bet_data.get("points_awarded"),
+                            "points_breakdown": bet_data.get("points_breakdown", {}),
                             "resolved_at": bet_data.get("resolved_at"),
                             "created_at": bet_data.get("created_at"),
                             "actual_results": bet_data.get("actual_results"),
@@ -187,6 +188,7 @@ def betting_dashboard():
             races_without_bets=races_without_bets,
             betting_manager=betting_manager,
             is_admin=is_admin,
+            driver_short_names=driver_short_names,
         )
 
     except Exception as e:
