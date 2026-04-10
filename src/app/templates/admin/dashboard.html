@@ -57,7 +57,7 @@
             <select name="race_id" id="race-select" class="race-select-dropdown form-control mobile-select" required>
               <option value="" disabled selected>Select race to cancel...</option>
               {% for race in races %} 
-              {% if not race.canceled %}
+              {% if race.id not in canceled_race_ids %}
               <option value="{{ race.id }}">{{ race.name }}</option>
               {% endif %} 
               {% endfor %}
@@ -73,16 +73,10 @@
         <div class="resolved-race-header">
           <h4>Cancelled Races List</h4>
         </div>
-        {% set canceled_races = [] %}
-        {% for race in races %}
-        {% if race.canceled %}
-        {% set canceled_races = canceled_races + [race] %}
-        {% endif %}
-        {% endfor %}
-        {% if canceled_races|length > 0 %}
+        {% if canceled_race_ids|length > 0 %}
         <div class="mobile-races-grid">
           {% for race in races %}
-          {% if race.canceled %}
+          {% if race.id in canceled_race_ids %}
           <div class="mobile-race-item">
             <div class="race-info">
               <div class="race-name">{{ race.name }}</div>

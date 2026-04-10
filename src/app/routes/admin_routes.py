@@ -47,6 +47,7 @@ def admin_dashboard():
 
         # Get all races for canceled race management
         races = race_data_manager.get_all_races()
+        canceled_race_ids = race_data_manager.get_canceled_race_ids()
 
         # Get recent log entries
         log_file = (
@@ -77,6 +78,7 @@ def admin_dashboard():
             total_points=total_points,
             sorted_users=sorted_users,
             races=races,
+            canceled_race_ids=canceled_race_ids,
             log_entries=log_entries,
             log_file_exists=os.path.exists(log_file),
         )
