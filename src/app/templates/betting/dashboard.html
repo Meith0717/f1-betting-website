@@ -2,8 +2,8 @@
 
 <div class="container">
   <div class="betting-header">
-    <h1>🏆 Betting History</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
+    <h1>🏆 Betting</h1>
+    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
   </div>
 
   <div class="card">
@@ -22,14 +22,14 @@
           <div class="race-meta">
             {% set race_status = race_data.race_bet_info.status %}
             {% if race_status == 'resolved' %}
-              <span class="status-indicator resolved">✅ Resolved</span>
+              <span class="status-indicator resolved">✅</span>
             {% else %}
-              <span class="status-indicator closed">🔒 Closed</span>
+              <span class="status-indicator closed">🔒</span>
               {% if is_admin %}
               <div class="resolve-buttons-group">
                 <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
                   <button type="submit" class="btn btn-success btn-small" title="Resolve this race using F1 API">
-                    🎯 API Resolve
+                    🎯
                   </button>
                 </form>
               </div>
