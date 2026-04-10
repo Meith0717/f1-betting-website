@@ -20,9 +20,8 @@
           <h3 class="race-title">{{ race_data.race_info.name }}</h3>
           
           <div class="race-meta">
-            {% set first_bet = race_data.bets[0] %}
-            {% set bet_resolved = first_bet.get('resolved_at') is not none %}
-            {% if bet_resolved %}
+            {% set race_status = race_data.race_bet_info.status %}
+            {% if race_status == 'resolved' %}
               <span class="status-indicator resolved">✅ Resolved</span>
             {% else %}
               <span class="status-indicator closed">🔒 Closed</span>
@@ -80,7 +79,7 @@
               {% endfor %}
               
               <!-- Actual results -->
-              {% if first_bet.get('resolved_at') %}
+              {% if race_data.race_bet_info.status == 'resolved' %}
               {% set race_results = betting_manager.get_race_results(race_data.race_info.id) %}
               <tr class="actual-results-row">
                 <td>🏆 Actual Results</td>

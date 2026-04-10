@@ -727,7 +727,6 @@ class BettingManager:
                 # Update bet with resolution results and detailed breakdown
                 bet_data.update(
                     {
-                        "actual_fastest_lap": fastest_lap_driver,
                         "points_awarded": points,
                         "points_breakdown": points_data["breakdown"],
                     }

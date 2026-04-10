@@ -103,7 +103,6 @@ def betting_dashboard():
                             "created_at": bet_data.get("created_at"),
                             "actual_results": bet_data.get("actual_results"),
                             "actual_results_short": actual_results_short,
-                            "actual_fastest_lap": bet_data.get("actual_fastest_lap"),
                         }
                     )
             else:
