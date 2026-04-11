@@ -1,35 +1,37 @@
 // Session Countdown Timer
 function initializeCountdown() {
-  const countdownElement = document.getElementById("session-countdown-inline");
-  if (!countdownElement) return;
+  // Find all session countdown elements (they have IDs like session-countdown-FP1, session-countdown-Race, etc.)
+  const countdownElements = document.querySelectorAll('[id^="session-countdown-"]');
+  
+  countdownElements.forEach(countdownElement => {
+    // Get the session ISO time from the template
+    const sessionTime = countdownElement.dataset.sessionTime || "";
 
-  // Get the session ISO time from the template
-  const sessionTime = countdownElement.dataset.sessionTime || "";
+    if (sessionTime) {
+      try {
+        // Parse the ISO time and create countdown
+        const sessionDate = new Date(sessionTime);
+        const now = new Date();
 
-  if (sessionTime) {
-    try {
-      // Parse the ISO time and create countdown
-      const sessionDate = new Date(sessionTime);
-      const now = new Date();
-
-      // Only show countdown if session is in the future
-      if (sessionDate > now) {
-        updateCountdown(sessionDate, countdownElement, true); // inline format
-        const timer = setInterval(
-          () => updateCountdown(sessionDate, countdownElement, true),
-          1000,
-        );
-        countdownElement.dataset.timerId = timer;
-      } else {
+        // Only show countdown if session is in the future
+        if (sessionDate > now) {
+          updateCountdown(sessionDate, countdownElement, true); // inline format
+          const timer = setInterval(
+            () => updateCountdown(sessionDate, countdownElement, true),
+            1000,
+          );
+          countdownElement.dataset.timerId = timer;
+        } else {
+          countdownElement.innerHTML =
+            '<span class="countdown-expired">Started</span>';
+        }
+      } catch (error) {
+        console.error("Error initializing countdown:", error);
         countdownElement.innerHTML =
-          '<span class="countdown-expired">Started</span>';
+          '<span class="countdown-unavailable">--:--:--</span>';
       }
-    } catch (error) {
-      console.error("Error initializing countdown:", error);
-      countdownElement.innerHTML =
-        '<span class="countdown-unavailable">--:--:--</span>';
     }
-  }
+  });
 }
 
 function updateCountdown(targetDate, element, isInline = false) {
