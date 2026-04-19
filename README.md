@@ -1,6 +1,6 @@
 # F1 Betting Platform
 
-A comprehensive Formula 1 betting platform built with Flask, featuring user authentication, race betting, scoring system, and community features.
+A comprehensive Formula 1 prediction game built with Flask, featuring user authentication, race betting, scoring system, and admin management.
 
 ## 🚀 Features
 
@@ -11,8 +11,7 @@ A comprehensive Formula 1 betting platform built with Flask, featuring user auth
 - **Scoring System**: Automatic points calculation based on race results
 - **Admin Dashboard**: User management, race resolution, and system controls
 
-### Experimental Features
-- **Community Chat**: Real-time comment section for users (marked as EXPERIMENTAL)
+### Features
 - **Leaderboard**: Ranked user scores and statistics
 - **Race Countdowns**: Live timers for upcoming sessions
 
@@ -164,7 +163,6 @@ app/
 ├── auth_utils.py             # User authentication utilities
 ├── betting_manager.py        # Core betting logic
 ├── race_data_manager.py      # Race data handling
-├── messages.py              # Community chat system
 ├── routes/                  # Route blueprints
 │   ├── main_routes.py        # Main pages
 │   ├── auth_routes.py        # Authentication
@@ -174,7 +172,7 @@ app/
 │   ├── races.json           # Race schedules
 │   ├── users.json           # User accounts
 │   ├── bets.json            # Betting data
-│   └── messages.txt         # Community comments
+│   └── drivers.json         # Driver information
 ├── templates/               # HTML templates
 └── static/                  # CSS, JS, and assets
 ```
@@ -198,18 +196,13 @@ DATABASE_URL=sqlite:///app.db
 ## 🎯 Usage
 
 ### User Roles
-- **Regular Users**: Place bets, view leaderboard, comment
+- **Regular Users**: Place bets, view leaderboard
 - **Admins**: Manage users, resolve races, update data
 
 ### Betting Rules
 - Bets close when the race starts
 - Points awarded for correct predictions
 - Fastest lap predictions earn bonus points
-
-### Community Chat
-- Max 20 messages stored
-- Newest messages appear first
-- Scrollable interface with refresh button
 
 ## 🛠️ Development
 
@@ -228,7 +221,7 @@ The `app/data/` directory contains:
 - Race schedules and results
 - User accounts and scores
 - Betting records
-- Community messages
+- Driver information
 
 **Note**: This directory is in `.gitignore` to protect user data.
 
@@ -245,13 +238,6 @@ Race data can be:
 - Session-based authentication
 - Admin role protection
 - CSRF protection via Flask
-
-## 🚧 Experimental Features
-
-The **Community Chat** feature is marked as EXPERIMENTAL and may:
-- Change significantly in future updates
-- Have limited functionality
-- Be removed or replaced
 
 ## 🎯 Features Overview
 
