@@ -8,8 +8,8 @@ import os
 import json
 from datetime import datetime
 
-# Add the app directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
+# Add the src directory to the path (parent of tests)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.betting_manager import BettingManager
 
@@ -20,12 +20,17 @@ def test_score_updating():
     print("🔄 Testing Score Updates in User Data")
     print("=" * 50)
 
-    # Initialize betting manager
-    betting_manager = BettingManager()
+    # Initialize betting manager with test data directory
+    test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")
+    os.makedirs(test_data_dir, exist_ok=True)
+    
+    betting_manager = BettingManager(
+        data_file=os.path.join(test_data_dir, "bets.json")
+    )
 
     # Load driver data
     drivers_file = os.path.join(
-        os.path.dirname(__file__), "app", "data", "drivers.json"
+        os.path.dirname(__file__), "..", "app", "data", "drivers.json"
     )
     if os.path.exists(drivers_file):
         with open(drivers_file, "r") as f:
@@ -79,7 +84,7 @@ def test_score_updating():
 
     # Save test users
     users_file = os.path.join(
-        os.path.dirname(__file__), "app", "data", "users_test.json"
+        os.path.dirname(__file__), "test_data", "users_test.json"
     )
     with open(users_file, "w") as f:
         json.dump({"users": test_users}, f, indent=2)

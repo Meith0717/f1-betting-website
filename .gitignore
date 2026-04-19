@@ -65,6 +65,9 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# Test data
+src/tests/test_data/
+
 # Application data directory
 src/app/data/
 

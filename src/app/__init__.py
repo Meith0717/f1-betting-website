@@ -1,17 +1,15 @@
-from flask import Flask
+from flask import Flask, jsonify
+import platform
 import secrets
-import logging
+import sys
 import os
 from logging.handlers import RotatingFileHandler
+import logging
 
 
 def create_app():
     app = Flask(__name__)
-
-    # Configure secret key for session
     app.config["SECRET_KEY"] = secrets.token_hex(32)
-
-    # Configure logging
     configure_logging(app)
 
     # Import and register blueprints from routes package
@@ -25,11 +23,7 @@ def create_app():
     # Add debug endpoint
     @app.route("/_debug")
     def debug_info():
-        """Debug endpoint to show application state"""
-        from flask import jsonify
-        import platform
-        import sys
-
+        """Debug endpoint to show application state."""
         debug_info = {
             "app_name": app.name,
             "python_version": sys.version,
@@ -51,34 +45,25 @@ def create_app():
 
 
 def configure_logging(app):
-    """Configure logging for the Flask application"""
-    # Create logs directory if it doesn't exist
+    """Configure logging for the Flask application."""
     log_dir = os.path.join(app.instance_path, "logs") if app.instance_path else "logs"
     os.makedirs(log_dir, exist_ok=True)
 
-    # Set up file handler with rotation
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
     file_handler = RotatingFileHandler(
-        os.path.join(log_dir, "app.log"), maxBytes=1024 * 1024, backupCount=5  # 1MB
+        os.path.join(log_dir, "app.log"), maxBytes=1024 * 1024, backupCount=5
     )
     file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
 
-    # Set up console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
-
-    # Create formatter and add it to handlers
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
 
-    # Remove default handlers and add our own
     app.logger.handlers.clear()
     app.logger.addHandler(file_handler)
     app.logger.addHandler(console_handler)
-
-    # Set logger level
     app.logger.setLevel(logging.DEBUG)
 
     app.logger.info("Logging configured successfully")

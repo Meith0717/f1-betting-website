@@ -9,74 +9,45 @@ from flask import current_app
 
 
 def load_users():
-    """Load users from JSON file with error handling"""
+    """Load users from JSON file."""
     users_file = os.path.join(os.path.dirname(__file__), "data", "users.json")
     if not os.path.exists(users_file):
-        current_app.logger.debug(f"Users file not found: {users_file}")
         return {}
     try:
-        with open(users_file, "r") as f:
-            data = json.load(f)
-            users = data.get("users", {})
-            current_app.logger.debug(f"Loaded {len(users)} users from {users_file}")
-            return users
-    except (json.JSONDecodeError, IOError) as e:
-        current_app.logger.error(f"Error loading users: {e}")
+        with open(users_file, "r", encoding="utf-8") as f:
+            return json.load(f).get("users", {})
+    except (json.JSONDecodeError, IOError):
         return {}
 
 
 def save_users(users):
-    """Save users to JSON file with atomic write and security checks"""
+    """Save users to JSON file with atomic write."""
     users_file = os.path.join(os.path.dirname(__file__), "data", "users.json")
-
+    data_dir = os.path.dirname(users_file)
+    
+    os.makedirs(data_dir, exist_ok=True)
+    
+    temp_fd, temp_path = tempfile.mkstemp(dir=data_dir, prefix="users_")
     try:
-        current_app.logger.debug(f"Saving {len(users)} users to {users_file}")
-
-        # Create data directory with restrictive permissions
-        os.makedirs(os.path.dirname(users_file), exist_ok=True)
-
-        # Set restrictive permissions on data directory (if possible)
-        try:
-            os.chmod(os.path.dirname(users_file), 0o700)
-            current_app.logger.debug(f"Set directory permissions to 0o700")
-        except Exception as e:
-            current_app.logger.warning(f"Could not set directory permissions: {e}")
-
-        # Write to temp file first
-        temp_fd, temp_path = tempfile.mkstemp(
-            dir=os.path.dirname(users_file), prefix="users_"
-        )
-        current_app.logger.debug(f"Created temp file: {temp_path}")
-
-        with os.fdopen(temp_fd, "w") as f:
+        with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
             json.dump({"users": users}, f, indent=2)
-            current_app.logger.debug(f"Written user data to temp file")
-
-        # Set restrictive permissions on temp file
+        
+        # Set restrictive permissions
         try:
             os.chmod(temp_path, 0o600)
-            current_app.logger.debug(f"Set temp file permissions to 0o600")
-        except Exception as e:
-            current_app.logger.warning(f"Could not set temp file permissions: {e}")
-
+        except Exception:
+            pass
+        
         # Atomic replace
         shutil.move(temp_path, users_file)
-        current_app.logger.debug(f"Atomically moved temp file to {users_file}")
-
-        # Set restrictive permissions on final file
+        
         try:
             os.chmod(users_file, 0o600)
-            current_app.logger.debug(f"Set final file permissions to 0o600")
-        except Exception as e:
-            current_app.logger.warning(f"Could not set final file permissions: {e}")
-
-        current_app.logger.info(f"Successfully saved {len(users)} users")
-
-    except Exception as e:
-        current_app.logger.error(f"Error saving users: {e}")
-        if "temp_path" in locals() and os.path.exists(temp_path):
+        except Exception:
+            pass
+    except Exception:
+        if os.path.exists(temp_path):
             os.unlink(temp_path)
-            current_app.logger.debug(f"Cleaned up temp file: {temp_path}")
         raise
 
 

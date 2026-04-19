@@ -10,7 +10,10 @@ import sys
 import os
 
 # Add src directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+
+# Get project root directory (two levels up from this file)
+PROJECT_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
 
 def run_tests():
@@ -26,13 +29,13 @@ def run_tests():
                 sys.executable,
                 "-m",
                 "pytest",
-                "tests/test_betting_system.py",
+                "src/tests/",
                 "-v",
                 "--tb=short",
             ],
             capture_output=True,
             text=True,
-            cwd=".",
+            cwd=PROJECT_ROOT,
         )
 
         print(result.stdout)
@@ -64,12 +67,13 @@ def run_tests():
             print(f"📋 Running {test_name}...")
             # Set PYTHONPATH to include the src directory
             env = os.environ.copy()
-            env["PYTHONPATH"] = os.path.dirname(os.path.abspath(__file__))
+            src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+            env["PYTHONPATH"] = src_path
             result = subprocess.run(
                 [sys.executable, test_file],
                 capture_output=True,
                 text=True,
-                cwd="tests",
+                cwd=os.path.join(PROJECT_ROOT, "src", "tests"),
                 env=env,
             )
 

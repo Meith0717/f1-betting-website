@@ -25,16 +25,18 @@ class BettingManager:
         self._load_driver_data()
 
     def _logger(self):
+        """Get logger instance."""
         try:
             return current_app.logger
         except RuntimeError:
-            # No app context, use module logger
             return logging.getLogger(__name__)
 
     def _utc_now(self) -> datetime:
+        """Get current UTC time."""
         return datetime.now(pytz.UTC)
 
     def _now_iso(self) -> str:
+        """Get current UTC time as ISO string."""
         return self._utc_now().isoformat()
 
     def _load_driver_data(self) -> None:
