@@ -49,9 +49,7 @@ def test_score_updating():
     test_users = {
         "test_user1": {
             "password": "test",
-            "email": "user1@example.com",
-            "score": 10,  # Starting with 10 points
-            "email_notifications": False,
+            "score": 10,
             "created_at": datetime.now().isoformat(),
             "last_login": datetime.now().isoformat(),
             "is_admin": False,
@@ -72,9 +70,7 @@ def test_score_updating():
         },
         "test_user2": {
             "password": "test",
-            "email": "user2@example.com",
-            "score": 0,  # Starting with 0 points
-            "email_notifications": False,
+            "score": 0,
             "created_at": datetime.now().isoformat(),
             "last_login": datetime.now().isoformat(),
             "is_admin": False,

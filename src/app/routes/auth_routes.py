@@ -86,9 +86,7 @@ def register():
             # Create new user
             users[username] = {
                 "password": hash_password(password),
-                "email": None,
-                "score": 0,  # Initialize score to 0
-                "email_notifications": False,
+                "score": 0,
                 "created_at": datetime.now().isoformat(),
                 "last_login": None,
                 "is_admin": False,

@@ -19,10 +19,6 @@
             <span>{{ username }}</span>
           </div>
           <div class="profile-info-item">
-            <strong>Email:</strong>
-            <span>{% if users[username].email %}{{ users[username].email }}{% else %}<em>Not set</em>{% endif %}</span>
-          </div>
-          <div class="profile-info-item">
             <strong>Account Type:</strong>
             <span>{% if users[username].is_admin %}👑 Administrator{% else %}👤 Regular User{% endif %}</span>
           </div>
@@ -45,33 +41,8 @@
       </div>
       <div class="card-content">
         <div class="profile-actions">
-          <a href="{{ url_for('main.change_email') }}" class="btn btn-secondary">📧 Change Email</a>
           <a href="{{ url_for('main.change_password') }}" class="btn btn-secondary">🔒 Change Password</a>
         </div>
-      </div>
-    </div>
-    
-    <!-- Notification Preferences -->
-    <div class="card profile-section">
-      <div class="card-header">
-        <h2 class="card-title">📧 Notification Preferences</h2>
-      </div>
-      <div class="card-content">
-        <form method="POST" action="{{ url_for('main.update_notifications') }}">
-          <div class="notification-setting">
-            <input type="checkbox" id="email_notifications" name="email_notifications"
-                   {% if users[username].get('email_notifications', False) %}checked{% endif %}
-                   {% if not users[username].email %}disabled{% endif %}>
-            <label for="email_notifications">Receive email notifications</label>
-          </div>
-          <p class="form-hint">
-            Get notified about race results, betting deadlines, and important updates
-          </p>
-          {% if not users[username].email %}
-          <p class="notification-hint">⚠️ Set your email address first to enable notifications</p>
-          {% endif %}
-          <button type="submit" class="btn btn-primary mt-4">Save Preferences</button>
-        </form>
       </div>
     </div>
   </div>
@@ -82,25 +53,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-}
-
-.notification-setting {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.notification-setting input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.notification-hint {
-  color: var(--error);
-  font-size: 14px;
-  margin-bottom: 16px;
 }
 </style>
 

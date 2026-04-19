@@ -160,12 +160,10 @@
           <thead>
             <tr>
               <th>Username</th>
-              <th>Email</th>
               <th>Points</th>
               <th>Created</th>
               <th>Last Login</th>
               <th>Admin</th>
-              <th>Notifications</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -173,9 +171,6 @@
             {% for username, user_data in users.items() %}
             <tr>
               <td>{{ username }}</td>
-              <td>
-                {% if user_data.email %}{{ user_data.email }}{% else %}<em>None</em>{% endif %}
-              </td>
               <td>{{ user_data.score }} 🎯</td>
               <td>{{ user_data.created_at }}</td>
               <td>
@@ -187,9 +182,6 @@
                 {% else %}
                 <span class="regular-badge">👤 Regular</span>
                 {% endif %}
-              </td>
-              <td>
-                {% if user_data.email_notifications %} ✅ Enabled {% else %} ❌ Disabled {% endif %}
               </td>
               <td class="action-cell">
                 {% if not user_data.is_admin %}
