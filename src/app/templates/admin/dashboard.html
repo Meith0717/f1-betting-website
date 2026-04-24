@@ -197,6 +197,12 @@
                   </button>
                 </form>
                 {% endif %}
+                <!-- Test notification button -->
+                <form method="POST" action="{{ url_for('admin.send_test_notification', username=username) }}" class="action-form">
+                  <button type="submit" class="btn btn-primary btn-small" title="Send test push notification">
+                    📬 Test Notify
+                  </button>
+                </form>
                 <!-- Delete button - prevent admins from deleting themselves -->
                 {% if username != session['username'] %}
                 <form method="POST" action="{{ url_for('admin.delete_user', username=username) }}" class="action-form"

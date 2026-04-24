@@ -26,7 +26,7 @@ def create_app():
     @app.route("/sw.js")
     def serve_service_worker():
         """Serve the service worker file from static folder at root path."""
-        return send_from_directory(os.path.join(app.root_path, "app", "static"), "sw.js")
+        return send_from_directory(os.path.join(app.root_path, "static"), "sw.js")
 
     # Add debug endpoint
     @app.route("/_debug")
