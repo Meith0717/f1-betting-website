@@ -280,13 +280,7 @@ async function toggleNotifications() {
       return;
     }
     
-    // Use userSubscribed (server-side) as the primary check
-    // If not available, fall back to browser subscribed
-    const isSubscribed = status.userSubscribed !== undefined 
-      ? status.userSubscribed 
-      : status.subscribed;
-    
-    if (isSubscribed) {
+    if (status.subscribed) {
       // Unsubscribe
       if (confirm('Disable push notifications? You can re-enable them later.')) {
         await disablePushNotifications('{{ username }}');
@@ -325,13 +319,7 @@ async function updateNotificationButtonState() {
     const status = await checkNotificationStatus();
     console.log('[Notifications] Page load status:', status);
     
-    // Use userSubscribed (server-side) as the primary check
-    // If not available, fall back to browser subscribed
-    const isSubscribed = status.userSubscribed !== undefined 
-      ? status.userSubscribed 
-      : status.subscribed;
-    
-    if (isSubscribed) {
+    if (status.subscribed) {
       btn.classList.add('enabled');
       icon.textContent = '📢';
       text.textContent = 'Enabled';
