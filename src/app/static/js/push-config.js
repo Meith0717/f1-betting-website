@@ -466,15 +466,53 @@ async function disablePushNotifications(username) {
 }
 
 /**
- * Check current notification status.
+ * Check if the current user has a push subscription on the server.
+ * This checks server-side, not the browser's subscription.
  * 
- * @returns {Promise<{supported: boolean, permission: string, subscribed: boolean}>}
+ * @returns {Promise<boolean>} True if current user has an active subscription
+ */
+async function checkUserSubscriptionOnServer(username) {
+  try {
+    await waitForKey();
+    
+    const response = await fetch('/api/my-subscriptions', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log('[Push] Error checking user subscription:', response.status, errorText);
+      return false;
+    }
+    
+    const data = await response.json();
+    if (data.success) {
+      // User has subscriptions if array is not empty
+      return data.subscriptions && data.subscriptions.length > 0;
+    }
+    return false;
+  } catch (error) {
+    console.error('[Push] Error checking user subscription on server:', error);
+    return false;
+  }
+}
+
+/**
+ * Check current notification status.
+ * Also checks server-side subscription for the current user.
+ * 
+ * @returns {Promise<{supported: boolean, permission: string, subscribed: boolean, userSubscribed: boolean}>}
  */
 async function checkNotificationStatus() {
   const supported = await isNotificationsSupported();
   const permission = getNotificationPermission();
   
   let subscribed = false;
+  let userSubscribed = false;
   
   if (supported && permission === 'granted') {
     try {
@@ -486,12 +524,21 @@ async function checkNotificationStatus() {
     } catch (error) {
       console.error('[Push] Error checking subscription:', error);
     }
+    
+    // Check if current user has subscription on server
+    try {
+      userSubscribed = await checkUserSubscriptionOnServer();
+    } catch (error) {
+      // Non-fatal, just use browser check
+      console.warn('[Push] Could not check server subscription:', error);
+    }
   }
   
   return {
     supported,
     permission,
-    subscribed
+    subscribed,
+    userSubscribed
   };
 }
 
