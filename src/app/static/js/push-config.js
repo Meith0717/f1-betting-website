@@ -248,38 +248,6 @@ async function saveSubscriptionToServer(subscription, username) {
 }
 
 /**
- * Remove subscription from the server.
- * 
- * @param {string} username - The user's username
- * @param {string} endpoint - The subscription endpoint to remove
- * @returns {Promise<Response>} The fetch response
- */
-async function removeSubscriptionFromServer(username, endpoint) {
-  try {
-    const response = await fetch('/api/remove-subscription', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        username: username,
-        endpoint: endpoint
-      })
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Push] Server error removing subscription:', response.status, errorText);
-    }
-    
-    return response;
-  } catch (error) {
-    console.error('[Push] Error removing subscription from server:', error);
-    throw error;
-  }
-}
-
-/**
  * Initialize push notifications.
  * Call this when the page loads to fetch the VAPID public key from the server.
  * 
@@ -447,21 +415,53 @@ async function disablePushNotifications(username) {
     const subscription = await registration.pushManager.getSubscription();
     
     if (subscription) {
-      // Unsubscribe
+      // Unsubscribe from browser
       await unsubscribeFromPush(subscription);
       
-      // Remove from server
-      await removeSubscriptionFromServer(username, subscription.endpoint);
+      // Remove from server - remove ALL subscriptions for this user
+      await removeAllSubscriptionsFromServer(username);
       
       console.log('[Push] Notifications disabled successfully');
       alert('🔔 Push notifications disabled');
     } else {
-      console.log('[Push] No active subscription found');
-      alert('No active notification subscription found.');
+      // No browser subscription, but still try to clean up server-side
+      console.log('[Push] No active browser subscription, cleaning up server...');
+      await removeAllSubscriptionsFromServer(username);
+      alert('🔔 Push notifications disabled (server cleanup only)');
     }
   } catch (error) {
     console.error('[Push] Error disabling notifications:', error);
     alert('Failed to disable notifications.');
+  }
+}
+
+/**
+ * Remove ALL push subscriptions for the current user from the server.
+ * 
+ * @param {string} username - The user's username
+ * @returns {Promise<Response>} The fetch response
+ */
+async function removeAllSubscriptionsFromServer(username) {
+  try {
+    const response = await fetch('/api/remove-all-subscriptions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Push] Server error removing all subscriptions:', response.status, errorText);
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('[Push] Error removing all subscriptions from server:', error);
+    throw error;
   }
 }
 
