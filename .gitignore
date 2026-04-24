@@ -65,11 +65,16 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# Web Push Notification keys
+vapid_keys.json
+
 # Test data
 src/tests/test_data/
 
 # Application data directory
 src/app/data/
+# Push notification subscriptions
+src/app/data/push_subscriptions.json
 
 # Scrapy stuff:
 .scrapy

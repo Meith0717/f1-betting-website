@@ -99,6 +99,17 @@ if exist "requirements.txt" (
     )
 )
 
+:: 4.5 Generate VAPID keys for Web Push notifications
+echo ▶ Generating VAPID keys for Web Push notifications...
+if exist "app\generate_vapid_keys.py" (
+    python app\generate_vapid_keys.py
+    if %ERRORLEVEL% neq 0 (
+        echo ⚠️ Failed to generate VAPID keys, continuing anyway...
+    )
+) else (
+    echo ⚠️ generate_vapid_keys.py not found, skipping VAPID key generation
+)
+
 :: 5. Run the application
 echo ▶ Starting Python app: %APP_FILE%...
 if exist "%APP_FILE%" (

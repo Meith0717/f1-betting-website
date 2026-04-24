@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 import platform
 import secrets
 import sys
@@ -13,12 +13,20 @@ def create_app():
     configure_logging(app)
 
     # Import and register blueprints from routes package
-    from .routes import main_bp, auth_bp, admin_bp, betting_bp
+    from .routes import main_bp, auth_bp, admin_bp, betting_bp, notifications_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(betting_bp)
+    app.register_blueprint(notifications_bp)
+
+    # Serve service worker from root for push notifications
+    # This allows the SW to have scope '/' and work with all pages
+    @app.route("/sw.js")
+    def serve_service_worker():
+        """Serve the service worker file from static folder at root path."""
+        return send_from_directory(os.path.join(app.root_path, "app", "static"), "sw.js")
 
     # Add debug endpoint
     @app.route("/_debug")

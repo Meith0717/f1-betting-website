@@ -419,6 +419,32 @@ nav.mobile-nav {
     transform: translateY(0);
 }
 
+.btn-notifications {
+    background-color: var(--surface);
+    color: var(--primary);
+    border: 1px solid var(--border);
+}
+
+.btn-notifications:hover {
+    background-color: var(--surface);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.btn-notifications:active {
+    transform: translateY(0);
+}
+
+.btn-notifications.enabled {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.btn-notifications.enabled:hover {
+    background-color: var(--accent);
+}
+
 .btn-danger {
     background-color: var(--primary);
     color: white;
@@ -1493,6 +1519,12 @@ nav.mobile-nav {
 
 .mobile-profile-btn {
     min-height: 40px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 /* Mobile race card */

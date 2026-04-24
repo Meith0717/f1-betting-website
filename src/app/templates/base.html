@@ -20,15 +20,23 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/mobile-styles.css') }}"
     />
+    
+    <!-- PWA Install Prompt -->
+    <script src="{{ url_for('static', filename='js/pwa-install.js') }}" defer></script>
+    
+    <!-- Push Notifications -->
+    <script src="{{ url_for('static', filename='js/push-config.js') }}" defer></script>
   </head>
   <body>
     <!-- Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('{{ url_for("static", filename="sw.js") }}')
+          // Register service worker at /sw.js with scope /
+          // Flask serves /sw.js from static/sw.js
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
             .then(function(registration) {
-              console.log('ServiceWorker registration successful');
+              console.log('ServiceWorker registration successful with scope:', registration.scope);
             }, function(err) {
               console.log('ServiceWorker registration failed: ', err);
             });

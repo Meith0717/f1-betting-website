@@ -4,7 +4,15 @@
   <div class="mobile-dashboard-header">
     <div class="user-greeting">
       <h1 class="mobile-page-title">🏎️ Welcome, {{ username }}!</h1>
-      <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-small mobile-profile-btn">⚙️ Profile</a>
+      <div class="header-buttons">
+        <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-small mobile-profile-btn">⚙️ Profile</a>
+        {% if 'username' in session %}
+        <button onclick="toggleNotifications()" id="notifications-btn" class="btn btn-notifications btn-small mobile-profile-btn">
+          <span id="notifications-icon">🔔</span>
+          <span id="notifications-text">Enable</span>
+        </button>
+        {% endif %}
+      </div>
     </div>
   </div>
 
@@ -248,4 +256,88 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+<script>
+// Notifications toggle handler
+async function toggleNotifications() {
+  const btn = document.getElementById('notifications-btn');
+  const icon = document.getElementById('notifications-icon');
+  const text = document.getElementById('notifications-text');
+  
+  // Disable button during operation
+  const originalDisabled = btn.disabled;
+  btn.disabled = true;
+  
+  try {
+    // Wait for key to be loaded
+    await waitForKey();
+    
+    // Check current subscription status
+    const status = await checkNotificationStatus();
+    console.log('[Notifications] Status:', status);
+    
+    if (!status.supported) {
+      alert('Your browser does not support push notifications.');
+      return;
+    }
+    
+    if (status.subscribed) {
+      // Unsubscribe
+      if (confirm('Disable push notifications? You can re-enable them later.')) {
+        await disablePushNotifications('{{ username }}');
+        btn.classList.remove('enabled');
+        icon.textContent = '🔔';
+        text.textContent = 'Enable';
+      }
+    } else {
+      // Subscribe
+      await enablePushNotifications('{{ username }}');
+      // Update UI after enable completes
+      btn.classList.add('enabled');
+      icon.textContent = '📢';
+      text.textContent = 'Enabled';
+    }
+  } catch (error) {
+    console.error('[Notifications] Error:', error);
+    // Don't show alert for user cancellation
+    if (error.message !== 'Permission denied by user') {
+      alert('Error: ' + (error.message || 'Please try again.'));
+    }
+  } finally {
+    btn.disabled = originalDisabled;
+  }
+}
+
+// Update notification button state on page load
+async function updateNotificationButtonState() {
+  const btn = document.getElementById('notifications-btn');
+  const icon = document.getElementById('notifications-icon');
+  const text = document.getElementById('notifications-text');
+  
+  if (!btn) return;
+  
+  try {
+    const status = await checkNotificationStatus();
+    console.log('[Notifications] Page load status:', status);
+    
+    if (status.subscribed) {
+      btn.classList.add('enabled');
+      icon.textContent = '📢';
+      text.textContent = 'Enabled';
+    } else {
+      btn.classList.remove('enabled');
+      icon.textContent = '🔔';
+      text.textContent = 'Enable';
+    }
+  } catch (error) {
+    console.error('[Notifications] Error updating button:', error);
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for key to load before updating button state
+  await waitForKey();
+  updateNotificationButtonState();
+});
+</script>
 {% endblock %}

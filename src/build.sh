@@ -66,6 +66,14 @@ else
     pip install flask flask-cors
 fi
 
+# 4.5 Generate VAPID keys for Web Push notifications
+if [ -f "app/generate_vapid_keys.py" ]; then
+    echo "▶ Generating VAPID keys for Web Push notifications"
+    python app/generate_vapid_keys.py
+else
+    echo "⚠️ generate_vapid_keys.py not found, skipping VAPID key generation"
+fi
+
 # 5 Run the app
 if [ -f "$APP_FILE" ]; then
     echo "▶ Starting Python app: $APP_FILE"
