@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 import pytz
+from .timezone_utils import timezone_utils
 
 
 class RaceDataManager:
@@ -19,101 +20,17 @@ class RaceDataManager:
         self.drivers_file = os.path.join(
             os.path.dirname(__file__), "data", "drivers.json"
         )
-        self.utc_timezone = pytz.UTC
-
-        try:
-            import tzlocal
-
-            self.local_timezone = tzlocal.get_localzone()
-        except (ImportError, Exception):
-            self.local_timezone = pytz.UTC
 
     def _utc_now(self) -> datetime:
-        return datetime.now(pytz.UTC)
-
-    def _clean_time_string(self, time_str: Optional[str]) -> str:
-        if not time_str:
-            return "00:00:00"
-
-        cleaned = str(time_str).strip()
-        if cleaned.endswith("Z"):
-            cleaned = cleaned[:-1]
-
-        if "." in cleaned:
-            cleaned = cleaned.split(".", 1)[0]
-
-        return cleaned
-
-    def _parse_utc_datetime(
-        self, date_str: str, time_str: Optional[str]
-    ) -> Optional[datetime]:
-        """Parse date/time strings as a UTC-aware datetime."""
-        try:
-            if not date_str:
-                return None
-
-            cleaned_time = self._clean_time_string(time_str)
-
-            if len(cleaned_time.split(":")) >= 3:
-                dt = datetime.strptime(
-                    f"{date_str} {cleaned_time[:8]}", "%Y-%m-%d %H:%M:%S"
-                )
-            else:
-                dt = datetime.strptime(
-                    f"{date_str} {cleaned_time[:5]}", "%Y-%m-%d %H:%M"
-                )
-
-            return self.utc_timezone.localize(dt)
-        except Exception:
-            return None
+        return timezone_utils.utc_now()
 
     def _get_race_datetime(self, race: Dict) -> Optional[datetime]:
         """Helper method to get timezone-aware datetime for a race."""
-        try:
-            # First try to get race datetime from sessions (new structure)
-            if race.get("sessions"):
-                # Find the Race session specifically
-                race_session = next(
-                    (s for s in race["sessions"] if s["type"] == "Race"), None
-                )
-                if race_session:
-                    parsed = self._parse_utc_datetime(
-                        race_session.get("date"), race_session.get("time")
-                    )
-                    if parsed:
-                        return parsed
-
-                # Fallback to first session if Race session not found
-                first_session = race["sessions"][0]
-                parsed = self._parse_utc_datetime(
-                    first_session.get("date"), first_session.get("time")
-                )
-                if parsed:
-                    return parsed
-
-            # Legacy support for old structure (date and time at top level)
-            if race.get("date") and race.get("time"):
-                parsed = self._parse_utc_datetime(race["date"], race.get("time"))
-                if parsed:
-                    return parsed
-
-            if race.get("date"):
-                return self._parse_utc_datetime(race["date"], "00:00:00")
-
-        except (ValueError, KeyError):
-            return None
-
-        return None
+        return timezone_utils.get_race_datetime(race)
 
     def _get_session_datetime(self, session: Dict) -> datetime:
         """Helper method to get timezone-aware datetime for a session."""
-        try:
-            parsed = self._parse_utc_datetime(session.get("date"), session.get("time"))
-            if parsed:
-                return parsed
-            return datetime.max.replace(tzinfo=pytz.UTC)
-        except (ValueError, KeyError):
-            return datetime.max.replace(tzinfo=pytz.UTC)
+        return timezone_utils.get_session_datetime(session)
 
     def ensure_data_file_exists(self):
         """Ensure the races.json file exists with default data."""
@@ -315,60 +232,19 @@ class RaceDataManager:
         self, date_str: str, time_str: str, timezone_str: str = "UTC"
     ) -> Dict:
         """Convert UTC time to local time."""
-        try:
-            parsed = self._parse_utc_datetime(date_str, time_str)
-            if not parsed:
-                raise ValueError("Unable to parse datetime")
-
-            local_time = parsed.astimezone(self.local_timezone)
-
-            return {
-                "utc": f"{date_str} {self._clean_time_string(time_str)} UTC",
-                "local": local_time.strftime("%Y-%m-%d %H:%M"),
-                "timezone": str(self.local_timezone),
-                "formatted_local": local_time.strftime("%a, %d %b %Y %H:%M"),
-                "time_only": local_time.strftime("%H:%M"),
-                "iso_format": local_time.isoformat(),
-            }
-        except Exception:
-            cleaned = self._clean_time_string(time_str)
-            return {
-                "utc": f"{date_str} {cleaned} UTC",
-                "local": f"{date_str} {cleaned} (UTC)",
-                "timezone": "UTC",
-                "formatted_local": f"{date_str} {cleaned}",
-                "time_only": cleaned[:5],
-                "iso_format": f"{date_str}T{cleaned}:00Z",
-            }
+        return timezone_utils.convert_utc_to_local(date_str, time_str, timezone_str)
 
     def add_timezone_info_to_race(self, race: Dict) -> Dict:
         """Add timezone-converted times to a race."""
-        race = race.copy()
-
-        if "date" in race and "time" in race:
-            race["time_info"] = self.convert_utc_to_local(race["date"], race["time"])
-
-        if "sessions" in race:
-            for session in race["sessions"]:
-                if "date" in session and "time" in session:
-                    session["time_info"] = self.convert_utc_to_local(
-                        session["date"], session["time"]
-                    )
-
-        return race
-
-    def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:
-        """Add timezone info to all races."""
-        return [self.add_timezone_info_to_race(race) for race in races]
+        return timezone_utils.add_timezone_info_to_race(race)
 
     def add_timezone_info_to_session(self, session: Dict) -> Dict:
         """Add timezone-converted time to a session."""
-        session = session.copy()
-        if "date" in session and "time" in session:
-            session["time_info"] = self.convert_utc_to_local(
-                session["date"], session["time"]
-            )
-        return session
+        return timezone_utils.add_timezone_info_to_session(session)
+
+    def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:
+        """Add timezone info to all races."""
+        return timezone_utils.add_timezone_info_to_races(races)
 
     def get_canceled_race_ids(self) -> List[str]:
         """Get list of canceled race IDs."""

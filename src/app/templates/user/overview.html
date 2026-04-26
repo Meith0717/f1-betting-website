@@ -66,8 +66,8 @@
             <span class="session-time">
               {% if next_session and session.type == next_session.type %}
               <span id="session-countdown-{{ session.type }}" class="countdown-timer inline-countdown"
-                    data-session-time="{% if next_session.time_info %}{{ next_session.time_info.iso_format }}{% endif %}">
-                {% if next_session.time_info %}
+                    data-session-time="{% if next_session %}{{ race_data_manager._get_session_datetime(next_session).isoformat() if race_data_manager else '' }}{% endif %}">
+                {% if next_session %}
                 <span class="countdown-loading">Loading...</span>
                 {% else %}
                 <span class="countdown-unavailable">--:--:--</span>
@@ -94,7 +94,7 @@
           <span class="timer-label">⏰ Betting closes in:</span>
           <div class="timer-right-content">
             <span id="betting-countdown-{{ next_race.id }}" class="countdown-timer mobile-countdown"
-                  data-race-time="{% set race_datetime = race_data_manager._get_race_datetime(next_race) if race_data_manager else none %}{{ race_datetime.isoformat() if race_datetime else '' }}">
+                  data-race-time="{% if race_data_manager %}{{ race_data_manager._get_race_datetime(next_race).isoformat() }}{% endif %}">
               <span class="countdown-loading">Loading...</span>
             </span>
           </div>
