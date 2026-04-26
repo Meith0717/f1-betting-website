@@ -23,10 +23,8 @@ def test_score_updating():
     # Initialize betting manager with test data directory
     test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")
     os.makedirs(test_data_dir, exist_ok=True)
-    
-    betting_manager = BettingManager(
-        data_file=os.path.join(test_data_dir, "bets.json")
-    )
+
+    betting_manager = BettingManager(data_file=os.path.join(test_data_dir, "bets.json"))
 
     # Load driver data
     drivers_file = os.path.join(
@@ -79,9 +77,7 @@ def test_score_updating():
     }
 
     # Save test users
-    users_file = os.path.join(
-        os.path.dirname(__file__), "test_data", "users_test.json"
-    )
+    users_file = os.path.join(os.path.dirname(__file__), "test_data", "users_test.json")
     with open(users_file, "w") as f:
         json.dump({"users": test_users}, f, indent=2)
 

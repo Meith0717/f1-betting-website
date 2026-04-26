@@ -171,70 +171,75 @@ def send_test_notification(username):
     """Send a test push notification to a specific user"""
     import pywebpush
     import json as json_module
-    
+
     users = load_users()
-    
+
     if username not in users:
         flash(f"User {username} not found", "error")
         return redirect(url_for("admin.admin_dashboard"))
-    
+
     # Get VAPID keys
-    public_key = os.environ.get('VAPID_PUBLIC_KEY')
-    private_key = os.environ.get('VAPID_PRIVATE_KEY')
-    claim_email = os.environ.get('VAPID_CLAIM_EMAIL', 'mailto:f1betting@icloud.com')
-    
+    public_key = os.environ.get("VAPID_PUBLIC_KEY")
+    private_key = os.environ.get("VAPID_PRIVATE_KEY")
+    claim_email = os.environ.get("VAPID_CLAIM_EMAIL", "mailto:f1betting@icloud.com")
+
     if not public_key or not private_key:
-        current_app.logger.error("VAPID keys not configured for admin test notification")
+        current_app.logger.error(
+            "VAPID keys not configured for admin test notification"
+        )
         flash("Push notifications not configured (missing VAPID keys)", "error")
         return redirect(url_for("admin.admin_dashboard"))
-    
+
     # Get user's subscriptions
     subscriptions = push_manager.get_user_subscriptions(username)
-    
+
     if not subscriptions:
         flash(f"{username} has no active push subscriptions", "info")
         return redirect(url_for("admin.admin_dashboard"))
-    
+
     sent = 0
     failed = 0
     errors = []
-    
+
     # Prepare notification payload
     payload = {
-        'title': 'Test Notification',
-        'body': f'Hello {username}! This is a test notification from the admin.',
-        'data': {"test": True, "from_admin": True},
-        'url': '/'
+        "title": "Test Notification",
+        "body": f"Hello {username}! This is a test notification from the admin.",
+        "data": {"test": True, "from_admin": True},
+        "url": "/",
     }
-    
+
     # Send to each subscription
     for subscription in subscriptions:
         try:
             subscription_info = {
-                'endpoint': subscription['endpoint'],
-                'keys': {
-                    'p256dh': subscription['p256dh'],
-                    'auth': subscription['auth']
-                }
+                "endpoint": subscription["endpoint"],
+                "keys": {
+                    "p256dh": subscription["p256dh"],
+                    "auth": subscription["auth"],
+                },
             }
-            
+
             pywebpush.webpush(
                 subscription_info=subscription_info,
                 data=json_module.dumps(payload),
                 vapid_private_key=private_key,
-                vapid_claims={'sub': claim_email}
+                vapid_claims={"sub": claim_email},
             )
             sent += 1
         except Exception as e:
             failed += 1
             errors.append(str(e))
             current_app.logger.error(f"Error sending push to {username}: {e}")
-    
+
     if sent > 0:
         flash(f"Test notification sent to {username} ({sent} device(s))", "success")
     else:
-        flash(f"Failed to send notification to {username}: {errors[0] if errors else 'Unknown error'}", "error")
-    
+        flash(
+            f"Failed to send notification to {username}: {errors[0] if errors else 'Unknown error'}",
+            "error",
+        )
+
     return redirect(url_for("admin.admin_dashboard"))
 
 

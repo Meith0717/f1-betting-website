@@ -14,8 +14,15 @@ def test_betting_form_javascript():
     """Test that the betting form JavaScript allows all drivers for fastest lap."""
 
     # Get the path to betting_form.js (one level up from tests dir, then into app/static/js)
-    js_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app", "static", "js", "betting_form.js")
-    
+    js_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "..",
+        "app",
+        "static",
+        "js",
+        "betting_form.js",
+    )
+
     # Read the JavaScript file
     with open(js_path, "r") as f:
         js_content = f.read()

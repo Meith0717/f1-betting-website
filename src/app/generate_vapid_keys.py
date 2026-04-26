@@ -28,15 +28,15 @@ def generate_keys():
     # Get project root (grandparent of app directory)
     script_dir = Path(__file__).parent
     project_root = script_dir.parent.parent
-    
-    env_file = project_root / '.env'
-    vapid_json = project_root / 'vapid_keys.json'
-    
+
+    env_file = project_root / ".env"
+    vapid_json = project_root / "vapid_keys.json"
+
     # Check if keys already exist
     if env_file.exists():
-        with open(env_file, 'r') as f:
+        with open(env_file, "r") as f:
             content = f.read()
-            if 'VAPID_PUBLIC_KEY=' in content and 'VAPID_PRIVATE_KEY=' in content:
+            if "VAPID_PUBLIC_KEY=" in content and "VAPID_PRIVATE_KEY=" in content:
                 print("✅ VAPID keys already exist in .env")
                 return True
 
@@ -49,17 +49,21 @@ def generate_keys():
     # Extract Public Key (Uncompressed Point format)
     public_key_bytes = vapid.public_key.public_bytes(
         encoding=serialization.Encoding.X962,
-        format=serialization.PublicFormat.UncompressedPoint
+        format=serialization.PublicFormat.UncompressedPoint,
     )
-    vapid_public_str = base64.urlsafe_b64encode(public_key_bytes).decode("utf-8").strip("=")
+    vapid_public_str = (
+        base64.urlsafe_b64encode(public_key_bytes).decode("utf-8").strip("=")
+    )
 
     # Extract Private Key (DER format)
     private_key_bytes = vapid.private_key.private_bytes(
         encoding=serialization.Encoding.DER,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=serialization.NoEncryption(),
     )
-    vapid_private_str = base64.urlsafe_b64encode(private_key_bytes).decode("utf-8").strip("=")
+    vapid_private_str = (
+        base64.urlsafe_b64encode(private_key_bytes).decode("utf-8").strip("=")
+    )
 
     claim_email = "mailto:f1betting@icloud.com"
 
@@ -72,22 +76,26 @@ VAPID_CLAIM_EMAIL={claim_email}
 """
 
     if env_file.exists():
-        with open(env_file, 'r') as f:
+        with open(env_file, "r") as f:
             content = f.read()
-        if 'VAPID_PUBLIC_KEY=' not in content:
-            with open(env_file, 'a') as f:
+        if "VAPID_PUBLIC_KEY=" not in content:
+            with open(env_file, "a") as f:
                 f.write(new_content)
     else:
-        with open(env_file, 'w') as f:
+        with open(env_file, "w") as f:
             f.write(new_content)
 
     # Save vapid_keys.json for reference
-    with open(vapid_json, 'w') as f:
-        json.dump({
-            'public_key': vapid_public_str,
-            'private_key': vapid_private_str,
-            'claim_email': claim_email
-        }, f, indent=2)
+    with open(vapid_json, "w") as f:
+        json.dump(
+            {
+                "public_key": vapid_public_str,
+                "private_key": vapid_private_str,
+                "claim_email": claim_email,
+            },
+            f,
+            indent=2,
+        )
 
     print(f"✅ .env created: {env_file.resolve()}")
     print(f"✅ vapid_keys.json created: {vapid_json.resolve()}")
@@ -96,7 +104,7 @@ VAPID_CLAIM_EMAIL={claim_email}
     return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         generate_keys()
     except Exception as e:

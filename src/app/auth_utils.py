@@ -24,23 +24,23 @@ def save_users(users):
     """Save users to JSON file with atomic write."""
     users_file = os.path.join(os.path.dirname(__file__), "data", "users.json")
     data_dir = os.path.dirname(users_file)
-    
+
     os.makedirs(data_dir, exist_ok=True)
-    
+
     temp_fd, temp_path = tempfile.mkstemp(dir=data_dir, prefix="users_")
     try:
         with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
             json.dump({"users": users}, f, indent=2)
-        
+
         # Set restrictive permissions
         try:
             os.chmod(temp_path, 0o600)
         except Exception:
             pass
-        
+
         # Atomic replace
         shutil.move(temp_path, users_file)
-        
+
         try:
             os.chmod(users_file, 0o600)
         except Exception:

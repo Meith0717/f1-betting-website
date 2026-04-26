@@ -57,7 +57,9 @@ def configure_logging(app):
     log_dir = os.path.join(app.instance_path, "logs") if app.instance_path else "logs"
     os.makedirs(log_dir, exist_ok=True)
 
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     file_handler = RotatingFileHandler(
         os.path.join(log_dir, "app.log"), maxBytes=1024 * 1024, backupCount=5
