@@ -24,6 +24,10 @@ class TimezoneUtils:
         """Get current UTC time as timezone-aware datetime."""
         return datetime.now(pytz.UTC)
 
+    def now_iso(self) -> str:
+        """Get current UTC time as ISO string."""
+        return self.utc_now().isoformat()
+
     def clean_time_string(self, time_str: Optional[str]) -> str:
         """
         Clean a time string by removing 'Z' suffix and decimal seconds.

@@ -5,17 +5,14 @@ from ..auth_utils import (
     ensure_first_admin,
     hash_password,
     verify_password,
+    get_registration_password,
 )
 from ..auth_decorators import admin_required, login_required
 from datetime import datetime
+import pytz
 import os
 
 auth_bp = Blueprint("auth", __name__)
-
-
-def get_registration_password():
-    """Get the current registration password from environment variable"""
-    return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -41,7 +38,7 @@ def login():
             session["is_admin"] = users[username].get("is_admin", False)
 
             # Update user data
-            users[username]["last_login"] = datetime.now().isoformat()
+            users[username]["last_login"] = datetime.now(pytz.UTC).isoformat()
 
             # Migrate plaintext passwords
             if not users[username]["password"].startswith("pbkdf2_sha256$"):
@@ -87,7 +84,7 @@ def register():
             users[username] = {
                 "password": hash_password(password),
                 "score": 0,
-                "created_at": datetime.now().isoformat(),
+                "created_at": datetime.now(pytz.UTC).isoformat(),
                 "last_login": None,
                 "is_admin": False,
             }

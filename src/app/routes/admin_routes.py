@@ -8,17 +8,12 @@ from flask import (
     flash,
     current_app,
 )
-from ..auth_utils import load_users, save_users
+from ..auth_utils import load_users, save_users, get_registration_password
 from ..auth_decorators import admin_required
 from ..race_data_manager import race_data_manager
 from ..push_manager import push_manager
 import os
 import secrets
-
-
-def get_registration_password():
-    """Get the current registration password from environment variable"""
-    return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")

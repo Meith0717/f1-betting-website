@@ -21,16 +21,17 @@ class RaceDataManager:
             os.path.dirname(__file__), "data", "drivers.json"
         )
 
-    def _utc_now(self) -> datetime:
-        return timezone_utils.utc_now()
-
-    def _get_race_datetime(self, race: Dict) -> Optional[datetime]:
-        """Helper method to get timezone-aware datetime for a race."""
+    def get_race_datetime(self, race: Dict) -> Optional[datetime]:
+        """Get timezone-aware datetime for a race."""
         return timezone_utils.get_race_datetime(race)
 
-    def _get_session_datetime(self, session: Dict) -> datetime:
-        """Helper method to get timezone-aware datetime for a session."""
+    def get_session_datetime(self, session: Dict) -> datetime:
+        """Get timezone-aware datetime for a session."""
         return timezone_utils.get_session_datetime(session)
+
+    # Backward compatibility aliases
+    _get_race_datetime = get_race_datetime
+    _get_session_datetime = get_session_datetime
 
     def ensure_data_file_exists(self):
         """Ensure the races.json file exists with default data."""
@@ -117,21 +118,21 @@ class RaceDataManager:
     def get_next_race(self) -> Optional[Dict]:
         """Get the next upcoming race."""
         races = self.load_races().get("races", [])
-        now = self._utc_now()
+        now = timezone_utils.utc_now()
 
         upcoming_races = []
         for race in races:
             if race.get("canceled"):
                 continue
 
-            race_datetime = self._get_race_datetime(race)
+            race_datetime = self.get_race_datetime(race)
             if race_datetime and race_datetime > now:
                 upcoming_races.append(race)
 
         if upcoming_races:
             return min(
                 upcoming_races,
-                key=lambda race: self._get_race_datetime(race)
+                key=lambda race: self.get_race_datetime(race)
                 or datetime.max.replace(tzinfo=pytz.UTC),
             )
 
@@ -140,7 +141,7 @@ class RaceDataManager:
     def get_next_session(self) -> Optional[Dict]:
         """Get the next upcoming session across all races."""
         races = self.load_races().get("races", [])
-        now = self._utc_now()
+        now = timezone_utils.utc_now()
 
         all_sessions = []
         for race in races:
@@ -151,7 +152,7 @@ class RaceDataManager:
                 if session.get("date") is None:
                     continue
 
-                session_datetime = self._get_session_datetime(session)
+                session_datetime = self.get_session_datetime(session)
                 if session_datetime > now:
                     session_with_race_info = session.copy()
                     session_with_race_info["race_name"] = race.get("name")
@@ -163,7 +164,7 @@ class RaceDataManager:
                     all_sessions.append(session_with_race_info)
 
         if all_sessions:
-            return min(all_sessions, key=lambda x: self._get_session_datetime(x))
+            return min(all_sessions, key=lambda x: self.get_session_datetime(x))
         return None
 
     def get_race_by_id(self, race_id: str) -> Optional[Dict]:
@@ -207,19 +208,19 @@ class RaceDataManager:
     def get_upcoming_races(self, limit: int = 5) -> List[Dict]:
         """Get upcoming races."""
         races = self.load_races().get("races", [])
-        now = self._utc_now()
+        now = timezone_utils.utc_now()
 
         upcoming = []
         for race in races:
             if race.get("canceled"):
                 continue
 
-            race_datetime = self._get_race_datetime(race)
+            race_datetime = self.get_race_datetime(race)
             if race_datetime and race_datetime > now:
                 upcoming.append(race)
 
         upcoming.sort(
-            key=lambda race: self._get_race_datetime(race)
+            key=lambda race: self.get_race_datetime(race)
             or datetime.max.replace(tzinfo=pytz.UTC)
         )
         return upcoming[:limit]

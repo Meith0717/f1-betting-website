@@ -19,8 +19,11 @@ import os
 import tempfile
 import shutil
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+
+from .timezone_utils import timezone_utils
 
 
 class PushManager:
@@ -60,7 +63,7 @@ class PushManager:
             default_data = {
                 "subscriptions": {},
                 "metadata": {
-                    "created_at": self._now_iso(),
+                    "created_at": timezone_utils.now_iso(),
                     "version": "1.0",
                 },
             }
@@ -80,13 +83,6 @@ class PushManager:
         except Exception as e:
             self._logger().error("Error creating push subscriptions file: %s", e)
             raise
-
-    def _now_iso(self) -> str:
-        """Get current UTC time as ISO string."""
-        from datetime import datetime
-        import pytz
-
-        return datetime.now(pytz.UTC).isoformat()
 
     def load_subscriptions(self) -> Dict:
         """Load all push subscriptions from file."""
@@ -187,7 +183,7 @@ class PushManager:
                 # Update existing subscription
                 existing["p256dh"] = p256dh
                 existing["auth"] = auth
-                existing["updated_at"] = self._now_iso()
+                existing["updated_at"] = timezone_utils.now_iso()
                 self._logger().debug("Updated existing subscription for %s", username)
             else:
                 # Add new subscription
@@ -196,15 +192,15 @@ class PushManager:
                         "endpoint": endpoint,
                         "p256dh": p256dh,
                         "auth": auth,
-                        "created_at": self._now_iso(),
-                        "updated_at": self._now_iso(),
+                        "created_at": timezone_utils.now_iso(),
+                        "updated_at": timezone_utils.now_iso(),
                     }
                 )
                 self._logger().info("Added new push subscription for %s", username)
 
             # Update metadata
             data.setdefault("metadata", {})
-            data["metadata"]["updated_at"] = self._now_iso()
+            data["metadata"]["updated_at"] = timezone_utils.now_iso()
 
             self.save_subscriptions(data)
             return True
@@ -245,7 +241,7 @@ class PushManager:
             if len(data["subscriptions"][username]) < original_count:
                 # Update metadata
                 data.setdefault("metadata", {})
-                data["metadata"]["updated_at"] = self._now_iso()
+                data["metadata"]["updated_at"] = timezone_utils.now_iso()
 
                 self.save_subscriptions(data)
                 self._logger().info("Removed push subscription for %s", username)
@@ -278,7 +274,7 @@ class PushManager:
 
             # Update metadata
             data.setdefault("metadata", {})
-            data["metadata"]["updated_at"] = self._now_iso()
+            data["metadata"]["updated_at"] = timezone_utils.now_iso()
 
             self.save_subscriptions(data)
             self._logger().info("Removed %s push subscriptions for %s", count, username)

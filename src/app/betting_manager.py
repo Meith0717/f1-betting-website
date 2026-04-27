@@ -4,11 +4,11 @@ import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-import pytz
 from flask import current_app
 
 # Import at module level to avoid repeated imports
 from .race_data_manager import race_data_manager
+from .timezone_utils import timezone_utils
 
 
 class BettingManager:
@@ -30,14 +30,6 @@ class BettingManager:
             return current_app.logger
         except RuntimeError:
             return logging.getLogger(__name__)
-
-    def _utc_now(self) -> datetime:
-        """Get current UTC time."""
-        return datetime.now(pytz.UTC)
-
-    def _now_iso(self) -> str:
-        """Get current UTC time as ISO string."""
-        return self._utc_now().isoformat()
 
     def _load_driver_data(self) -> None:
         """Load driver data for team lookup."""
@@ -135,7 +127,7 @@ class BettingManager:
             default_data = {
                 "race_bets": {},
                 "metadata": {
-                    "created_at": self._now_iso(),
+                    "created_at": timezone_utils.now_iso(),
                     "version": "1.0",
                 },
             }
@@ -163,7 +155,7 @@ class BettingManager:
         if not race_datetime:
             return True
 
-        now = datetime.now(pytz.UTC)
+        now = timezone_utils.utc_now()
         BUFFER = timedelta(minutes=2)  # Safety buffer
         return race_datetime - BUFFER <= now
 
@@ -264,7 +256,7 @@ class BettingManager:
                             "race_id": race_id,
                             "points": total_points,
                             "total": current_score + total_points,
-                            "timestamp": self._now_iso(),
+                            "timestamp": timezone_utils.now_iso(),
                         }
                     )
 
@@ -405,7 +397,7 @@ class BettingManager:
             bet_data = {
                 "drivers": bets,
                 "fastest_lap": fastest_lap,
-                "created_at": self._now_iso(),
+                "created_at": timezone_utils.now_iso(),
             }
 
             # Store bet in race_bets[race_id].user_bets[username] structure
@@ -508,14 +500,14 @@ class BettingManager:
             if race_id in data["race_bets"]:
                 if data["race_bets"][race_id].get("status") == "active":
                     data["race_bets"][race_id]["status"] = "closed"
-                    data["race_bets"][race_id]["closed_at"] = self._now_iso()
+                    data["race_bets"][race_id]["closed_at"] = timezone_utils.now_iso()
                     bets_closed = True
                     self._logger().info("Marked race %s as closed (started)", race_id)
             else:
                 # Create race entry if it doesn't exist
                 data["race_bets"][race_id] = {
                     "status": "closed",
-                    "closed_at": self._now_iso(),
+                    "closed_at": timezone_utils.now_iso(),
                     "user_bets": {},
                 }
                 bets_closed = True
@@ -544,7 +536,7 @@ class BettingManager:
 
             data = self.load_bets()
             all_races = race_data_manager.get_all_races()
-            now = self._utc_now()
+            now = timezone_utils.utc_now()
             races_closed = 0
 
             for race in all_races:
@@ -649,7 +641,7 @@ class BettingManager:
 
             if race_id in data["race_bets"]:
                 data["race_bets"][race_id]["status"] = "resolved"
-                data["race_bets"][race_id]["resolved_at"] = self._now_iso()
+                data["race_bets"][race_id]["resolved_at"] = timezone_utils.now_iso()
 
             self.save_bets(data)
 
@@ -751,7 +743,7 @@ class BettingManager:
 
             if race_id in data["race_bets"]:
                 data["race_bets"][race_id]["status"] = "resolved"
-                data["race_bets"][race_id]["resolved_at"] = self._now_iso()
+                data["race_bets"][race_id]["resolved_at"] = timezone_utils.now_iso()
 
             self.save_bets(data)
 
@@ -786,7 +778,7 @@ class BettingManager:
                     "race_id": race_id,
                     "points": points,
                     "total": users[username]["score"],
-                    "timestamp": self._now_iso(),
+                    "timestamp": timezone_utils.now_iso(),
                 }
             )
 
@@ -820,7 +812,7 @@ class BettingManager:
                 return False
 
             race_datetime = race_data_manager._get_race_datetime(race)
-            now = self._utc_now()
+            now = timezone_utils.utc_now()
 
             if race_datetime is None:
                 self._logger().warning("Could not parse race datetime for %s", race_id)
@@ -1029,7 +1021,7 @@ class BettingManager:
         """
         try:
             # Get current timestamp
-            transform_timestamp = self._now_iso()
+            transform_timestamp = timezone_utils.now_iso()
 
             # Build API URL for reference
             race = race_data_manager.get_race_by_id(race_id)
@@ -1143,7 +1135,7 @@ class BettingManager:
             )
             # Return minimal structure on error
             return {
-                "fetched_at": self._now_iso(),
+                "fetched_at": timezone_utils.now_iso(),
                 "api_url": f"https://f1api.dev/api/{race_id.split('_')[-1]}/1/race",
                 "race_id": race_id,
                 "results": [],

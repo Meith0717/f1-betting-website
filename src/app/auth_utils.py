@@ -8,6 +8,11 @@ import logging
 from flask import current_app
 
 
+def get_registration_password():
+    """Get the current registration password from environment variable."""
+    return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
+
+
 def load_users():
     """Load users from JSON file."""
     users_file = os.path.join(os.path.dirname(__file__), "data", "users.json")
