@@ -29,6 +29,7 @@ from .timezone_utils import timezone_utils
 try:
     import pywebpush
     from pywebpush import webpush
+
     PYWEBPOPUP_AVAILABLE = True
 except ImportError:
     PYWEBPOPUP_AVAILABLE = False
@@ -329,7 +330,9 @@ class PushManager:
             self._logger().error("Error counting subscriptions: %s", e)
             return 0
 
-    def send_notification_to_all(self, title: str, body: str, data: Dict = None, url: str = None) -> Dict:
+    def send_notification_to_all(
+        self, title: str, body: str, data: Dict = None, url: str = None
+    ) -> Dict:
         """
         Send push notification to all subscribed users.
 
@@ -344,13 +347,23 @@ class PushManager:
         """
         if not PYWEBPOPUP_AVAILABLE:
             self._logger().error("pywebpush not available, cannot send notifications")
-            return {"success": False, "sent": 0, "failed": 0, "error": "pywebpush not installed"}
+            return {
+                "success": False,
+                "sent": 0,
+                "failed": 0,
+                "error": "pywebpush not installed",
+            }
 
         all_subscriptions = self.get_all_subscriptions()
 
         if not all_subscriptions:
             self._logger().info("No push subscriptions found, no notifications sent")
-            return {"success": True, "sent": 0, "failed": 0, "message": "No active subscriptions"}
+            return {
+                "success": True,
+                "sent": 0,
+                "failed": 0,
+                "message": "No active subscriptions",
+            }
 
         sent_total = 0
         failed_total = 0
@@ -358,12 +371,22 @@ class PushManager:
 
         # Get VAPID keys from environment
         import os as os_module
+
         private_key = os_module.environ.get("VAPID_PRIVATE_KEY")
-        claim_email = os_module.environ.get("VAPID_CLAIM_EMAIL", "mailto:f1-betting@example.com")
+        claim_email = os_module.environ.get(
+            "VAPID_CLAIM_EMAIL", "mailto:f1-betting@example.com"
+        )
 
         if not private_key:
-            self._logger().error("VAPID_PRIVATE_KEY not configured, cannot send notifications")
-            return {"success": False, "sent": 0, "failed": 0, "error": "VAPID_PRIVATE_KEY not configured"}
+            self._logger().error(
+                "VAPID_PRIVATE_KEY not configured, cannot send notifications"
+            )
+            return {
+                "success": False,
+                "sent": 0,
+                "failed": 0,
+                "error": "VAPID_PRIVATE_KEY not configured",
+            }
 
         payload = {
             "title": title,

@@ -274,7 +274,7 @@ class EventManager:
     def _race_notification_callback(self, event_id: str, data: Dict) -> None:
         """
         Callback for race notifications that sends push notifications to all users.
-        
+
         Args:
             event_id: The event identifier
             data: Event data dictionary with race_id, race_name, session_type, offset

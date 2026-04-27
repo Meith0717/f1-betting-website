@@ -67,7 +67,7 @@ def betting_dashboard():
             race_info = race_dict.get(
                 race_id, {"name": f"Race {race_id}", "id": race_id}
             )
-            
+
             # Skip canceled races
             if race_info.get("canceled"):
                 continue
