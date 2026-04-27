@@ -172,8 +172,9 @@ class EventManager:
         Schedule automatic notifications for a race's sessions.
 
         Schedules events for:
-        - Qualifying start
-        - 1 hour before Race start
+        - Qualifying start (push notification)
+        - Race start (push notification)
+        - 1 hour before Race start (betting reminder push notification)
 
         Args:
             race: Race dictionary with 'id', 'sessions' keys
@@ -185,6 +186,7 @@ class EventManager:
             self._logger.warning("Cannot schedule notifications: race has no ID")
             return
 
+        race_name = race.get("name", race_id)
         sessions = race.get("sessions", [])
         now = timezone_utils.utc_now()
 
@@ -192,42 +194,58 @@ class EventManager:
         qualifying = next((s for s in sessions if s.get("type") == "Qualifying"), None)
         if qualifying:
             q_dt = race_data_manager.get_session_datetime(qualifying)
-            if q_dt > now:  # Only schedule future events
+            if q_dt > now:
                 event_id = f"qualifying_start_{race_id}"
                 self.schedule_event(
                     event_id,
                     q_dt,
-                    self._default_race_callback,
+                    self._race_notification_callback,
                     {
                         "race_id": race_id,
+                        "race_name": race_name,
                         "session_type": "Qualifying",
-                        "session": qualifying,
+                        "offset": "start",
                     },
                 )
+                self._logger.info(f"Scheduled qualifying start for {race_id} at {q_dt.isoformat()}")
 
         # Schedule for Race
         race_session = next((s for s in sessions if s.get("type") == "Race"), None)
         if race_session:
             race_dt = race_data_manager.get_session_datetime(race_session)
-            if race_dt > now:  # Only schedule future events
+            one_hour_before = race_dt - timedelta(hours=1)
+
+            # Race start notification
+            if race_dt > now:
                 event_id = f"race_start_{race_id}"
                 self.schedule_event(
                     event_id,
                     race_dt,
-                    self._default_race_callback,
-                    {"race_id": race_id, "session_type": "Race", "offset": "1h_before"},
+                    self._race_notification_callback,
+                    {
+                        "race_id": race_id,
+                        "race_name": race_name,
+                        "session_type": "Race",
+                        "offset": "start",
+                    },
                 )
+                self._logger.info(f"Scheduled race start for {race_id} at {race_dt.isoformat()}")
 
-        # Schedule 1 hour before Race
-        one_hour_before = race_dt - timedelta(hours=1)
-        if one_hour_before > now:  # Only schedule future events
-            event_id = f"race_1h_before_{race_id}"
-            self.schedule_event(
-                event_id,
-                one_hour_before,
-                self._default_race_callback,
-                {"race_id": race_id, "session_type": "Race", "offset": "1h_before"},
-            )
+            # 1 hour before Race (betting reminder)
+            if one_hour_before > now:
+                event_id = f"race_1h_before_{race_id}"
+                self.schedule_event(
+                    event_id,
+                    one_hour_before,
+                    self._race_notification_callback,
+                    {
+                        "race_id": race_id,
+                        "race_name": race_name,
+                        "session_type": "Race",
+                        "offset": "1h_before",
+                    },
+                )
+                self._logger.info(f"Scheduled betting reminder for {race_id} at {one_hour_before.isoformat()}")
 
     def schedule_all_race_notifications(self) -> int:
         """
@@ -253,13 +271,49 @@ class EventManager:
 
     def _default_race_callback(self, event_id: str, data: Dict) -> None:
         """
-        Default callback for race notifications.
+        Default callback for race notifications (logs only).
 
         Args:
             event_id: The event identifier
             data: Event data dictionary with race_id, session_type, etc.
         """
         self._logger.info(f"Race event triggered: {event_id} - {data}")
+
+    def _race_notification_callback(self, event_id: str, data: Dict) -> None:
+        """
+        Callback for race notifications that sends push notifications to all users.
+        
+        Args:
+            event_id: The event identifier
+            data: Event data dictionary with race_id, race_name, session_type, offset
+        """
+        from .push_manager import push_manager
+
+        race_name = data.get("race_name", data.get("race_id", "Unknown"))
+        session_type = data.get("session_type", "Session")
+        offset = data.get("offset", "")
+
+        # Determine title and body based on event type
+        if offset == "start":
+            if session_type == "Qualifying":
+                title = f"🏁 {session_type} Starting Now"
+                body = f"{race_name} {session_type} is starting."
+            else:  # Race
+                title = f"🏁 {session_type} Starting Now"
+                body = f"{race_name} race is starting NOW!"
+        elif offset == "1h_before":
+            title = f"⏰ Last Chance to Bet - {race_name}"
+            body = f"Race starts in 1 hour. Place your bets now before it's too late!"
+        else:
+            title = f"F1 Notification: {race_name}"
+            body = f"{session_type} event for {race_name}"
+
+        # Send to all subscribed users
+        success = push_manager.send_notification_to_all(title, body)
+        if success:
+            self._logger.info(f"Sent push notification: {title}")
+        else:
+            self._logger.warning(f"Failed to send push notification: {title}")
 
     def _get_due_events(self) -> List[tuple]:
         """Get all events that are due to trigger."""

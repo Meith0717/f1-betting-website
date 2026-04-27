@@ -25,6 +25,14 @@ from typing import Dict, List, Optional
 
 from .timezone_utils import timezone_utils
 
+# Import pywebpush for sending notifications
+try:
+    import pywebpush
+    from pywebpush import webpush
+    PYWEBPOPUP_AVAILABLE = True
+except ImportError:
+    PYWEBPOPUP_AVAILABLE = False
+
 
 class PushManager:
     """Manager for Web Push subscriptions stored in JSON."""
@@ -320,6 +328,87 @@ class PushManager:
         except Exception as e:
             self._logger().error("Error counting subscriptions: %s", e)
             return 0
+
+    def send_notification_to_all(self, title: str, body: str, data: Dict = None, url: str = None) -> Dict:
+        """
+        Send push notification to all subscribed users.
+
+        Args:
+            title: Notification title
+            body: Notification body text
+            data: Optional data dict to include in notification
+            url: Optional URL to open when notification clicked
+
+        Returns:
+            dict: {'success': bool, 'sent': int, 'failed': int, 'errors': list}
+        """
+        if not PYWEBPOPUP_AVAILABLE:
+            self._logger().error("pywebpush not available, cannot send notifications")
+            return {"success": False, "sent": 0, "failed": 0, "error": "pywebpush not installed"}
+
+        all_subscriptions = self.get_all_subscriptions()
+
+        if not all_subscriptions:
+            self._logger().info("No push subscriptions found, no notifications sent")
+            return {"success": True, "sent": 0, "failed": 0, "message": "No active subscriptions"}
+
+        sent_total = 0
+        failed_total = 0
+        errors_total = []
+
+        # Get VAPID keys from environment
+        import os as os_module
+        private_key = os_module.environ.get("VAPID_PRIVATE_KEY")
+        claim_email = os_module.environ.get("VAPID_CLAIM_EMAIL", "mailto:f1-betting@example.com")
+
+        if not private_key:
+            self._logger().error("VAPID_PRIVATE_KEY not configured, cannot send notifications")
+            return {"success": False, "sent": 0, "failed": 0, "error": "VAPID_PRIVATE_KEY not configured"}
+
+        payload = {
+            "title": title,
+            "body": body,
+            "data": data or {},
+            "url": url or "/",
+        }
+
+        for username, subscriptions in all_subscriptions.items():
+            for subscription in subscriptions:
+                try:
+                    subscription_info = {
+                        "endpoint": subscription["endpoint"],
+                        "keys": {
+                            "p256dh": subscription["p256dh"],
+                            "auth": subscription["auth"],
+                        },
+                    }
+
+                    webpush(
+                        subscription_info=subscription_info,
+                        data=json.dumps(payload),
+                        vapid_private_key=private_key,
+                        vapid_claims={"sub": claim_email},
+                        ttl=3600,
+                    )
+
+                    sent_total += 1
+                    self._logger().info(
+                        f"Push notification sent to {username} at {subscription['endpoint']}"
+                    )
+
+                except Exception as e:
+                    failed_total += 1
+                    errors_total.append(f"{username}: {str(e)}")
+                    self._logger().error(
+                        f"Failed to send push notification to {username}: {e}"
+                    )
+
+        return {
+            "success": failed_total == 0,
+            "sent": sent_total,
+            "failed": failed_total,
+            "errors": errors_total,
+        }
 
 
 # Create a singleton instance
