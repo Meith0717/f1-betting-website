@@ -1,304 +1,197 @@
 # F1 Betting Platform
 
-A comprehensive Formula 1 prediction game built with Flask, featuring user authentication, race betting, scoring system, and admin management.
+A **Formula 1 prediction game** built with **Flask**, allowing users to place bets on race outcomes, track scores, and compete on a leaderboard. The platform supports user authentication, race management, administrative controls, and **Web Push Notifications** for automatic race alerts.
 
-## 🚀 Features
+---
 
-### Core Functionality
-- **User Authentication**: Secure login/registration with admin roles
-- **Race Management**: Complete F1 season schedule with session timings
-- **Betting System**: Place bets on race outcomes and fastest laps
-- **Scoring System**: Automatic points calculation based on race results
-- **Admin Dashboard**: User management, race resolution, and system controls
+## Features
 
-### Features
-- **Leaderboard**: Ranked user scores and statistics
-- **Race Countdowns**: Live timers for upcoming sessions
+| Category | Description |
+|----------|-------------|
+| **User Authentication** | Secure login, registration, and role-based access (users and admins). |
+| **Race Management** | Complete F1 season schedule, including session timings and race data. |
+| **Betting System** | Place bets on race outcomes (podium, fastest lap, pole) with automatic scoring. |
+| **Scoring System** | Points automatically calculated based on race results and prediction accuracy. |
+| **Leaderboard** | Ranked display of user scores and statistics with mobile card layout. |
+| **Admin Dashboard** | Manage users, resolve races, update race data, send notifications. |
+| **Web Push Notifications** | Automatic alerts for qualifying, race start, and betting deadlines via VAPID. |
+| **Live Countdowns** | Timers for upcoming race sessions. |
+| **Progressive Web App (PWA)** | Installable on mobile devices for an app-like experience. |
 
-## 🏁 Getting Started
+---
+
+## Installation
 
 ### Prerequisites
 - Python 3.8+
-- pip (Python package manager)
 - Git
 
-### Installation
+### Steps
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/f1-betting-website.git
+   git clone https://github.com/Meith0717/f1-betting-website.git
    cd f1-betting-website
    ```
 
-2. **Set up virtual environment**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2. **Run the build script**:
+   The build scripts automate setup: virtual environment creation, dependency installation, VAPID key generation, and running the app.
 
-3. **Install dependencies**:
+   **Linux/macOS** (`src/build.sh`):
    ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-5. **Run the application**:
-   
-   **Option 1: Using the build script (recommended)**
-   
-   **Linux/macOS**:
-   ```bash
+   cd src
    chmod +x build.sh
-   ./build.sh
+   ./build.sh --test    # Port 5000, debug ON
+   ./build.sh --prod   # Port 8080, debug OFF
+   ./build.sh --port X # Custom port
    ```
-   
-   **Windows**:
+
+   **Windows** (`src/build.bat`):
    ```batch
-   build.bat
-   ```
-   
-   **Option 2: Manual execution**
-   
-   **Linux/macOS**:
-   ```bash
-   source venv/bin/activate  # Activate virtual environment
-   python run.py
-   ```
-   
-   **Windows**:
-   ```batch
-   .\venv\Scripts\activate
-   python run.py
+   cd src
+   build.bat           # Port 8080, debug OFF
+   build.bat --port X  # Custom port
    ```
 
-   The app will be available at `http://localhost:2121`
+   The app will start automatically and be available at `http://localhost:<port>`.
 
-## 🛠️ Build Scripts
+---
 
-The repository includes flexible build scripts for both platforms with environment support:
-
-### Linux/macOS: `build.sh`
-
-**Features**:
-- Automatic virtual environment creation
-- Dependency installation
-- **Environment modes**: Test vs Production
-- **Custom port support**: Override default ports
-- Error handling with clear messages
-- Requirements.txt support
-
-**Usage**:
-
-**Test mode (port 5000, debug=True)**:
-```bash
-chmod +x build.sh
-./build.sh --test
-# or
-./build.sh -t
-```
-
-**Production mode (port 8080, debug=False)**:
-```bash
-./build.sh --prod
-# or
-./build.sh -p
-```
-
-**Custom port**:
-```bash
-./build.sh --port 8000
-# or
-./build.sh -P 8000
-```
-
-### Windows: `build.bat`
-
-**Features**:
-- Automatic virtual environment creation
-- Dependency installation
-- **Production mode only**: Simplified for deployment
-- **Custom port support**: Override default ports
-- Error handling with pause on failure
-- Requirements.txt support with fallback to manual Flask install
-
-**Usage**:
-
-**Production mode (port 8080, debug=False)**:
-```batch
-build.bat
-```
-
-**Custom port**:
-```batch
-build.bat --port 8000
-build.bat -P 8000
-```
-
-### Environment Configuration
-
-| Mode | Port | Debug | Use Case |
-|------|------|-------|----------|
-| **Test** (`--test`) | 5000 | ON | Development, debugging |
-| **Production** (`--prod`) | 8080 | OFF | Staging, production |
-| **Custom** (`--port X`) | X | OFF | Specific port requirements |
-
-### Common Features
-- **Automatic setup**: Creates venv if missing
-- **Error handling**: Stops on failures with clear messages
-- **Requirements installation**: Uses requirements.txt with fallback
-- **Cross-platform**: Native support for both Windows and Unix-like systems
-- **Environment awareness**: Sets appropriate Flask environment variables
-
-## 📂 Project Structure
+## Project Structure
 
 ```
-app/
-├── __init__.py               # Flask app factory
-├── auth_decorators.py        # Authentication decorators
-├── auth_utils.py             # User authentication utilities
-├── betting_manager.py        # Core betting logic
-├── race_data_manager.py      # Race data handling
-├── routes/                  # Route blueprints
-│   ├── main_routes.py        # Main pages
-│   ├── auth_routes.py        # Authentication
-│   ├── admin_routes.py       # Admin functionality
-│   └── betting_routes.py     # Betting features
-├── data/                    # Data files (ignored by Git)
-│   ├── races.json           # Race schedules
-│   ├── users.json           # User accounts
-│   ├── bets.json            # Betting data
-│   └── drivers.json         # Driver information
-├── templates/               # HTML templates
-└── static/                  # CSS, JS, and assets
+src/
+├── app/
+│   ├── __init__.py, auth_*.py, auth_utils.py
+│   ├── betting_manager.py, race_data_manager.py
+│   ├── push_manager.py, event_manager.py, timezone_utils.py
+│   ├── generate_vapid_keys.py
+│   ├── data/                    # races.json, users.json, bets.json, drivers.json, push_subscriptions.json, canceled.json
+│   ├── routes/                 # main_routes.py, auth_routes.py, admin_routes.py, betting_routes.py, notifications_routes.py
+│   ├── static/                 # css/, js/, icons/, sw.js, manifest.json
+│   └── templates/              # HTML templates by feature
+├── run.py
+├── requirements.txt
+└── build.sh, build.bat
+instance/
+└── logs/                      # app.log (auto-created)
 ```
 
-## 🔧 Configuration
+---
 
-Create a `.env` file in the root directory:
-
-```env
-# Flask configuration
-SECRET_KEY=your-secret-key-here
-FLASK_ENV=development
-
-# Registration
-REGISTRATION_PASSWORD=your-registration-password
-
-# Database (if using)
-DATABASE_URL=sqlite:///app.db
-```
-
-## 🎯 Usage
+## Usage
 
 ### User Roles
-- **Regular Users**: Place bets, view leaderboard
-- **Admins**: Manage users, resolve races, update data
+- **Regular Users**: Place bets, view leaderboard, track scores, receive push notifications, install PWA.
+- **Admins**: Manage users, resolve races, update race data, send notifications, view logs.
 
 ### Betting Rules
-- Bets close when the race starts
-- Points awarded for correct predictions
-- Fastest lap predictions earn bonus points
+- Bets close when the **Race session starts** (not practice or qualifying).
+- Points awarded for correct predictions (podium positions, fastest lap, pole).
+- Leaderboard updates automatically after race resolution.
 
-## 🛠️ Development
+---
+
+## Data Files
+
+Create in `src/app/data/`:
+- `races.json` - Race schedule and results
+- `users.json` - User accounts
+- `bets.json` - Betting data
+- `drivers.json` - Driver information
+
+Auto-created:
+- `push_subscriptions.json` - Push notification subscriptions
+- `canceled.json` - Canceled race tracking
+
+**Note**: Add `src/app/data/` to `.gitignore` to protect user data.
+
+---
+
+## Development
 
 ### Running Tests
 ```bash
+cd src
 python -m pytest tests/
 ```
 
 ### Code Style
-- Follows PEP 8 guidelines
-- Uses Flask blueprints for modularity
-- JSON-based data storage
+- Follows **PEP 8** guidelines
+- Uses **Flask blueprints** for modularity
+- Data stored in JSON files
 
-### Data Management
-The `app/data/` directory contains:
-- Race schedules and results
-- User accounts and scores
-- Betting records
-- Driver information
+### Logs
+Stored in `src/instance/logs/app.log` with rotating file handler.
 
-**Note**: This directory is in `.gitignore` to protect user data.
+---
 
-## 📊 Data Sources
+## API Endpoints
 
-Race data can be:
-- Manually entered via admin interface
-- Imported from JSON files
-- Fetched from F1 API (if configured)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/` | Home/Welcome |
+| GET | `/races` | Race schedule with countdowns |
+| GET | `/betting/dashboard` | User betting dashboard |
+| GET | `/admin` | Admin dashboard | Admin |
+| GET | `/help` | Help guide |
+| GET | `/legal-notice` | Terms and conditions |
+| GET | `/api/vapid-public-key` | Get VAPID public key | Public |
+| POST | `/api/save-subscription` | Save push subscription | Required |
+| POST | `/api/remove-subscription` | Remove push subscription | Required |
+| POST | `/api/test-notification` | Test notification | Admin |
+| POST | `/api/send-all` | Send to all users | Admin |
+| GET | `/_debug` | Debug info | Public |
 
-## 🔒 Security
+---
 
-- Password hashing with PBKDF2
-- Session-based authentication
-- Admin role protection
-- CSRF protection via Flask
+## Push Notifications
 
-## 🎯 Features Overview
+### How It Works
+1. Generate VAPID keys (see Configuration)
+2. User clicks "Enable Notifications" button in the UI
+3. Browser prompts user to allow notifications
+4. On approval, subscription is stored server-side by username
+5. Events auto-scheduled for all race sessions (qualifying, race start, 1h reminders)
+6. Service worker displays notifications
 
-### Core Features
-- **User Authentication**: Secure login/registration system
-- **Race Betting**: Predict podium finishes and fastest laps
-- **Scoring System**: Earn points for accurate predictions
-- **Leaderboard**: Compete with other F1 fans
-- **Admin Dashboard**: Manage users and races
+### Browser Support
+- Chrome, Firefox, Safari (macOS 10.13+, iOS 11.3+), Edge (Chromium)
+- **HTTPS required for production** (localhost works for development)
 
-### Help & Documentation
-- **Help Page**: `/help` - Complete guide on how to play
-- **Legal Notice**: `/legal-notice` - Terms and conditions
-- **PWA Support**: Install as mobile app
+### Service Worker
+- File: `src/app/static/sw.js`
+- Served at `/sw.js` with scope `/`
+- Handles caching and push events
 
-## 📱 Mobile Installation (PWA)
+---
 
-The application supports Progressive Web App (PWA) installation for mobile devices:
+## PWA Installation
 
-### iOS (iPhone/iPad)
-1. Open the website in Safari
-2. Tap the "Share" button (square with arrow)
-3. Select "Add to Home Screen"
-4. Confirm the installation
+### iOS
+Safari → Share → Add to Home Screen
 
 ### Android
-1. Open the website in Chrome
-2. Tap the three-dot menu
-3. Select "Add to Home screen"
-4. Confirm the installation
+Chrome → Menu → Add to Home Screen
 
-### Features
-- **Home Screen Icon**: Custom F1-themed icon
-- **Standalone Mode**: Runs without browser chrome
-- **Offline Support**: Basic caching for improved performance
-- **Full Screen**: Immersive experience
+Icons provided: 72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512, apple-touch-icon
 
-### Requirements
-- iOS: Safari (iOS 11.3+)
-- Android: Chrome (or other modern browsers)
-- HTTPS required for service worker (use ngrok for local testing)
+---
 
-## 📝 License
+## Security
+- Password hashing with **PBKDF2+SHA256**
+- Session-based authentication
+- Admin role protection via decorators
+- VAPID keys for secure Web Push
+- CSRF protection via Flask
 
-This project is for educational and personal use. See the legal notice in the application for full details.
+---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
-4. Follow existing code style
-
-## 📞 Support
-
-For issues or questions:
-- Check the application's Info page
-- Review the legal notice
+## Support
+- Check the **Legal Notice** (`/legal-notice`) pages in the app
+- Review logs in `src/instance/logs/app.log`
 - Contact the repository maintainer
 
 ---
 
-*Built with ❤️ for Formula 1 fans* 🏎️💨
+*Built for Formula 1 fans. 🏎️*
