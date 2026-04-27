@@ -358,6 +358,9 @@ async function enablePushNotifications(username) {
  */
 async function subscribeAndSave(username) {
   try {
+    // Wait for VAPID key to be loaded
+    await waitForKey();
+    
     // Get the existing service worker registration
     const registration = await navigator.serviceWorker.getRegistration();
     

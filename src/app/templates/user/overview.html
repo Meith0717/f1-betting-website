@@ -114,7 +114,7 @@
   {% for race_id, bet_data in user_bets.items() %}
   {% set race_info = race_data_manager.get_race_by_id(race_id) if race_data_manager else none %}
   {% set race_bet_info = betting_manager.get_all_bets().race_bets.get(race_id, {}) %}
-  {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' %}
+  {% if race_bet_info.status != 'closed' and race_bet_info.status != 'resolved' and not (race_info and race_info.get('canceled')) %}
   <div class="card mobile-bet-list-card">
     <div class="card-header">
       <h3 class="card-title">🏁 Your Active Bets</h3>

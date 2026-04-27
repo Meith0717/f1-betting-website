@@ -182,16 +182,19 @@ def races():
         race_with_tz = race_data_manager.add_timezone_info_to_race(race)
         races_with_timezone.append(race_with_tz)
 
-        # Classify as upcoming or past (include canceled races in upcoming if they're future-dated)
+        # Classify as upcoming or past
         race_datetime = race_data_manager._get_race_datetime(race)
         if race_datetime:
             # Ensure race_datetime is timezone-aware for comparison
             if not race_datetime.tzinfo:
                 race_datetime = pytz.UTC.localize(race_datetime)
             if race_datetime > now:
+                # Show canceled races in upcoming list, but not in past
                 upcoming_races.append(race_with_tz)
             else:
-                past_races.append(race_with_tz)
+                # Exclude canceled races from past races
+                if not race.get("canceled"):
+                    past_races.append(race_with_tz)
 
     return render_template(
         "races/list.html", upcoming_races=upcoming_races, past_races=past_races  #
