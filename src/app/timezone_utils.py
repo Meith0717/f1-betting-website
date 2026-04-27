@@ -16,6 +16,7 @@ class TimezoneUtils:
 
         try:
             import tzlocal
+
             self.local_timezone = tzlocal.get_localzone()
         except (ImportError, Exception):
             self.local_timezone = pytz.UTC
@@ -31,10 +32,10 @@ class TimezoneUtils:
     def clean_time_string(self, time_str: Optional[str]) -> str:
         """
         Clean a time string by removing 'Z' suffix and decimal seconds.
-        
+
         Args:
             time_str: Time string, possibly with 'Z' suffix (e.g., "04:00:00Z")
-            
+
         Returns:
             Cleaned time string (e.g., "04:00:00")
         """
@@ -55,11 +56,11 @@ class TimezoneUtils:
     ) -> Optional[datetime]:
         """
         Parse date and time strings as a UTC-aware datetime.
-        
+
         Args:
             date_str: Date string in format YYYY-MM-DD
             time_str: Time string (e.g., "04:00:00" or "04:00:00Z")
-            
+
         Returns:
             UTC-aware datetime object, or None if parsing fails
         """
@@ -85,10 +86,10 @@ class TimezoneUtils:
     def get_race_datetime(self, race: Dict) -> Optional[datetime]:
         """
         Get timezone-aware datetime for a race from its sessions.
-        
+
         Args:
             race: Race dictionary with 'sessions' key
-            
+
         Returns:
             UTC-aware datetime of the main race session, or None
         """
@@ -127,10 +128,10 @@ class TimezoneUtils:
     def get_session_datetime(self, session: Dict) -> datetime:
         """
         Get timezone-aware datetime for a session.
-        
+
         Args:
             session: Session dictionary with 'date' and 'time' keys
-            
+
         Returns:
             UTC-aware datetime, or datetime.max if parsing fails
         """
@@ -146,11 +147,11 @@ class TimezoneUtils:
     def convert_utc_to_local(self, date_str: str, time_str: str) -> Dict:
         """
         Convert UTC datetime to local time with various format options.
-        
+
         Args:
             date_str: Date string in format YYYY-MM-DD
             time_str: Time string (e.g., "04:00:00Z")
-            
+
         Returns:
             Dictionary with multiple time format representations:
             - utc: UTC string representation
@@ -189,10 +190,10 @@ class TimezoneUtils:
     def add_timezone_info_to_race(self, race: Dict) -> Dict:
         """
         Add timezone-converted times to a race dictionary.
-        
+
         Args:
             race: Race dictionary
-            
+
         Returns:
             Race dictionary with added 'time_info' for date/time and sessions
         """
@@ -213,10 +214,10 @@ class TimezoneUtils:
     def add_timezone_info_to_session(self, session: Dict) -> Dict:
         """
         Add timezone-converted time to a session dictionary.
-        
+
         Args:
             session: Session dictionary
-            
+
         Returns:
             Session dictionary with added 'time_info'
         """
@@ -230,10 +231,10 @@ class TimezoneUtils:
     def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:
         """
         Add timezone info to all races in a list.
-        
+
         Args:
             races: List of race dictionaries
-            
+
         Returns:
             List of race dictionaries with timezone info added
         """

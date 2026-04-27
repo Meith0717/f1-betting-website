@@ -21,6 +21,12 @@ def create_app():
     app.register_blueprint(betting_bp)
     app.register_blueprint(notifications_bp)
 
+    # Start the event manager for time-based notifications
+    from .event_manager import event_manager
+
+    event_manager.start()
+    event_manager.schedule_all_race_notifications()
+
     # Serve service worker from root for push notifications
     # This allows the SW to have scope '/' and work with all pages
     @app.route("/sw.js")
