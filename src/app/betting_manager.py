@@ -463,7 +463,7 @@ class BettingManager:
         """Get all betting data."""
         return self.load_bets()
 
-    def close_bets_for_race(self, race_id: str) -> bool:
+    def close_bets_for_race(self, race_id: str, data: Dict = None) -> bool:
         """
         Close all bets for a race when the race weekend starts.
 
@@ -472,12 +472,14 @@ class BettingManager:
 
         Args:
             race_id: ID of the race to close bets for
+            data: Optional betting data dict (if already loaded)
 
         Returns:
             bool: True if bets were closed successfully
         """
         try:
-            data = self.load_bets()
+            if data is None:
+                data = self.load_bets()
             bets_closed = False
 
             # Close all bets for this race - new structure
@@ -554,7 +556,7 @@ class BettingManager:
                 race_datetime = race_data_manager._get_race_datetime(race)
                 if race_datetime and race_datetime <= now:
                     # Race has started, close bets
-                    if self.close_bets_for_race(race_id):
+                    if self.close_bets_for_race(race_id, data):
                         races_closed += 1
 
             if races_closed > 0:

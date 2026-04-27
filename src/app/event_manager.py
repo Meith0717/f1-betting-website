@@ -65,7 +65,7 @@ class EventManager:
                 "data": data or {},
                 "triggered": False,
             }
-            self._logger.info(
+            self._logger.debug(
                 f"Scheduled event {event_id} for {trigger_time.isoformat()}"
             )
             return True
@@ -114,7 +114,7 @@ class EventManager:
                 "data": data or {},
                 "recurring": True,
             }
-            self._logger.info(
+            self._logger.debug(
                 f"Scheduled recurring event {event_id} starting {start_time.isoformat()} every {interval}"
             )
             return True
@@ -132,7 +132,7 @@ class EventManager:
         with self._lock:
             if event_id in self._events:
                 del self._events[event_id]
-                self._logger.info(f"Cancelled event {event_id}")
+                self._logger.debug(f"Cancelled event {event_id}")
                 return True
             return False
 
@@ -146,7 +146,7 @@ class EventManager:
         with self._lock:
             count = len(self._events)
             self._events.clear()
-            self._logger.info(f"Cancelled all {count} events")
+            self._logger.debug(f"Cancelled all {count} events")
             return count
 
     def get_scheduled_events(self) -> List[Dict]:
@@ -195,9 +195,8 @@ class EventManager:
         if qualifying:
             q_dt = race_data_manager.get_session_datetime(qualifying)
             if q_dt > now:
-                event_id = f"qualifying_start_{race_id}"
                 self.schedule_event(
-                    event_id,
+                    f"qualifying_start_{race_id}",
                     q_dt,
                     self._race_notification_callback,
                     {
@@ -207,7 +206,6 @@ class EventManager:
                         "offset": "start",
                     },
                 )
-                self._logger.info(f"Scheduled qualifying start for {race_id} at {q_dt.isoformat()}")
 
         # Schedule for Race
         race_session = next((s for s in sessions if s.get("type") == "Race"), None)
@@ -217,9 +215,8 @@ class EventManager:
 
             # Race start notification
             if race_dt > now:
-                event_id = f"race_start_{race_id}"
                 self.schedule_event(
-                    event_id,
+                    f"race_start_{race_id}",
                     race_dt,
                     self._race_notification_callback,
                     {
@@ -229,13 +226,11 @@ class EventManager:
                         "offset": "start",
                     },
                 )
-                self._logger.info(f"Scheduled race start for {race_id} at {race_dt.isoformat()}")
 
             # 1 hour before Race (betting reminder)
             if one_hour_before > now:
-                event_id = f"race_1h_before_{race_id}"
                 self.schedule_event(
-                    event_id,
+                    f"race_1h_before_{race_id}",
                     one_hour_before,
                     self._race_notification_callback,
                     {
@@ -245,7 +240,6 @@ class EventManager:
                         "offset": "1h_before",
                     },
                 )
-                self._logger.info(f"Scheduled betting reminder for {race_id} at {one_hour_before.isoformat()}")
 
     def schedule_all_race_notifications(self) -> int:
         """
@@ -265,8 +259,6 @@ class EventManager:
             self._schedule_race_notifications(race)
             count += 1
 
-        if count > 0:
-            self._logger.info(f"Scheduled notifications for {count} races")
         return count
 
     def _default_race_callback(self, event_id: str, data: Dict) -> None:
@@ -309,10 +301,8 @@ class EventManager:
             body = f"{session_type} event for {race_name}"
 
         # Send to all subscribed users
-        success = push_manager.send_notification_to_all(title, body)
-        if success:
-            self._logger.info(f"Sent push notification: {title}")
-        else:
+        result = push_manager.send_notification_to_all(title, body)
+        if not result.get("success"):
             self._logger.warning(f"Failed to send push notification: {title}")
 
     def _get_due_events(self) -> List[tuple]:
@@ -333,7 +323,7 @@ class EventManager:
         try:
             callback = event_data["callback"]
             callback(event_id, event_data.get("data", {}))
-            self._logger.info(f"Triggered event {event_id}")
+            self._logger.debug(f"Triggered event {event_id}")
         except Exception as e:
             self._logger.error(f"Error triggering event {event_id}: {e}")
 
