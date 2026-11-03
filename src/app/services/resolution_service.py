@@ -60,6 +60,10 @@ class ResolutionService:
         """Rebuild the scoring engine's driver team mapping."""
         self._scoring = ScoringEngine(self._load_driver_teams())
 
+    def set_driver_teams(self, teams: Dict[str, str]) -> None:
+        """Override the driver team mapping (used by tests)."""
+        self._scoring = ScoringEngine(teams)
+
     # -- Resolution ---------------------------------------------------------
 
     def resolve_with_results(

@@ -8,6 +8,17 @@ from ..services.view_models import build_betting_dashboard, race_summary
 betting_bp = Blueprint("betting", __name__)
 
 
+def _extract_bet_form() -> tuple:
+    """Extract (drivers, fastest_lap) from the bet form POST data."""
+    drivers = [
+        request.form.get("position_1"),
+        request.form.get("position_2"),
+        request.form.get("position_3"),
+    ]
+    fastest_lap = request.form.get("fastest_lap")
+    return drivers, fastest_lap
+
+
 @betting_bp.route("/betting")
 @login_required
 def betting_dashboard():
@@ -48,12 +59,7 @@ def place_bet(race_id):
         return redirect(url_for("betting.betting_dashboard"))
 
     if request.method == "POST":
-        bets = [
-            request.form.get("position_1"),
-            request.form.get("position_2"),
-            request.form.get("position_3"),
-        ]
-        fastest_lap = request.form.get("fastest_lap")
+        bets, fastest_lap = _extract_bet_form()
 
         if betting_manager.place_bet(username, race_id, bets, fastest_lap):
             flash("Bet placed successfully!", "success")
@@ -92,12 +98,7 @@ def edit_bet(race_id):
         return redirect(url_for("betting.betting_dashboard"))
 
     if request.method == "POST":
-        bets = [
-            request.form.get("position_1"),
-            request.form.get("position_2"),
-            request.form.get("position_3"),
-        ]
-        fastest_lap = request.form.get("fastest_lap")
+        bets, fastest_lap = _extract_bet_form()
 
         bet_service.remove_bet(username, race_id)
 
@@ -220,12 +221,7 @@ def manual_resolve_race(race_id):
             drivers=betting_manager.get_available_drivers_for_race(race_id),
         )
 
-    results = [
-        request.form.get("position_1"),
-        request.form.get("position_2"),
-        request.form.get("position_3"),
-    ]
-    fastest_lap = request.form.get("fastest_lap")
+    results, fastest_lap = _extract_bet_form()
 
     if not all(results + [fastest_lap]):
         flash("Please select all positions and fastest lap", "error")

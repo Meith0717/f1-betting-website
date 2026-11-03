@@ -10,7 +10,7 @@ all actual work to focused services:
 """
 
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .core.logger import get_logger
 from .services import bet_service, resolution_service, user_service, notification_service
@@ -36,17 +36,11 @@ class BettingManager:
     def load_bets(self) -> Dict:
         return bet_service.load_all()
 
-    def save_bets(self, data: Dict):
-        bet_service.save_all(data)
-
     def get_all_bets(self) -> Dict:
         return bet_service.load_all()
 
     def get_user_bets(self, username: str) -> Dict:
         return bet_service.get_user_bets(username)
-
-    def get_race_bets(self, race_id: str) -> Dict:
-        return bet_service.get_race_bets(race_id)
 
     def place_bet(self, username: str, race_id: str, bets: List[str], fastest_lap: str = None) -> bool:
         return bet_service.place_bet(username, race_id, bets, fastest_lap)
@@ -73,6 +67,9 @@ class BettingManager:
         if resolution_service._scoring:
             return resolution_service._scoring.driver_teams
         return {}
+
+    def set_driver_teams(self, teams: Dict[str, str]) -> None:
+        resolution_service.set_driver_teams(teams)
 
     def calculate_points(self, user_bet: Dict, actual_results: Dict) -> Dict:
         if not resolution_service._scoring:
@@ -103,12 +100,6 @@ class BettingManager:
 
     def resolve_race_from_api(self, race_id: str) -> bool:
         return resolution_service.resolve_from_api(race_id)
-
-    def get_race_results(self, race_id: str) -> Optional[Dict]:
-        return resolution_service.get_results(race_id)
-
-    def update_user_score(self, username: str, points: int, race_id: str) -> bool:
-        return user_service.add_score(username, points, race_id)
 
 
 betting_manager = BettingManager()

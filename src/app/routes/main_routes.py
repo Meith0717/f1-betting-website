@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash, current_app
-from ..auth_utils import load_users, save_users, hash_password, verify_password
+from ..auth_utils import load_users, verify_password
 from ..auth_decorators import login_required
 from ..race_data_manager import race_data_manager
 from ..betting_manager import betting_manager
@@ -115,8 +115,7 @@ def change_password():
         elif len(new) < 6:
             flash("Password must be at least 6 characters", "error")
         else:
-            users[username]["password"] = hash_password(new)
-            save_users(users)
+            user_service.update(username, password=user_service.hash_password(new))
             flash("Password changed successfully!", "success")
             return redirect(url_for("main.profile"))
 

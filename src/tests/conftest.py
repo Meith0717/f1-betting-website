@@ -49,16 +49,16 @@ def betting_manager(app):
 
         manager = BettingManager()
 
-        # Set up test driver teams via the resolution service's scoring engine
+        # Set up test driver teams via the resolution service's public API
         from app.services import resolution_service
-        resolution_service._scoring.driver_teams = {
+        resolution_service.set_driver_teams({
             "verstappen": "red_bull",
             "hamilton": "mercedes",
             "leclerc": "ferrari",
             "alonso": "aston_martin",
             "russell": "mercedes",
             "sainz": "ferrari",
-        }
+        })
 
         yield manager
 
