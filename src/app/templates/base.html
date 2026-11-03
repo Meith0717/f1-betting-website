@@ -169,5 +169,29 @@
         </div>
       </div>
     </footer>
+
+    <!-- Bottom tab bar (mobile app navigation) -->
+    {% if 'username' in session %}
+    <nav class="tab-bar">
+      <a href="{{ url_for('main.index') }}" class="tab-bar-item {% if request.endpoint == 'main.index' %}active{% endif %}">
+        {{ icons.icon('home') }}<span>Home</span>
+      </a>
+      <a href="{{ url_for('main.races') }}" class="tab-bar-item {% if request.endpoint == 'main.races' %}active{% endif %}">
+        {{ icons.icon('calendar') }}<span>Races</span>
+      </a>
+      <a href="{{ url_for('betting.betting_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('betting.') %}active{% endif %}">
+        {{ icons.icon('money') }}<span>Bets</span>
+      </a>
+      {% if session.get('is_admin') %}
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('admin.') %}active{% endif %}">
+        {{ icons.icon('crown') }}<span>Admin</span>
+      </a>
+      {% else %}
+      <a href="{{ url_for('main.profile') }}" class="tab-bar-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
+        {{ icons.icon('user') }}<span>Profile</span>
+      </a>
+      {% endif %}
+    </nav>
+    {% endif %}
   </body>
 </html>
