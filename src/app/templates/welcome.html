@@ -1,33 +1,63 @@
 {% extends 'base.html' %} {% block content %}
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css') }}" />
+
 <div class="welcome-container">
   <div class="welcome-content">
     <div class="welcome-logo">
-      <span class="logo-icon">🏎️</span>
+      <img src="{{ url_for('static', filename='icons/icon-192x192.png') }}" alt="F1 Betting logo" class="logo-icon" width="56" height="56" />
       <h1 class="welcome-title">F1 Betting</h1>
     </div>
-    
-    <div class="welcome-card">
+
+    <div class="card welcome-card">
       <p class="welcome-description">
         Welcome to the ultimate Formula 1 betting experience! Sign in or create an account to start betting on races.
       </p>
 
-      <div class="auth-actions">
-        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block btn-large" title="Sign in to your existing account">
-          🔑 Sign In
-        </a>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary btn-block btn-large" title="Create a new account to start betting">
-          👤 Create Account
-        </a>
+      <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+        <div class="form-group">
+          <label for="username" class="form-label">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            placeholder="Your username"
+            autocomplete="username"
+            class="form-control mobile-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            placeholder="Your password"
+            autocomplete="current-password"
+            class="form-control mobile-input"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-large">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p class="auth-footer-text">Don't have an account?
+          <a href="{{ url_for('auth.register') }}" class="auth-link">Create one</a>
+        </p>
       </div>
     </div>
   </div>
 </div>
 
 <style>
-  /* Mobile-first welcome page styles */
   .welcome-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 120px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -36,7 +66,7 @@
 
   .welcome-content {
     width: 100%;
-    max-width: 500px;
+    max-width: 420px;
     text-align: center;
   }
 
@@ -45,12 +75,14 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     flex-wrap: wrap;
   }
 
   .logo-icon {
-    font-size: 48px;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
   }
 
   .welcome-title {
@@ -61,44 +93,19 @@
   }
 
   .welcome-card {
-    background-color: var(--surface);
-    border-radius: 16px;
     padding: 24px;
+    border-radius: 16px;
     box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
-    margin-top: 24px;
+    text-align: left;
   }
 
   .welcome-description {
     color: var(--text-muted);
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.6;
-    margin-bottom: 32px;
-  }
-
-  .auth-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .btn-large {
-    padding: 16px 24px;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  @media (min-width: 480px) {
-    .auth-actions {
-      flex-direction: row;
-    }
-
-    .auth-actions .btn {
-      flex: 1;
-    }
+    margin-bottom: 24px;
+    text-align: center;
   }
 </style>
-
-<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
 
 {% endblock %}

@@ -46,7 +46,7 @@
     <nav class="mobile-nav">
       <div class="nav-content">
         <div class="nav-left">
-          <span class="nav-logo">🏎️</span>
+          <img src="{{ url_for('static', filename='icons/icon-128x128.png') }}" alt="F1 Betting logo" class="nav-logo" width="28" height="28" />
           <span class="nav-title">F1 Betting</span>
         </div>
         <button class="menu-button" onclick="toggleMobileMenu()" aria-label="Toggle menu">☰</button>
@@ -76,7 +76,7 @@
           {% endif %}
           {% else %}
           <!-- Show login/register when no user is logged in -->
-          <a href="{{ url_for('auth.login') }}" class="nav-link login-link {% if request.endpoint == 'auth.login' %}active{% endif %}" title="Login">
+          <a href="{{ url_for('main.index') }}" class="nav-link login-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Login">
             <span class="nav-icon">🔑</span>
             <span class="nav-text">Login</span>
           </a>

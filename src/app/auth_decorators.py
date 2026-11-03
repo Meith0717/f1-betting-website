@@ -13,7 +13,7 @@ def login_required(f):
     def decorated(*args, **kwargs):
         if "username" not in session:
             flash("Please login first", "error")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("main.index"))
         return f(*args, **kwargs)
 
     return decorated
@@ -26,7 +26,7 @@ def admin_required(f):
     def decorated(*args, **kwargs):
         if "username" not in session:
             flash("Please login first", "error")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("main.index"))
 
         from .services.user_service import user_service
 

@@ -13,10 +13,26 @@ with file + console handlers. All named loggers propagate to root.
 
 import logging
 import os
+import re
 from logging.handlers import RotatingFileHandler
 from typing import Optional
 
 _LOG_FILE_PATH: Optional[str] = None
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+class _AnsiStripFilter(logging.Filter):
+    """Remove ANSI escape sequences from log records so log files stay plain text."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.msg = _ANSI_RE.sub("", str(record.msg))
+        if record.args:
+            record.args = tuple(
+                _ANSI_RE.sub("", str(a)) if isinstance(a, str) else a
+                for a in record.args
+            )
+        return True
 
 
 def get_logger(name: str = None) -> logging.Logger:
@@ -55,14 +71,18 @@ def setup_logging(log_dir: str, level: str = None) -> str:
         root.removeHandler(h)
         h.close()
 
+    ansi_filter = _AnsiStripFilter()
+
     file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setLevel(log_level)
     file_handler.setFormatter(formatter)
+    file_handler.addFilter(ansi_filter)
     root.addHandler(file_handler)
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)
     console_handler.setFormatter(formatter)
+    console_handler.addFilter(ansi_filter)
     root.addHandler(console_handler)
 
     get_logger(__name__).info("Logging configured — level=%s, file=%s", logging.getLevelName(log_level), log_file)

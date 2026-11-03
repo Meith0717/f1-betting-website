@@ -30,8 +30,9 @@ def login():
             return redirect(url_for("main.index"))
 
         flash("Invalid username or password", "error")
+        return redirect(url_for("main.index"))
 
-    return render_template("auth/login.html")
+    return redirect(url_for("main.index"))
 
 
 @login_required
@@ -55,7 +56,7 @@ def register():
         else:
             user_service.create(username, password, is_admin=False)
             flash("Registration successful! Please login.", "success")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("main.index"))
 
     return render_template(
         "auth/register.html", require_registration_password=len(user_service.load_all()) > 0

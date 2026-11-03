@@ -125,7 +125,9 @@ nav.mobile-nav {
 }
 
 .nav-logo {
-    font-size: 24px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
 }
 
 .nav-title {
