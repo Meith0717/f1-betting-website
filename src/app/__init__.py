@@ -3,6 +3,7 @@ import platform
 import secrets
 import sys
 import os
+import importlib.metadata
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -41,7 +42,7 @@ def create_app():
         debug_info = {
             "app_name": app.name,
             "python_version": sys.version,
-            "flask_version": Flask.__version__,
+            "flask_version": importlib.metadata.version("flask"),
             "platform": platform.platform(),
             "debug_mode": app.debug,
             "config": {

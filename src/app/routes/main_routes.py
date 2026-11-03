@@ -3,6 +3,7 @@ from ..auth_utils import load_users, save_users, hash_password, verify_password
 from ..auth_decorators import login_required
 from ..race_data_manager import race_data_manager
 from ..betting_manager import betting_manager
+from ..services.user_service import user_service
 from datetime import datetime
 import pytz
 
@@ -11,128 +12,86 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/legal-notice")
 def legal_notice():
-    """Legal notice and information page"""
+    """Legal notice and information page."""
     return render_template("legal_notice.html")
 
 
 @main_bp.route("/help")
 def help_page():
-    """Help page explaining how to play the game"""
+    """Help page explaining how to play the game."""
     return render_template("help.html")
 
 
 @main_bp.route("/")
 def index():
-    """Handle the main index route - shows welcome page or user dashboard"""
+    """Main index — welcome page or user dashboard."""
     from flask import current_app
 
     current_app.logger.info("Main index route accessed")
 
-    # Get next race and session data with timezone info
+    # Race data with timezone info
     try:
         next_race = race_data_manager.get_next_race()
-
         next_session = race_data_manager.get_next_session()
-
         upcoming_races = race_data_manager.get_upcoming_races(limit=3)
 
-        # Add timezone info to races
         if next_race:
             next_race = race_data_manager.add_timezone_info_to_race(next_race)
-
-        # Add timezone info to next session if it exists
         if next_session:
             next_session = race_data_manager.add_timezone_info_to_session(next_session)
-
         upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
-
     except Exception as e:
         current_app.logger.error(f"Error getting race data: {e}")
-        next_race = None
-        next_session = None
-        upcoming_races = []
+        next_race, next_session, upcoming_races = None, None, []
 
-    # Check and close any expired bets (races that have started)
+    # Auto-close expired bets
     try:
-        closed_count = betting_manager.check_and_close_expired_bets()
-        if closed_count > 0:
-            current_app.logger.info(
-                f"Closed bets for {closed_count} races that have started"
-            )
+        closed = betting_manager.check_and_close_expired_bets()
+        if closed:
+            current_app.logger.info(f"Closed bets for {closed} started races")
     except Exception as e:
         current_app.logger.error(f"Error checking expired bets: {e}")
 
-    if "username" in session:
-        current_app.logger.debug(f"User session found: {session['username']}")
-        # Show user dashboard with admin links if applicable
-        try:
-            users = load_users()
-            current_app.logger.debug(f"Loaded {len(users)} users for dashboard")
+    if "username" not in session:
+        return render_template("welcome.html")
 
-            # Create sorted users list for leaderboard
-            sorted_users = sorted(
-                users.items(), key=lambda x: x[1].get("score", 0), reverse=True
-            )
+    # Logged-in user dashboard
+    try:
+        username = session["username"]
+        users = load_users()
+        leaderboard = user_service.get_leaderboard()
+        rank = user_service.get_rank(username)
 
-            # Find current user's rank
-            current_username = session["username"]
-            user_rank = next(
-                (
-                    i + 1
-                    for i, (username, _) in enumerate(sorted_users)
-                    if username == current_username
-                ),
-                None,
-            )
-            current_app.logger.debug(f"User {current_username} rank: {user_rank}")
-
-            # Load driver team mapping for bet display
-            drivers_data = race_data_manager.load_drivers()
-            driver_teams = {}
-            driver_short_names = {}
-            for driver in drivers_data.get("drivers", []):
-                driver_id = driver.get("driverId")
-                team_id = driver.get("teamId", "")
-                short_name = driver.get("shortName", "")
-                if driver_id and team_id:
-                    driver_teams[driver_id] = team_id
-                if driver_id and short_name:
-                    driver_short_names[driver_id] = short_name
-
-            return render_template(
-                "user/overview.html",
-                username=session["username"],
-                is_admin=session.get("is_admin", False),
-                users=users,
-                sorted_users=sorted_users,
-                user_rank=user_rank,
-                next_race=next_race,
-                next_session=next_session,
-                upcoming_races=upcoming_races,
-                betting_manager=betting_manager,
-                race_data_manager=race_data_manager,
-                driver_teams=driver_teams,
-                driver_short_names=driver_short_names,
-            )
-        except Exception as e:
-            current_app.logger.error(f"Error rendering user dashboard: {e}")
-            flash("Error loading dashboard data", "error")
-            return redirect(url_for("main.index"))
-
-    current_app.logger.debug("No user session, showing welcome page")
-    return render_template("welcome.html")
+        return render_template(
+            "user/overview.html",
+            username=username,
+            is_admin=session.get("is_admin", False),
+            users=users,
+            sorted_users=leaderboard,
+            user_rank=rank,
+            next_race=next_race,
+            next_session=next_session,
+            upcoming_races=upcoming_races,
+            betting_manager=betting_manager,
+            race_data_manager=race_data_manager,
+            driver_teams=race_data_manager.get_driver_teams(),
+            driver_short_names=race_data_manager.get_driver_short_names(),
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error rendering dashboard: {e}")
+        flash("Error loading dashboard data", "error")
+        return redirect(url_for("main.index"))
 
 
 @main_bp.route("/profile")
 @login_required
 def profile():
-    """Show user profile page"""
-    users = load_users()
+    """User profile page."""
     return render_template(
         "user/profile.html",
         username=session["username"],
         is_admin=session.get("is_admin", False),
-        users=users,
+        users=load_users(),
         betting_manager=betting_manager,
     )
 
@@ -140,25 +99,23 @@ def profile():
 @main_bp.route("/change_password", methods=["GET", "POST"])
 @login_required
 def change_password():
-    """Handle password change"""
+    """Handle password change."""
     if request.method == "POST":
-        current_password = request.form.get("current_password")
-        new_password = request.form.get("new_password")
-        confirm_password = request.form.get("confirm_password")
+        current = request.form.get("current_password")
+        new = request.form.get("new_password")
+        confirm = request.form.get("confirm_password")
 
-        users = load_users()
         username = session["username"]
+        users = load_users()
 
-        # Validate current password
-        if not verify_password(users[username]["password"], current_password):
+        if not verify_password(users[username]["password"], current):
             flash("Current password is incorrect", "error")
-        elif new_password != confirm_password:
+        elif new != confirm:
             flash("New passwords do not match", "error")
-        elif len(new_password) < 6:
+        elif len(new) < 6:
             flash("Password must be at least 6 characters", "error")
         else:
-            # Update password
-            users[username]["password"] = hash_password(new_password)
+            users[username]["password"] = hash_password(new)
             save_users(users)
             flash("Password changed successfully!", "success")
             return redirect(url_for("main.profile"))
@@ -169,33 +126,21 @@ def change_password():
 @main_bp.route("/races")
 @login_required
 def races():
-    """Show all upcoming F1 races"""
-    # Get all races and add timezone info
-    all_races = race_data_manager.get_all_races()
-    races_with_timezone = []
-    upcoming_races = []
-    past_races = []
-    now = datetime.now(pytz.UTC)  # Make timezone-aware to match race datetimes
+    """Show all F1 races, split into upcoming and past."""
+    now = datetime.now(pytz.UTC)
+    upcoming, past = [], []
 
-    for race in all_races:
-        # Add timezone info to this race
-        race_with_tz = race_data_manager.add_timezone_info_to_race(race)
-        races_with_timezone.append(race_with_tz)
-
-        # Classify as upcoming or past
-        race_datetime = race_data_manager._get_race_datetime(race)
-        if race_datetime:
-            # Ensure race_datetime is timezone-aware for comparison
-            if not race_datetime.tzinfo:
-                race_datetime = pytz.UTC.localize(race_datetime)
-            if race_datetime > now:
-                # Show canceled races in upcoming list, but not in past
-                upcoming_races.append(race_with_tz)
-            else:
-                # Exclude canceled races from past races
-                if not race.get("canceled"):
-                    past_races.append(race_with_tz)
+    for race in race_data_manager.get_all_races():
+        race_tz = race_data_manager.add_timezone_info_to_race(race)
+        race_dt = race_data_manager._get_race_datetime(race)
+        if race_dt:
+            if not race_dt.tzinfo:
+                race_dt = pytz.UTC.localize(race_dt)
+            if race_dt > now:
+                upcoming.append(race_tz)
+            elif not race.get("canceled"):
+                past.append(race_tz)
 
     return render_template(
-        "races/list.html", upcoming_races=upcoming_races, past_races=past_races  #
+        "races/list.html", upcoming_races=upcoming, past_races=past
     )

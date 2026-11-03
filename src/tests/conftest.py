@@ -21,9 +21,8 @@ def app():
     """Create and configure a new app instance for each test."""
     app = create_app()
     app.config["TESTING"] = True
-    app.config["WTF_CSRF_ENABLED"] = False  # Disable CSRF for testing
+    app.config["WTF_CSRF_ENABLED"] = False
 
-    # Set up application context
     with app.app_context():
         yield app
 
@@ -42,14 +41,17 @@ def runner(app):
 
 @pytest.fixture(scope="function")
 def betting_manager(app):
-    """Provide a betting manager instance for testing."""
+    """Provide a betting manager instance for testing with isolated data."""
     with app.app_context():
-        # Create a test betting manager with isolated data
-        test_data_file = "/tmp/test_bets.json"
-        manager = BettingManager(data_file=test_data_file)
+        # Clear the bets file before each test for isolation
+        from app.services import bet_service
+        bet_service.save_all({"race_bets": {}, "metadata": {}})
 
-        # Set up test driver teams
-        manager.driver_teams = {
+        manager = BettingManager()
+
+        # Set up test driver teams via the resolution service's scoring engine
+        from app.services import resolution_service
+        resolution_service._scoring.driver_teams = {
             "verstappen": "red_bull",
             "hamilton": "mercedes",
             "leclerc": "ferrari",
@@ -60,22 +62,19 @@ def betting_manager(app):
 
         yield manager
 
-        # Clean up
-        if os.path.exists(test_data_file):
-            os.remove(test_data_file)
+        # Clean up after test
+        bet_service.save_all({"race_bets": {}, "metadata": {}})
 
 
 @pytest.fixture(scope="function")
 def race_data_manager(app):
     """Provide a race data manager instance for testing."""
     with app.app_context():
-        # Create a test race data manager with isolated data
         test_data_file = "/tmp/test_races.json"
         manager = RaceDataManager(data_file=test_data_file)
 
         yield manager
 
-        # Clean up
         if os.path.exists(test_data_file):
             os.remove(test_data_file)
 

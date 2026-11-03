@@ -445,6 +445,24 @@ class RaceDataManager:
         drivers_data = self.load_drivers()
         return drivers_data.get("drivers", [])
 
+    def get_driver_teams(self) -> Dict[str, str]:
+        """Return mapping of driver_id -> team_id."""
+        teams = {}
+        for d in self.load_drivers().get("drivers", []):
+            did, tid = d.get("driverId"), d.get("teamId")
+            if did and tid:
+                teams[did] = tid
+        return teams
+
+    def get_driver_short_names(self) -> Dict[str, str]:
+        """Return mapping of driver_id -> shortName."""
+        names = {}
+        for d in self.load_drivers().get("drivers", []):
+            did, sn = d.get("driverId"), d.get("shortName")
+            if did and sn:
+                names[did] = sn
+        return names
+
     def update_drivers_from_api(self) -> bool:
         """Update drivers from F1 API."""
         try:
