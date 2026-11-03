@@ -22,6 +22,17 @@ def create_app():
     app.register_blueprint(betting_bp)
     app.register_blueprint(notifications_bp)
 
+    # Inject shared managers into all templates so routes don't need to
+    # pass betting_manager / race_data_manager explicitly
+    @app.context_processor
+    def inject_managers():
+        from .betting_manager import betting_manager
+        from .race_data_manager import race_data_manager
+        return {
+            "betting_manager": betting_manager,
+            "race_data_manager": race_data_manager,
+        }
+
     # Start the event manager for time-based notifications
     from .event_manager import event_manager
 

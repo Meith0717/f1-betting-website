@@ -1,189 +1,96 @@
-import json
+"""
+Race data manager — race schedule, drivers, and canceled race tracking.
+
+All persistence goes through JsonStore. Timezone helpers delegate to
+TimezoneUtils. F1 API fetching is isolated in the fetch/transform methods.
+"""
+
 import os
 from datetime import datetime
 from typing import Dict, List, Optional
 
 import pytz
+
+from .core import JsonStore
+from .core.logger import get_logger
 from .timezone_utils import timezone_utils
+
+_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
 class RaceDataManager:
-    """Simple race data manager for F1 sessions."""
+    """Manages F1 race, driver, and cancellation data stored in JSON."""
 
     def __init__(self, data_file: str = None):
-        self.data_file = data_file or os.path.join(
-            os.path.dirname(__file__), "data", "races.json"
+        self._races_store = JsonStore(
+            data_file or os.path.join(_DATA_DIR, "races.json"),
+            default={"races": []},
         )
-        self.canceled_file = os.path.join(
-            os.path.dirname(__file__), "data", "canceled.json"
+        self._canceled_store = JsonStore(
+            os.path.join(_DATA_DIR, "canceled.json"),
+            default={"canceled_race_ids": []},
         )
-        self.drivers_file = os.path.join(
-            os.path.dirname(__file__), "data", "drivers.json"
+        self._drivers_store = JsonStore(
+            os.path.join(_DATA_DIR, "drivers.json"),
+            default={"drivers": []},
         )
+        self._logger = get_logger(__name__)
+
+    # -- Timezone delegation (backward-compat aliases) ----------------------
 
     def get_race_datetime(self, race: Dict) -> Optional[datetime]:
-        """Get timezone-aware datetime for a race."""
         return timezone_utils.get_race_datetime(race)
 
     def get_session_datetime(self, session: Dict) -> datetime:
-        """Get timezone-aware datetime for a session."""
         return timezone_utils.get_session_datetime(session)
 
-    # Backward compatibility aliases
     _get_race_datetime = get_race_datetime
     _get_session_datetime = get_session_datetime
 
-    def ensure_data_file_exists(self):
-        """Ensure the races.json file exists with default data."""
-        if os.path.exists(self.data_file):
-            return
+    def convert_utc_to_local(self, date_str: str, time_str: str, tz: str = "UTC") -> Dict:
+        return timezone_utils.convert_utc_to_local(date_str, time_str, tz)
 
-        try:
-            api_data = self.fetch_f1_api_data()
-            if api_data:
-                transformed_data = self.transform_api_data(api_data)
-                self.save_races(transformed_data)
-                return
-        except Exception as e:
-            print(f"Could not fetch from API, using default data: {e}")
+    def add_timezone_info_to_race(self, race: Dict) -> Dict:
+        return timezone_utils.add_timezone_info_to_race(race)
 
-        default_data = {
-            "races": [
-                {
-                    "id": "n/a",
-                    "name": "n/a",
-                    "country": "n/a",
-                    "circuit": "n/a",
-                    "date": "2024-01-01",
-                    "time": "00:00:00",
-                    "sessions": [
-                        {
-                            "type": "n/a",
-                            "date": "2024-01-01",
-                            "time": "00:00:00",
-                        }
-                    ],
-                }
-            ]
-        }
-        self.save_races(default_data)
+    def add_timezone_info_to_session(self, session: Dict) -> Dict:
+        return timezone_utils.add_timezone_info_to_session(session)
+
+    def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:
+        return timezone_utils.add_timezone_info_to_races(races)
+
+    # -- Races CRUD ---------------------------------------------------------
 
     def load_races(self) -> Dict:
-        """Load races from JSON file."""
-        try:
-            if not os.path.exists(self.data_file):
-                self.ensure_data_file_exists()
+        """Load races with canceled status merged in."""
+        data = self._races_store.load()
+        data.setdefault("races", [])
+        return self._add_canceled_status(data)
 
-            with open(self.data_file, "r", encoding="utf-8") as f:
-                races_data = json.load(f)
-
-            if "races" not in races_data:
-                races_data["races"] = []
-
-            return self._add_canceled_status(races_data)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Error loading races: {e}")
-            return {"races": []}
+    def save_races(self, data: Dict) -> None:
+        self._races_store.save(data)
 
     def _add_canceled_status(self, races_data: Dict) -> Dict:
-        """Add canceled status to races based on canceled.json."""
-        try:
-            canceled_race_ids = []
-            if os.path.exists(self.canceled_file):
-                with open(self.canceled_file, "r", encoding="utf-8") as f:
-                    canceled_data = json.load(f)
-                    canceled_race_ids = canceled_data.get("canceled_race_ids", [])
+        canceled_ids = set(self.get_canceled_race_ids())
+        for race in races_data.get("races", []):
+            race["canceled"] = race.get("id") in canceled_ids
+        return races_data
 
-            for race in races_data.get("races", []):
-                race["canceled"] = race.get("id") in canceled_race_ids
-
-            return races_data
-        except Exception as e:
-            print(f"Error loading canceled data: {e}")
-            for race in races_data.get("races", []):
-                race["canceled"] = False
-            return races_data
-
-    def save_races(self, data: Dict):
-        """Save races to JSON file."""
-        try:
-            os.makedirs(os.path.dirname(self.data_file), exist_ok=True)
-
-            with open(self.data_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-        except Exception as e:
-            print(f"Error saving races: {e}")
-            raise
-
-    def get_next_race(self) -> Optional[Dict]:
-        """Get the next upcoming race."""
-        races = self.load_races().get("races", [])
-        now = timezone_utils.utc_now()
-
-        upcoming_races = []
-        for race in races:
-            if race.get("canceled"):
-                continue
-
-            race_datetime = self.get_race_datetime(race)
-            if race_datetime and race_datetime > now:
-                upcoming_races.append(race)
-
-        if upcoming_races:
-            return min(
-                upcoming_races,
-                key=lambda race: self.get_race_datetime(race)
-                or datetime.max.replace(tzinfo=pytz.UTC),
-            )
-
-        return None
-
-    def get_next_session(self) -> Optional[Dict]:
-        """Get the next upcoming session across all races."""
-        races = self.load_races().get("races", [])
-        now = timezone_utils.utc_now()
-
-        all_sessions = []
-        for race in races:
-            if race.get("canceled"):
-                continue
-
-            for session in race.get("sessions", []):
-                if session.get("date") is None:
-                    continue
-
-                session_datetime = self.get_session_datetime(session)
-                if session_datetime > now:
-                    session_with_race_info = session.copy()
-                    session_with_race_info["race_name"] = race.get("name")
-                    session_with_race_info["race_id"] = race.get("id", "unknown")
-                    session_with_race_info["country"] = race.get("country", "Unknown")
-                    session_with_race_info["circuit"] = race.get(
-                        "circuit", "Unknown Circuit"
-                    )
-                    all_sessions.append(session_with_race_info)
-
-        if all_sessions:
-            return min(all_sessions, key=lambda x: self.get_session_datetime(x))
-        return None
+    def get_all_races(self) -> List[Dict]:
+        return self.load_races().get("races", [])
 
     def get_race_by_id(self, race_id: str) -> Optional[Dict]:
-        """Get race by ID."""
-        races = self.load_races().get("races", [])
-        for race in races:
+        for race in self.get_all_races():
             if race.get("id") == race_id:
                 return race
         return None
 
-    def add_race(self, race_data: Dict):
-        """Add a new race."""
+    def add_race(self, race_data: Dict) -> None:
         data = self.load_races()
-        data.setdefault("races", [])
-        data["races"].append(race_data)
+        data.setdefault("races", []).append(race_data)
         self.save_races(data)
 
-    def update_race(self, race_id: str, updated_data: Dict):
-        """Update an existing race."""
+    def update_race(self, race_id: str, updated_data: Dict) -> bool:
         data = self.load_races()
         for i, race in enumerate(data.get("races", [])):
             if race.get("id") == race_id:
@@ -193,287 +100,209 @@ class RaceDataManager:
         return False
 
     def delete_race(self, race_id: str) -> bool:
-        """Delete a race."""
         data = self.load_races()
-        original_length = len(data.get("races", []))
-        data["races"] = [
-            race for race in data.get("races", []) if race.get("id") != race_id
-        ]
-
-        if len(data["races"]) < original_length:
+        original = len(data.get("races", []))
+        data["races"] = [r for r in data.get("races", []) if r.get("id") != race_id]
+        if len(data["races"]) < original:
             self.save_races(data)
             return True
         return False
 
-    def get_upcoming_races(self, limit: int = 5) -> List[Dict]:
-        """Get upcoming races."""
-        races = self.load_races().get("races", [])
-        now = timezone_utils.utc_now()
+    # -- Race queries -------------------------------------------------------
 
+    def _upcoming(self) -> List[Dict]:
+        """Non-canceled races with a future race datetime, sorted ascending."""
+        now = timezone_utils.utc_now()
         upcoming = []
-        for race in races:
+        for race in self.get_all_races():
             if race.get("canceled"):
                 continue
-
-            race_datetime = self.get_race_datetime(race)
-            if race_datetime and race_datetime > now:
+            dt = self.get_race_datetime(race)
+            if dt and dt > now:
                 upcoming.append(race)
+        upcoming.sort(key=lambda r: self.get_race_datetime(r) or datetime.max.replace(tzinfo=pytz.UTC))
+        return upcoming
 
-        upcoming.sort(
-            key=lambda race: self.get_race_datetime(race)
-            or datetime.max.replace(tzinfo=pytz.UTC)
-        )
-        return upcoming[:limit]
+    def get_next_race(self) -> Optional[Dict]:
+        upcoming = self._upcoming()
+        return upcoming[0] if upcoming else None
 
-    def get_all_races(self) -> List[Dict]:
-        """Get all races."""
-        return self.load_races().get("races", [])
+    def get_upcoming_races(self, limit: int = 5) -> List[Dict]:
+        return self._upcoming()[:limit]
 
-    def convert_utc_to_local(
-        self, date_str: str, time_str: str, timezone_str: str = "UTC"
-    ) -> Dict:
-        """Convert UTC time to local time."""
-        return timezone_utils.convert_utc_to_local(date_str, time_str, timezone_str)
+    def get_next_session(self) -> Optional[Dict]:
+        now = timezone_utils.utc_now()
+        all_sessions = []
+        for race in self.get_all_races():
+            if race.get("canceled"):
+                continue
+            for session in race.get("sessions", []):
+                if session.get("date") is None:
+                    continue
+                if self.get_session_datetime(session) > now:
+                    s = session.copy()
+                    s.update({
+                        "race_name": race.get("name"),
+                        "race_id": race.get("id", "unknown"),
+                        "country": race.get("country", "Unknown"),
+                        "circuit": race.get("circuit", "Unknown Circuit"),
+                    })
+                    all_sessions.append(s)
+        if all_sessions:
+            return min(all_sessions, key=lambda x: self.get_session_datetime(x))
+        return None
 
-    def add_timezone_info_to_race(self, race: Dict) -> Dict:
-        """Add timezone-converted times to a race."""
-        return timezone_utils.add_timezone_info_to_race(race)
-
-    def add_timezone_info_to_session(self, session: Dict) -> Dict:
-        """Add timezone-converted time to a session."""
-        return timezone_utils.add_timezone_info_to_session(session)
-
-    def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:
-        """Add timezone info to all races."""
-        return timezone_utils.add_timezone_info_to_races(races)
+    # -- Canceled races -----------------------------------------------------
 
     def get_canceled_race_ids(self) -> List[str]:
-        """Get list of canceled race IDs."""
-        try:
-            if os.path.exists(self.canceled_file):
-                with open(self.canceled_file, "r", encoding="utf-8") as f:
-                    canceled_data = json.load(f)
-                    return canceled_data.get("canceled_race_ids", [])
-            return []
-        except Exception as e:
-            print(f"Error loading canceled race IDs: {e}")
-            return []
+        return self._canceled_store.load().get("canceled_race_ids", [])
 
     def set_canceled_race_ids(self, race_ids: List[str]) -> bool:
-        """Update the list of canceled race IDs."""
-        try:
-            canceled_data = {
-                "canceled_race_ids": race_ids,
-                "notes": "Add race IDs to this list to mark them as canceled. Race IDs should match the id field from races.json",
-            }
-            os.makedirs(os.path.dirname(self.canceled_file), exist_ok=True)
-            with open(self.canceled_file, "w", encoding="utf-8") as f:
-                json.dump(canceled_data, f, indent=2)
-            return True
-        except Exception as e:
-            print(f"Error saving canceled race IDs: {e}")
-            return False
+        self._canceled_store.save({"canceled_race_ids": race_ids})
+        return True
 
     def cancel_race(self, race_id: str) -> bool:
-        """Mark a race as canceled."""
         if not race_id:
             return False
-
-        canceled_ids = self.get_canceled_race_ids()
-        if race_id not in canceled_ids:
-            canceled_ids.append(race_id)
-            return self.set_canceled_race_ids(canceled_ids)
+        ids = self.get_canceled_race_ids()
+        if race_id not in ids:
+            ids.append(race_id)
+            return self.set_canceled_race_ids(ids)
         return True
 
     def uncancel_race(self, race_id: str) -> bool:
-        """Remove canceled status from a race."""
         if not race_id:
             return False
-
-        canceled_ids = self.get_canceled_race_ids()
-        if race_id in canceled_ids:
-            canceled_ids.remove(race_id)
-            return self.set_canceled_race_ids(canceled_ids)
+        ids = self.get_canceled_race_ids()
+        if race_id in ids:
+            ids.remove(race_id)
+            return self.set_canceled_race_ids(ids)
         return True
 
+    # -- Drivers ------------------------------------------------------------
+
+    def load_drivers(self) -> Dict:
+        return self._drivers_store.load()
+
+    def save_drivers(self, data: Dict) -> bool:
+        self._drivers_store.save(data)
+        return True
+
+    def get_all_drivers(self) -> List[Dict]:
+        return self.load_drivers().get("drivers", [])
+
+    def get_driver_teams(self) -> Dict[str, str]:
+        """driver_id -> team_id."""
+        return {
+            d["driverId"]: d["teamId"]
+            for d in self.get_all_drivers()
+            if d.get("driverId") and d.get("teamId")
+        }
+
+    def get_driver_short_names(self) -> Dict[str, str]:
+        """driver_id -> shortName."""
+        return {
+            d["driverId"]: d["shortName"]
+            for d in self.get_all_drivers()
+            if d.get("driverId") and d.get("shortName")
+        }
+
+    # -- F1 API: races ------------------------------------------------------
+
     def fetch_f1_api_data(self) -> Optional[Dict]:
-        """Fetch data from F1 API."""
         try:
             import requests
-
-            response = requests.get("https://f1api.dev/api/current", timeout=10)
-            response.raise_for_status()
-            return response.json()
+            resp = requests.get("https://f1api.dev/api/current", timeout=10)
+            resp.raise_for_status()
+            return resp.json()
         except Exception as e:
-            print(f"Error fetching F1 API data: {e}")
+            self._logger.error("Error fetching F1 API data: %s", e)
             return None
 
     def transform_api_data(self, api_data: Dict) -> Dict:
-        """Transform F1 API data to our internal format."""
+        """Transform raw F1 API schedule into our race format."""
         races = []
-
         for api_race in api_data.get("races", []):
             schedule = api_race.get("schedule", {})
             sessions = []
 
-            def _append_session(session_type: str, key: str):
-                session_data = schedule.get(key)
-                if (
-                    session_data
-                    and session_data.get("date")
-                    and session_data.get("time")
-                ):
-                    sessions.append(
-                        {
-                            "type": session_type,
-                            "date": session_data["date"],
-                            "time": session_data["time"],
-                        }
-                    )
+            def _append(session_type: str, key: str):
+                sd = schedule.get(key)
+                if sd and sd.get("date") and sd.get("time"):
+                    sessions.append({"type": session_type, "date": sd["date"], "time": sd["time"]})
 
-            _append_session("FP1", "fp1")
-            _append_session("FP2", "fp2")
-            _append_session("FP3", "fp3")
+            _append("FP1", "fp1")
+            _append("FP2", "fp2")
+            _append("FP3", "fp3")
 
-            if (
-                schedule.get("sprintQualy")
-                and schedule["sprintQualy"].get("date")
-                and schedule["sprintQualy"].get("time")
-            ):
-                sessions.append(
-                    {
-                        "type": "Sprint Qualifying",
-                        "date": schedule["sprintQualy"]["date"],
-                        "time": schedule["sprintQualy"]["time"],
-                    }
-                )
+            sq = schedule.get("sprintQualy")
+            if sq and sq.get("date") and sq.get("time"):
+                sessions.append({"type": "Sprint Qualifying", "date": sq["date"], "time": sq["time"]})
 
-            _append_session("Qualifying", "qualy")
+            _append("Qualifying", "qualy")
 
-            if (
-                schedule.get("sprintRace")
-                and schedule["sprintRace"].get("date")
-                and schedule["sprintRace"].get("time")
-            ):
-                sessions.append(
-                    {
-                        "type": "Sprint Race",
-                        "date": schedule["sprintRace"]["date"],
-                        "time": schedule["sprintRace"]["time"],
-                    }
-                )
+            sr = schedule.get("sprintRace")
+            if sr and sr.get("date") and sr.get("time"):
+                sessions.append({"type": "Sprint Race", "date": sr["date"], "time": sr["time"]})
 
-            if (
-                not schedule.get("race")
-                or not schedule["race"].get("date")
-                or not schedule["race"].get("time")
-            ):
+            race_sched = schedule.get("race")
+            if not race_sched or not race_sched.get("date") or not race_sched.get("time"):
                 continue
+            sessions.append({"type": "Race", "date": race_sched["date"], "time": race_sched["time"]})
 
-            # Add race as a session for consistency
-            sessions.append(
-                {
-                    "type": "Race",
-                    "date": schedule["race"]["date"],
-                    "time": schedule["race"]["time"],
-                }
-            )
-
-            race = {
+            circuit = api_race.get("circuit", {})
+            races.append({
                 "id": api_race.get("raceId"),
                 "name": api_race.get("raceName"),
-                "country": api_race.get("circuit", {}).get("country", "Unknown"),
-                "circuit": api_race.get("circuit", {}).get("circuitName", "Unknown"),
+                "country": circuit.get("country", "Unknown"),
+                "circuit": circuit.get("circuitName", "Unknown"),
                 "sessions": sessions,
                 "round": api_race.get("round"),
-                "city": api_race.get("circuit", {}).get("city"),
-            }
-
-            races.append(race)
+                "city": circuit.get("city"),
+            })
 
         return {"races": races}
 
     def update_races_from_api(self) -> bool:
-        """Update races from F1 API."""
-        try:
-            api_data = self.fetch_f1_api_data()
-            if api_data:
-                transformed_data = self.transform_api_data(api_data)
-                self.save_races(transformed_data)
-                return True
+        api_data = self.fetch_f1_api_data()
+        if not api_data:
             return False
-        except Exception as e:
-            print(f"Error updating races from API: {e}")
-            return False
+        self.save_races(self.transform_api_data(api_data))
+        return True
+
+    # -- F1 API: drivers ----------------------------------------------------
 
     def fetch_drivers_api_data(self) -> Optional[Dict]:
-        """Fetch drivers data from F1 API."""
         try:
             import requests
-
-            response = requests.get("https://f1api.dev/api/current/drivers", timeout=10)
-            response.raise_for_status()
-            return response.json()
+            resp = requests.get("https://f1api.dev/api/current/drivers", timeout=10)
+            resp.raise_for_status()
+            return resp.json()
         except Exception as e:
-            print(f"Error fetching drivers from API: {e}")
+            self._logger.error("Error fetching drivers from API: %s", e)
             return None
 
-    def save_drivers(self, data: Dict) -> bool:
-        """Save drivers to JSON file."""
-        try:
-            os.makedirs(os.path.dirname(self.drivers_file), exist_ok=True)
-            with open(self.drivers_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-            return True
-        except Exception as e:
-            print(f"Error saving drivers: {e}")
-            return False
-
-    def load_drivers(self) -> Dict:
-        """Load drivers from JSON file."""
-        try:
-            if not os.path.exists(self.drivers_file):
-                return {"drivers": []}
-            with open(self.drivers_file, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Error loading drivers: {e}")
-            return {"drivers": []}
-
-    def get_all_drivers(self) -> List[Dict]:
-        """Get all drivers."""
-        drivers_data = self.load_drivers()
-        return drivers_data.get("drivers", [])
-
-    def get_driver_teams(self) -> Dict[str, str]:
-        """Return mapping of driver_id -> team_id."""
-        teams = {}
-        for d in self.load_drivers().get("drivers", []):
-            did, tid = d.get("driverId"), d.get("teamId")
-            if did and tid:
-                teams[did] = tid
-        return teams
-
-    def get_driver_short_names(self) -> Dict[str, str]:
-        """Return mapping of driver_id -> shortName."""
-        names = {}
-        for d in self.load_drivers().get("drivers", []):
-            did, sn = d.get("driverId"), d.get("shortName")
-            if did and sn:
-                names[did] = sn
-        return names
-
     def update_drivers_from_api(self) -> bool:
-        """Update drivers from F1 API."""
-        try:
-            api_data = self.fetch_drivers_api_data()
-            if api_data:
-                self.save_drivers(api_data)
-                return True
+        api_data = self.fetch_drivers_api_data()
+        if not api_data:
             return False
-        except Exception as e:
-            print(f"Error updating drivers from API: {e}")
-            return False
+        return self.save_drivers(api_data)
+
+    # -- Bootstrap ----------------------------------------------------------
+
+    def ensure_data_file_exists(self) -> None:
+        """Create races.json from API or a placeholder if it doesn't exist."""
+        if os.path.exists(self._races_store.filepath):
+            return
+        api_data = self.fetch_f1_api_data()
+        if api_data:
+            self.save_races(self.transform_api_data(api_data))
+            return
+        self.save_races({"races": [{
+            "id": "n/a", "name": "n/a", "country": "n/a", "circuit": "n/a",
+            "date": "2024-01-01", "time": "00:00:00",
+            "sessions": [{"type": "n/a", "date": "2024-01-01", "time": "00:00:00"}],
+        }]})
 
 
 race_data_manager = RaceDataManager()

@@ -1,9 +1,9 @@
 import time
 import threading
-import logging
 from datetime import datetime, timedelta
-from typing import Callable, Dict, List, Optional, Any
+from typing import Callable, Dict, List, Optional
 
+from .core.logger import get_logger
 from .timezone_utils import timezone_utils
 
 
@@ -22,7 +22,7 @@ class EventManager:
         self._thread: Optional[threading.Thread] = None
         self._events: Dict[str, Dict] = {}
         self._lock = threading.Lock()
-        self._logger = logging.getLogger(__name__)
+        self._logger = get_logger(__name__)
 
     def schedule_event(
         self,
@@ -301,7 +301,7 @@ class EventManager:
             body = f"{session_type} event for {race_name}"
 
         # Send to all subscribed users
-        result = push_manager.send_notification_to_all(title, body)
+        result = push_manager.send_to_all(title, body)
         if not result.get("success"):
             self._logger.warning(f"Failed to send push notification: {title}")
 

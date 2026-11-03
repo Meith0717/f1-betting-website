@@ -69,6 +69,10 @@ class UserService:
     def exists(self, username: str) -> bool:
         return username in self.load_all()
 
+    def is_admin(self, username: str) -> bool:
+        """Check if a user has admin privileges."""
+        return self.get(username).get("is_admin", False) if self.get(username) else False
+
     def create(
         self,
         username: str,

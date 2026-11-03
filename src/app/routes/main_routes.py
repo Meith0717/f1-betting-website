@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, flash
+from flask import Blueprint, render_template, session, redirect, url_for, request, flash, current_app
 from ..auth_utils import load_users, save_users, hash_password, verify_password
 from ..auth_decorators import login_required
 from ..race_data_manager import race_data_manager
@@ -25,8 +25,6 @@ def help_page():
 @main_bp.route("/")
 def index():
     """Main index — welcome page or user dashboard."""
-    from flask import current_app
-
     current_app.logger.info("Main index route accessed")
 
     # Race data with timezone info
@@ -72,8 +70,6 @@ def index():
             next_race=next_race,
             next_session=next_session,
             upcoming_races=upcoming_races,
-            betting_manager=betting_manager,
-            race_data_manager=race_data_manager,
             driver_teams=race_data_manager.get_driver_teams(),
             driver_short_names=race_data_manager.get_driver_short_names(),
         )
@@ -92,7 +88,6 @@ def profile():
         username=session["username"],
         is_admin=session.get("is_admin", False),
         users=load_users(),
-        betting_manager=betting_manager,
     )
 
 
