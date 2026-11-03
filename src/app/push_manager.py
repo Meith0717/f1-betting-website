@@ -21,6 +21,8 @@ from .core import JsonStore, config
 from .core.logger import get_logger
 from .timezone_utils import timezone_utils
 
+logger = get_logger(__name__)
+
 try:
     import pywebpush
     from pywebpush import webpush
@@ -46,7 +48,6 @@ class PushManager:
                 },
             },
         )
-        self._logger = get_logger(__name__)
 
     def _load(self) -> Dict:
         data = self._store.load()
@@ -77,13 +78,13 @@ class PushManager:
                     "created_at": timezone_utils.now_iso(),
                     "updated_at": timezone_utils.now_iso(),
                 })
-                self._logger.info("Added push subscription for %s", username)
+                logger.info("Added push subscription for %s", username)
 
             data.setdefault("metadata", {})["updated_at"] = timezone_utils.now_iso()
             self._save(data)
             return True
         except Exception as e:
-            self._logger.error("Error adding subscription for %s: %s", username, e)
+            logger.error("Error adding subscription for %s: %s", username, e)
             return False
 
     def remove_subscription(self, username: str, endpoint: str) -> bool:
@@ -101,10 +102,10 @@ class PushManager:
 
             data.setdefault("metadata", {})["updated_at"] = timezone_utils.now_iso()
             self._save(data)
-            self._logger.info("Removed push subscription for %s", username)
+            logger.info("Removed push subscription for %s", username)
             return True
         except Exception as e:
-            self._logger.error("Error removing subscription for %s: %s", username, e)
+            logger.error("Error removing subscription for %s: %s", username, e)
             return False
 
     def remove_all_subscriptions(self, username: str) -> int:
@@ -117,10 +118,10 @@ class PushManager:
             del data["subscriptions"][username]
             data.setdefault("metadata", {})["updated_at"] = timezone_utils.now_iso()
             self._save(data)
-            self._logger.info("Removed %d push subscriptions for %s", count, username)
+            logger.info("Removed %d push subscriptions for %s", count, username)
             return count
         except Exception as e:
-            self._logger.error("Error removing all subscriptions for %s: %s", username, e)
+            logger.error("Error removing all subscriptions for %s: %s", username, e)
             return 0
 
     # -- Queries ------------------------------------------------------------
@@ -190,7 +191,7 @@ class PushManager:
             except Exception as e:
                 failed += 1
                 errors.append({"endpoint": sub["endpoint"], "error": str(e)})
-                self._logger.error("Push failed for %s: %s", username, e)
+                logger.error("Push failed for %s: %s", username, e)
 
         return {"success": failed == 0, "sent": sent, "failed": failed, "errors": errors}
 

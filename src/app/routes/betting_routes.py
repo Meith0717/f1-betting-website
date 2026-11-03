@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from ..auth_decorators import login_required
-from ..betting_manager import betting_manager
+from ..core.logger import get_logger
 from ..race_data_manager import race_data_manager
 from ..services import bet_service, user_service, resolution_service
 from ..services.view_models import build_betting_dashboard, race_summary
+
+logger = get_logger(__name__)
 
 betting_bp = Blueprint("betting", __name__)
 
@@ -23,9 +25,9 @@ def _extract_bet_form() -> tuple:
 @login_required
 def betting_dashboard():
     """Show closed/resolved bets grouped by race."""
-    closed = betting_manager.check_and_close_expired_bets()
+    closed = bet_service.check_and_close_expired()
     if closed:
-        current_app.logger.info(f"Closed bets for {closed} races")
+        logger.info("Closed bets for %d races", closed)
 
     races_with_bets, races_without_bets = build_betting_dashboard(
         bet_service, race_data_manager, resolution_service
@@ -49,7 +51,7 @@ def place_bet(race_id):
     """Place a bet on a specific race."""
     username = session["username"]
 
-    if not betting_manager.can_bet_on_race(race_id, username):
+    if not bet_service.can_bet_on_race(race_id, username):
         flash("Betting is not available for this race", "error")
         return redirect(url_for("betting.betting_dashboard"))
 
@@ -61,7 +63,7 @@ def place_bet(race_id):
     if request.method == "POST":
         bets, fastest_lap = _extract_bet_form()
 
-        if betting_manager.place_bet(username, race_id, bets, fastest_lap):
+        if bet_service.place_bet(username, race_id, bets, fastest_lap):
             flash("Bet placed successfully!", "success")
             return redirect(url_for("main.index"))
         flash("Error placing bet. Please try again.", "error")
@@ -70,7 +72,7 @@ def place_bet(race_id):
         "betting/bet_form.html",
         mode="place",
         race=race_summary(race),
-        drivers=betting_manager.get_available_drivers_for_race(race_id),
+        drivers=bet_service.get_available_drivers(),
     )
 
 
@@ -80,11 +82,11 @@ def edit_bet(race_id):
     """Edit an existing bet."""
     username = session["username"]
 
-    if betting_manager.is_betting_closed(race_id):
+    if bet_service.is_betting_closed(race_id):
         flash("You can no longer edit this bet.", "error")
         return redirect(url_for("main.index"))
 
-    existing = betting_manager.get_user_bets(username).get(race_id)
+    existing = bet_service.get_user_bets(username).get(race_id)
     if not existing:
         flash("Bet not found", "error")
         return redirect(url_for("betting.betting_dashboard"))
@@ -102,7 +104,7 @@ def edit_bet(race_id):
 
         bet_service.remove_bet(username, race_id)
 
-        if betting_manager.place_bet(username, race_id, bets, fastest_lap):
+        if bet_service.place_bet(username, race_id, bets, fastest_lap):
             flash("Bet updated successfully!", "success")
             return redirect(url_for("main.index"))
         flash("Error updating bet. Please try again.", "error")
@@ -111,7 +113,7 @@ def edit_bet(race_id):
         "betting/bet_form.html",
         mode="edit",
         race=race_summary(race),
-        drivers=betting_manager.get_available_drivers_for_race(race_id),
+        drivers=bet_service.get_available_drivers(),
         existing_bet=existing,
     )
 
@@ -122,7 +124,7 @@ def cancel_bet(race_id):
     """Cancel an existing bet."""
     username = session["username"]
 
-    if betting_manager.is_betting_closed(race_id):
+    if bet_service.is_betting_closed(race_id):
         flash("You can no longer delete this bet.", "error")
         return redirect(url_for("main.index"))
 
@@ -144,7 +146,7 @@ def cancel_bet(race_id):
 def betting_history():
     """Show resolved/closed bet history."""
     username = session["username"]
-    all_bets = betting_manager.get_all_bets()
+    all_bets = bet_service.load_all()
     short_names = race_data_manager.get_driver_short_names()
 
     races_with_bets = {}
@@ -198,7 +200,7 @@ def resolve_race_from_api(race_id):
         flash("Only admins can resolve races", "error")
         return redirect(url_for("betting.betting_dashboard"))
 
-    if betting_manager.resolve_race_from_api(race_id):
+    if resolution_service.resolve_from_api(race_id):
         flash(f"Race {race_id} resolved successfully using F1 API results!", "success")
     else:
         flash(f"Failed to resolve race {race_id} from F1 API.", "error")
@@ -218,7 +220,7 @@ def manual_resolve_race(race_id):
         return render_template(
             "betting/manual_resolve.html",
             race_id=race_id,
-            drivers=betting_manager.get_available_drivers_for_race(race_id),
+            drivers=bet_service.get_available_drivers(),
         )
 
     results, fastest_lap = _extract_bet_form()
@@ -227,7 +229,7 @@ def manual_resolve_race(race_id):
         flash("Please select all positions and fastest lap", "error")
         return redirect(url_for("betting.manual_resolve_race", race_id=race_id))
 
-    if betting_manager.resolve_race_with_fastest_lap(race_id, results, fastest_lap):
+    if resolution_service.resolve_with_results(race_id, results, fastest_lap):
         flash(f"Race {race_id} resolved successfully with manual results!", "success")
     else:
         flash(f"Failed to resolve race {race_id}", "error")

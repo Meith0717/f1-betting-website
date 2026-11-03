@@ -15,6 +15,8 @@ from ..core.logger import get_logger
 from ..core.scoring import ScoringEngine
 from ..timezone_utils import timezone_utils
 
+logger = get_logger(__name__)
+
 
 class ResolutionService:
     """Resolves races and awards points to users."""
@@ -32,7 +34,6 @@ class ResolutionService:
                 "data", "race_results.json",
             )
         self._cache = JsonStore(results_cache_file, default={})
-        self._logger = get_logger(__name__)
         self._bet_service = bet_service
         self._user_service = user_service
         self._race_manager = race_manager
@@ -79,7 +80,7 @@ class ResolutionService:
             {username: {"total": int, "breakdown": {...}}}
         """
         if len(top3_drivers) != 3:
-            self._logger.warning("Invalid results for %s: %d drivers", race_id, len(top3_drivers))
+            logger.warning("Invalid results for %s: %d drivers", race_id, len(top3_drivers))
             return {}
 
         if not self._scoring:
@@ -125,17 +126,17 @@ class ResolutionService:
 
         race = self._race_manager.get_race_by_id(race_id)
         if not race or not race.get("round"):
-            self._logger.error("Cannot fetch results for %s: missing race/round", race_id)
+            logger.error("Cannot fetch results for %s: missing race/round", race_id)
             return None
 
         year = race_id.split("_")[-1]
         url = f"https://f1api.dev/api/{year}/{race['round']}/race"
-        self._logger.info("Fetching race results from %s", url)
+        logger.info("Fetching race results from %s", url)
 
         try:
             resp = requests.get(url, timeout=10)
             if resp.status_code != 200:
-                self._logger.error("API returned %s for %s", resp.status_code, race_id)
+                logger.error("API returned %s for %s", resp.status_code, race_id)
                 return None
             transformed = self._transform(resp.json(), race_id, url)
             cache = self._cache.load()
@@ -143,7 +144,7 @@ class ResolutionService:
             self._cache.save(cache)
             return transformed
         except Exception as e:
-            self._logger.error("Error fetching results for %s: %s", race_id, e)
+            logger.error("Error fetching results for %s: %s", race_id, e)
             return None
 
     def get_results(self, race_id: str) -> Optional[Dict]:
@@ -157,7 +158,7 @@ class ResolutionService:
         """Resolve a race using F1 API results."""
         results = self.get_results(race_id)
         if not results or len(results.get("results", [])) < 3:
-            self._logger.error("Insufficient results for %s", race_id)
+            logger.error("Insufficient results for %s", race_id)
             return False
 
         top3 = [r["driverId"] for r in results["results"][:3] if r.get("driverId")]
@@ -224,7 +225,7 @@ class ResolutionService:
             return out
 
         except Exception as e:
-            self._logger.error("Error transforming results for %s: %s", race_id, e)
+            logger.error("Error transforming results for %s: %s", race_id, e)
             return {"race_id": race_id, "results": [], "error": str(e)}
 
 

@@ -1,9 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from ..auth_utils import (
-    load_users, ensure_first_admin,
-    hash_password, verify_password, get_registration_password,
-)
 from ..auth_decorators import login_required
+from ..core import config
 from ..services.user_service import user_service
 
 auth_bp = Blueprint("auth", __name__)
@@ -12,14 +9,14 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     """Handle user login."""
-    ensure_first_admin()
+    user_service.ensure_first_admin()
 
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        users = load_users()
+        users = user_service.load_all()
 
-        if username in users and verify_password(users[username]["password"], password):
+        if username in users and user_service.verify_password(users[username]["password"], password):
             session["username"] = username
             session["is_admin"] = users[username].get("is_admin", False)
 
@@ -46,12 +43,12 @@ def register():
         password = request.form.get("password")
         reg_password = request.form.get("registration_password")
 
-        users = load_users()
+        users = user_service.load_all()
         is_first = len(users) == 0
 
         if not username or not password:
             flash("Username and password are required", "error")
-        elif not is_first and reg_password != get_registration_password():
+        elif not is_first and reg_password != config.registration_password():
             flash("Invalid registration password", "error")
         elif username in users:
             flash("Username already exists", "error")
@@ -61,7 +58,7 @@ def register():
             return redirect(url_for("auth.login"))
 
     return render_template(
-        "auth/register.html", require_registration_password=len(load_users()) > 0
+        "auth/register.html", require_registration_password=len(user_service.load_all()) > 0
     )
 
 

@@ -15,6 +15,8 @@ from .core import JsonStore
 from .core.logger import get_logger
 from .timezone_utils import timezone_utils
 
+logger = get_logger(__name__)
+
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
@@ -34,7 +36,6 @@ class RaceDataManager:
             os.path.join(_DATA_DIR, "drivers.json"),
             default={"drivers": []},
         )
-        self._logger = get_logger(__name__)
 
     # -- Timezone delegation (backward-compat aliases) ----------------------
 
@@ -198,7 +199,7 @@ class RaceDataManager:
             resp.raise_for_status()
             return resp.json()
         except Exception as e:
-            self._logger.error("Error fetching F1 API data: %s", e)
+            logger.error("Error fetching F1 API data: %s", e)
             return None
 
     def transform_api_data(self, api_data: Dict) -> Dict:
@@ -261,7 +262,7 @@ class RaceDataManager:
             resp.raise_for_status()
             return resp.json()
         except Exception as e:
-            self._logger.error("Error fetching drivers from API: %s", e)
+            logger.error("Error fetching drivers from API: %s", e)
             return None
 
     def update_drivers_from_api(self) -> bool:

@@ -1,12 +1,14 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, flash, current_app
-from ..auth_utils import load_users, verify_password
+from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from ..auth_decorators import login_required
+from ..core.logger import get_logger
 from ..race_data_manager import race_data_manager
-from ..betting_manager import betting_manager
+from ..services import bet_service
 from ..services.user_service import user_service
 from ..services.view_models import build_overview_context
 from datetime import datetime
 import pytz
+
+logger = get_logger(__name__)
 
 main_bp = Blueprint("main", __name__)
 
@@ -26,7 +28,7 @@ def help_page():
 @main_bp.route("/")
 def index():
     """Main index — welcome page or user dashboard."""
-    current_app.logger.info("Main index route accessed")
+    logger.info("Main index route accessed")
 
     # Race data with timezone info
     try:
@@ -40,16 +42,16 @@ def index():
             next_session = race_data_manager.add_timezone_info_to_session(next_session)
         upcoming_races = race_data_manager.add_timezone_info_to_races(upcoming_races)
     except Exception as e:
-        current_app.logger.error(f"Error getting race data: {e}")
+        logger.error("Error getting race data: %s", e)
         next_race, next_session, upcoming_races = None, None, []
 
     # Auto-close expired bets
     try:
-        closed = betting_manager.check_and_close_expired_bets()
+        closed = bet_service.check_and_close_expired()
         if closed:
-            current_app.logger.info(f"Closed bets for {closed} started races")
+            logger.info("Closed bets for %d started races", closed)
     except Exception as e:
-        current_app.logger.error(f"Error checking expired bets: {e}")
+        logger.error("Error checking expired bets: %s", e)
 
     if "username" not in session:
         return render_template("welcome.html")
@@ -57,11 +59,11 @@ def index():
     # Logged-in user dashboard
     try:
         username = session["username"]
-        users = load_users()
+        users = user_service.load_all()
         leaderboard = user_service.get_leaderboard()
         rank = user_service.get_rank(username)
         overview = build_overview_context(
-            betting_manager, race_data_manager, username, next_race, next_session
+            bet_service, race_data_manager, username, next_race, next_session
         )
 
         return render_template(
@@ -79,7 +81,7 @@ def index():
             **overview,
         )
     except Exception as e:
-        current_app.logger.error(f"Error rendering dashboard: {e}")
+        logger.error("Error rendering dashboard: %s", e)
         flash("Error loading dashboard data", "error")
         return redirect(url_for("main.index"))
 
@@ -92,7 +94,7 @@ def profile():
         "user/profile.html",
         username=session["username"],
         is_admin=session.get("is_admin", False),
-        users=load_users(),
+        users=user_service.load_all(),
     )
 
 
@@ -106,9 +108,9 @@ def change_password():
         confirm = request.form.get("confirm_password")
 
         username = session["username"]
-        users = load_users()
+        users = user_service.load_all()
 
-        if not verify_password(users[username]["password"], current):
+        if not user_service.verify_password(users[username]["password"], current):
             flash("Current password is incorrect", "error")
         elif new != confirm:
             flash("New passwords do not match", "error")

@@ -1,8 +1,7 @@
 """
 User account management service.
 
-Consolidates all user CRUD operations that were previously split between
-auth_utils.py and BettingManager.load_users/save_users/_update_user_scores.
+Consolidates all user CRUD operations in one place.
 """
 
 import hashlib
@@ -15,6 +14,8 @@ import pytz
 
 from ..core import JsonStore, get_logger
 
+logger = get_logger(__name__)
+
 
 class UserService:
     """Manages user accounts stored in JSON."""
@@ -25,7 +26,6 @@ class UserService:
                 os.path.dirname(os.path.dirname(__file__)), "data", "users.json"
             )
         self._store = JsonStore(data_file, default={"users": {}})
-        self._logger = get_logger(__name__)
 
     # -- Password helpers --------------------------------------------------
 
@@ -124,7 +124,7 @@ class UserService:
         """Add points to a user's score and record in score_history."""
         users = self.load_all()
         if username not in users:
-            self._logger.warning("User not found for score update: %s", username)
+            logger.warning("User not found for score update: %s", username)
             return False
 
         current = users[username].get("score", 0)
@@ -138,7 +138,7 @@ class UserService:
             }
         )
         self.save_all(users)
-        self._logger.info(
+        logger.info(
             "Score updated for %s: %s -> %s (+%s)",
             username, current, current + points, points,
         )

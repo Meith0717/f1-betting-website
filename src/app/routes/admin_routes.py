@@ -1,37 +1,32 @@
 from flask import (
     Blueprint, render_template, request, redirect, url_for,
-    session, flash, current_app,
+    session, flash,
 )
-from ..auth_utils import load_users, get_registration_password
 from ..auth_decorators import admin_required
 from ..core import config
+from ..core.logger import get_logger, get_log_file_path
 from ..race_data_manager import race_data_manager
 from ..push_manager import push_manager
+from ..services import bet_service, resolution_service
 from ..services.user_service import user_service
 import os
 import secrets
 
+logger = get_logger(__name__)
+
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-def _log_file_path():
-    return (
-        os.path.join(current_app.instance_path, "logs", "app.log")
-        if current_app.instance_path
-        else "logs/app.log"
-    )
-
-
 def _read_log_entries(max_lines=50):
-    path = _log_file_path()
-    if not os.path.exists(path):
+    path = get_log_file_path()
+    if not path or not os.path.exists(path):
         return [], False
     try:
         with open(path, "r") as f:
             lines = f.readlines()
         return (lines[-max_lines:] if len(lines) > max_lines else lines)[::-1], True
     except Exception as e:
-        current_app.logger.error(f"Error reading log file: {e}")
+        logger.error("Error reading log file: %s", e)
         return [f"Error reading log file: {e}"], True
 
 
@@ -39,15 +34,15 @@ def _read_log_entries(max_lines=50):
 @admin_required
 def admin_dashboard():
     """Admin dashboard with system statistics."""
-    current_app.logger.info("Admin dashboard accessed")
+    logger.info("Admin dashboard accessed")
 
-    users = load_users()
+    users = user_service.load_all()
     log_entries, log_exists = _read_log_entries()
 
     return render_template(
         "admin/dashboard.html",
         users=users,
-        registration_password=get_registration_password(),
+        registration_password=config.registration_password(),
         total_points=sum(u.get("score", 0) for u in users.values()),
         sorted_users=user_service.get_leaderboard(),
         races=race_data_manager.get_all_races(),
@@ -174,8 +169,6 @@ def update_drivers():
 @admin_required
 def resolve_race():
     """Resolve a race manually and award points."""
-    from ..betting_manager import betting_manager
-
     if request.method == "POST":
         race_id = request.form.get("race_id")
         drivers = [
@@ -190,9 +183,9 @@ def resolve_race():
             return redirect(url_for("admin.resolve_race"))
 
         if fastest_lap:
-            summary = betting_manager.resolve_race_with_fastest_lap(race_id, drivers, fastest_lap)
+            summary = resolution_service.resolve_with_results(race_id, drivers, fastest_lap)
         else:
-            summary = betting_manager.resolve_race(race_id, drivers)
+            summary = resolution_service.resolve_with_results(race_id, drivers)
 
         if summary:
             flash(f"Race resolved! Points awarded to {len(summary)} users", "success")
@@ -203,7 +196,7 @@ def resolve_race():
     return render_template(
         "admin/resolve_race.html",
         races=race_data_manager.get_all_races(),
-        drivers=betting_manager.get_available_drivers_for_race(""),
+        drivers=bet_service.get_available_drivers(),
     )
 
 
@@ -246,15 +239,15 @@ def uncancel_race(race_id=None):
 def clear_logs():
     """Clear the application log file."""
     try:
-        path = _log_file_path()
-        if os.path.exists(path):
+        path = get_log_file_path()
+        if path and os.path.exists(path):
             with open(path, "w") as f:
                 f.write("Log file cleared\n")
-            current_app.logger.info("Log file cleared by admin")
+            logger.info("Log file cleared by admin")
             flash("Log file cleared successfully!", "success")
         else:
             flash("No log file found to clear", "info")
     except Exception as e:
-        current_app.logger.error(f"Error clearing logs: {e}")
+        logger.error("Error clearing logs: %s", e)
         flash("Error clearing log file", "error")
     return redirect(url_for("admin.admin_dashboard"))

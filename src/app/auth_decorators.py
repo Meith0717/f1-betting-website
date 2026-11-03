@@ -28,9 +28,9 @@ def admin_required(f):
             flash("Please login first", "error")
             return redirect(url_for("auth.login"))
 
-        from .auth_utils import load_users
+        from .services.user_service import user_service
 
-        user_data = load_users().get(session["username"], {})
+        user_data = user_service.get(session["username"]) or {}
         if not user_data.get("is_admin", False):
             flash("Admin access required", "error")
             return redirect(url_for("main.index"))

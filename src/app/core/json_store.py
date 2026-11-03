@@ -6,11 +6,14 @@ copy-pasted across save_bets(), save_users(), and save_subscriptions().
 """
 
 import json
-import logging
 import os
 import tempfile
 import shutil
 from typing import Any, Dict, Optional
+
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class JsonStore:
@@ -19,7 +22,6 @@ class JsonStore:
     def __init__(self, filepath: str, default: Optional[Dict] = None):
         self.filepath = filepath
         self.default = default if default is not None else {}
-        self._logger = logging.getLogger(__name__)
         self._ensure_file()
 
     def _ensure_file(self) -> None:
@@ -45,7 +47,7 @@ class JsonStore:
                 data.setdefault(key, value)
             return data
         except (json.JSONDecodeError, IOError) as e:
-            self._logger.error("Error loading %s: %s", self.filepath, e)
+            logger.error("Error loading %s: %s", self.filepath, e)
             return dict(self.default)
 
     def save(self, data: Dict[str, Any]) -> None:
@@ -70,14 +72,14 @@ class JsonStore:
                 os.remove(backup_file)
 
         except Exception as e:
-            self._logger.error("Error saving %s: %s", self.filepath, e)
+            logger.error("Error saving %s: %s", self.filepath, e)
             # Restore from backup
             if os.path.exists(backup_file):
                 try:
                     shutil.move(backup_file, self.filepath)
-                    self._logger.error("Restored from backup after save failure")
+                    logger.error("Restored from backup after save failure")
                 except Exception as restore_error:
-                    self._logger.error(
+                    logger.error(
                         "Failed to restore backup: %s", restore_error
                     )
             raise

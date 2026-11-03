@@ -9,12 +9,13 @@ from typing import Dict
 
 from ..core.logger import get_logger
 
+logger = get_logger(__name__)
+
 
 class NotificationService:
     """Builds and sends race-related push notifications."""
 
     def __init__(self, push_manager=None):
-        self._logger = get_logger(__name__)
         self._push = push_manager  # injected to avoid circular import
 
     def set_push_manager(self, push_manager) -> None:
@@ -50,7 +51,7 @@ class NotificationService:
         title, body = self.build_message(data)
         result = self._push.send_to_all(title, body)
         if not result.get("success") and result.get("failed", 0) > 0:
-            self._logger.warning("Failed to send push notification: %s", title)
+            logger.warning("Failed to send push notification: %s", title)
         return result.get("success", False)
 
 

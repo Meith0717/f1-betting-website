@@ -10,8 +10,10 @@ from datetime import timedelta
 from typing import Dict, List, Optional
 
 from ..core import JsonStore
-from ..core.logger import get_logger as _get_logger
+from ..core.logger import get_logger
 from ..timezone_utils import timezone_utils
+
+logger = get_logger(__name__)
 
 
 class BetService:
@@ -29,7 +31,6 @@ class BetService:
                 "metadata": {"created_at": timezone_utils.now_iso(), "version": "1.0"},
             },
         )
-        self._logger = _get_logger(__name__)
         self._race_manager = race_manager  # injected to avoid circular import
 
     def set_race_manager(self, race_manager) -> None:
@@ -71,7 +72,7 @@ class BetService:
     ) -> bool:
         """Place (or overwrite) a bet. Validates 3 unique drivers + fastest lap."""
         if len(drivers) != 3 or len(set(drivers)) != 3 or not fastest_lap:
-            self._logger.warning(
+            logger.warning(
                 "Invalid bet from %s on %s: drivers=%s, fastest_lap=%s",
                 username, race_id, drivers, fastest_lap,
             )
@@ -87,7 +88,7 @@ class BetService:
             "created_at": timezone_utils.now_iso(),
         }
         self.save_all(data)
-        self._logger.info(
+        logger.info(
             "Bet placed: %s on %s - %s (FL: %s)", username, race_id, drivers, fastest_lap
         )
         return True
@@ -123,7 +124,7 @@ class BetService:
             entry["closed_at"] = timezone_utils.now_iso()
 
         self.save_all(data)
-        self._logger.info("Race %s marked as closed", race_id)
+        logger.info("Race %s marked as closed", race_id)
         return True
 
     def check_and_close_expired(self) -> int:
@@ -148,7 +149,7 @@ class BetService:
                 closed += 1
 
         if closed:
-            self._logger.info("Auto-closed bets for %d started races", closed)
+            logger.info("Auto-closed bets for %d started races", closed)
         return closed
 
     def is_betting_closed(self, race_id: str) -> bool:

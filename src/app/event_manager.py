@@ -13,6 +13,8 @@ from typing import Callable, Dict, Optional
 from .core.logger import get_logger
 from .timezone_utils import timezone_utils
 
+logger = get_logger(__name__)
+
 
 class EventManager:
     """Schedules and triggers one-time events on a background thread."""
@@ -23,7 +25,6 @@ class EventManager:
         self._thread: Optional[threading.Thread] = None
         self._events: Dict[str, Dict] = {}
         self._lock = threading.Lock()
-        self._logger = get_logger(__name__)
 
     def schedule_event(
         self,
@@ -38,7 +39,7 @@ class EventManager:
 
         with self._lock:
             if event_id in self._events:
-                self._logger.warning("Event %s already exists", event_id)
+                logger.warning("Event %s already exists", event_id)
                 return False
             self._events[event_id] = {
                 "trigger_time": trigger_time,
@@ -120,17 +121,17 @@ class EventManager:
             try:
                 event["callback"](event_id, event["data"])
             except Exception as e:
-                self._logger.error("Error triggering event %s: %s", event_id, e)
+                logger.error("Error triggering event %s: %s", event_id, e)
             with self._lock:
                 self._events.pop(event_id, None)
 
     def _run(self) -> None:
-        self._logger.info("Event manager started, checking every %ds", self.check_interval)
+        logger.info("Event manager started, checking every %ds", self.check_interval)
         while self._running:
             try:
                 self._check_events()
             except Exception as e:
-                self._logger.error("Event manager error: %s", e)
+                logger.error("Event manager error: %s", e)
             time.sleep(self.check_interval)
 
     def start(self) -> None:
@@ -144,7 +145,7 @@ class EventManager:
         self._running = False
         if self._thread:
             self._thread.join(timeout=5)
-        self._logger.info("Event manager stopped")
+        logger.info("Event manager stopped")
 
 
 event_manager = EventManager()

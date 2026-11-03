@@ -10,6 +10,10 @@ import platform
 import importlib.metadata
 from flask import Blueprint, jsonify, send_from_directory
 
+from ..core.logger import get_logger
+
+logger = get_logger(__name__)
+
 system_bp = Blueprint("system", __name__)
 
 
@@ -40,5 +44,5 @@ def debug_info():
         "registered_blueprints": list(current_app.blueprints.keys()),
         "routes": [str(rule) for rule in current_app.url_map.iter_rules()],
     }
-    current_app.logger.debug("Debug endpoint accessed")
+    logger.debug("Debug endpoint accessed")
     return jsonify(info)

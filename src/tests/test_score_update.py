@@ -1,161 +1,75 @@
 #!/usr/bin/env python3
 """
-Test script to verify that user scores are updated correctly when races are resolved.
+Test that user scores are updated correctly when races are resolved.
+Uses ResolutionService and UserService directly.
 """
 
-import sys
 import os
-import json
-from datetime import datetime
+import sys
+import tempfile
 
-# Add the src directory to the path (parent of tests)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from app.betting_manager import BettingManager
+from app.services import bet_service, resolution_service, user_service
 
 
-def test_score_updating():
+def test_score_updating(app):
     """Test that user scores are updated when races are resolved."""
+    with app.app_context():
+        # Set up driver teams
+        resolution_service.set_driver_teams({
+            "ver": "red_bull",
+            "ham": "mercedes",
+            "lec": "ferrari",
+            "alc": "aston_martin",
+            "rus": "mercedes",
+            "sai": "ferrari",
+        })
 
-    print("🔄 Testing Score Updates in User Data")
-    print("=" * 50)
+        # Clear and create test users
+        user_service.save_all({"users": {}})
+        user_service.create("test_user1", "test", is_admin=False)
+        user_service.create("test_user2", "test", is_admin=False)
+        user_service.update("test_user1", score=10)
 
-    # Initialize betting manager with test data directory
-    test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")
-    os.makedirs(test_data_dir, exist_ok=True)
-
-    betting_manager = BettingManager(data_file=os.path.join(test_data_dir, "bets.json"))
-
-    # Load driver data
-    drivers_file = os.path.join(
-        os.path.dirname(__file__), "..", "app", "data", "drivers.json"
-    )
-    if os.path.exists(drivers_file):
-        with open(drivers_file, "r") as f:
-            driver_data = json.load(f)
-
-        betting_manager.driver_teams = {}
-        for driver in driver_data.get("drivers", []):
-            driver_id = driver.get("driverId")
-            team_id = driver.get("teamId")
-            if driver_id and team_id:
-                betting_manager.driver_teams[driver_id] = team_id
-
-        print(f"✅ Loaded {len(betting_manager.driver_teams)} drivers")
-
-    # Create test users
-    test_users = {
-        "test_user1": {
-            "password": "test",
-            "score": 10,
-            "created_at": datetime.now().isoformat(),
-            "last_login": datetime.now().isoformat(),
-            "is_admin": False,
-            "score_history": [
-                {
-                    "race_id": "test_race_1",
-                    "points": 5,
-                    "total": 5,
-                    "timestamp": datetime.now().isoformat(),
-                },
-                {
-                    "race_id": "test_race_2",
-                    "points": 5,
-                    "total": 10,
-                    "timestamp": datetime.now().isoformat(),
-                },
-            ],
-        },
-        "test_user2": {
-            "password": "test",
-            "score": 0,
-            "created_at": datetime.now().isoformat(),
-            "last_login": datetime.now().isoformat(),
-            "is_admin": False,
-            "score_history": [],
-        },
-    }
-
-    # Save test users
-    users_file = os.path.join(os.path.dirname(__file__), "test_data", "users_test.json")
-    with open(users_file, "w") as f:
-        json.dump({"users": test_users}, f, indent=2)
-
-    print(f"✅ Created test users file: {users_file}")
-
-    # Test race resolution with score updates
-    print("\n🏁 Testing Race Resolution with Score Updates")
-
-    # Create test race results
-    test_results = {
-        "results": [
-            {"driverId": "ver", "teamId": "red_bull"},
-            {"driverId": "ham", "teamId": "mercedes"},
-            {"driverId": "lec", "teamId": "ferrari"},
-        ],
-        "overall_fastest_lap": {"driverId": "ver", "teamId": "red_bull"},
-    }
-
-    # Test user bets
-    user_bets = {
-        "test_user1": {
-            "drivers": ["ver", "ham", "lec"],  # Perfect podium!
-            "fastest_lap": "ver",
-        },
-        "test_user2": {
-            "drivers": ["ver", "alc", "rus"],  # Only 1st correct
-            "fastest_lap": "ham",
-        },
-    }
-
-    # Calculate points
-    points_summary = {}
-    for username, bet in user_bets.items():
-        points_data = betting_manager.calculate_points(bet, test_results)
-        points_summary[username] = {
-            "total": points_data["total_points"],
-            "breakdown": points_data["breakdown"],
-        }
-        print(f"\n👤 {username}:")
-        print(f"   Bet: {bet['drivers']} | Fastest: {bet['fastest_lap']}")
-        print(f"   Points: {points_data['total_points']}/8")
-        print(f"   Breakdown: {points_data['breakdown']}")
-
-    # Update user scores
-    print("\n📊 Updating User Scores...")
-    betting_manager._update_user_scores("test_race_3", points_summary)
-
-    # Verify scores were updated
-    with open(users_file, "r") as f:
-        updated_users = json.load(f)
-
-    print("\n✅ Score Updates Verified:")
-    for username, user_data in updated_users["users"].items():
-        print(f"\n👤 {username}:")
-        print(
-            f"   Previous score: {user_data['score'] - points_summary[username]['total']}"
+        # Place bets
+        bet_service.save_all({"race_bets": {}, "metadata": {}})
+        bet_service.place_bet(
+            "test_user1", "test_race_3",
+            ["ver", "ham", "lec"], "ver",  # perfect
         )
-        print(f"   Points added: +{points_summary[username]['total']}")
-        print(f"   New score: {user_data['score']}")
-
-        # Check score history
-        last_entry = (
-            user_data["score_history"][-1] if user_data["score_history"] else None
+        bet_service.place_bet(
+            "test_user2", "test_race_3",
+            ["ver", "alc", "rus"], "ham",  # partial
         )
-        if last_entry:
-            print(
-                f"   Last race: {last_entry['race_id']} (+{last_entry['points']} pts)"
-            )
 
-    # Clean up
-    if os.path.exists(users_file):
-        os.remove(users_file)
-        print(f"\n🗑️  Cleaned up test file: {users_file}")
+        # Resolve the race
+        summary = resolution_service.resolve_with_results(
+            "test_race_3", ["ver", "ham", "lec"], "ver"
+        )
 
-    print("\n" + "=" * 50)
-    print("✅ Score updating system tested successfully!")
-    print("🎯 Users will see their scores update automatically when races are resolved")
+        # Verify points
+        assert summary["test_user1"]["total_points"] == 8
+        assert summary["test_user2"]["total_points"] == 2
+
+        # Verify user scores were updated
+        u1 = user_service.get("test_user1")
+        u2 = user_service.get("test_user2")
+        assert u1["score"] == 18  # 10 + 8
+        assert u2["score"] == 2   # 0 + 2
+
+        # Verify score history
+        assert len(u1["score_history"]) == 1
+        assert u1["score_history"][0]["race_id"] == "test_race_3"
+        assert u1["score_history"][0]["points"] == 8
+
+        # Clean up
+        user_service.save_all({"users": {}})
+        bet_service.save_all({"race_bets": {}, "metadata": {}})
 
 
 if __name__ == "__main__":
-    test_score_updating()
+    from app import create_app
+    app = create_app()
+    test_score_updating(app)
+    print("Score update test passed!")

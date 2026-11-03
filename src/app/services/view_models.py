@@ -99,10 +99,10 @@ def build_betting_dashboard(bet_service, race_manager, resolution_service=None) 
     return _by_date(with_bets), _by_date(without_bets)
 
 
-def build_overview_context(betting_manager, race_manager, username: str, next_race, next_session) -> Dict:
+def build_overview_context(bet_service, race_manager, username: str, next_race, next_session) -> Dict:
     """
     Pre-compute all data the overview template needs so it doesn't call
-    manager methods inline.
+    service methods inline.
     """
     ctx = {
         "can_bet": False,
@@ -113,17 +113,17 @@ def build_overview_context(betting_manager, race_manager, username: str, next_ra
     }
 
     if next_race:
-        ctx["can_bet"] = betting_manager.can_bet_on_race(next_race.get("id"), username)
+        ctx["can_bet"] = bet_service.can_bet_on_race(next_race.get("id"), username)
         ctx["next_race_iso"] = race_manager.get_race_datetime(next_race).isoformat()
 
     if next_session:
         ctx["next_session_iso"] = race_manager.get_session_datetime(next_session).isoformat()
 
-    user_bets = betting_manager.get_user_bets(username)
+    user_bets = bet_service.get_user_bets(username)
     ctx["user_bets"] = user_bets
 
     # Pre-compute race info and bet status for each active bet
-    all_bets = betting_manager.get_all_bets()
+    all_bets = bet_service.load_all()
     short_names = race_manager.get_driver_short_names()
     teams = race_manager.get_driver_teams()
 

@@ -1,14 +1,25 @@
 from flask import Flask
 import secrets
 import os
-from logging.handlers import RotatingFileHandler
-import logging
+
+from .core.logger import setup_logging
 
 
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = secrets.token_hex(32)
-    configure_logging(app)
+
+    log_dir = os.path.join(app.instance_path, "logs") if app.instance_path else "logs"
+    setup_logging(log_dir)
+
+    # Wire service dependencies (avoids circular imports at module level)
+    from .race_data_manager import race_data_manager
+    from .push_manager import push_manager
+    from .services import bet_service, resolution_service, user_service, notification_service
+
+    bet_service.set_race_manager(race_data_manager)
+    resolution_service.set_dependencies(bet_service, user_service, race_data_manager)
+    notification_service.set_push_manager(push_manager)
 
     # Import and register blueprints from routes package
     from .routes import (
@@ -22,17 +33,6 @@ def create_app():
     app.register_blueprint(notifications_bp)
     app.register_blueprint(system_bp)
 
-    # Inject shared managers into all templates so routes don't need to
-    # pass betting_manager / race_data_manager explicitly
-    @app.context_processor
-    def inject_managers():
-        from .betting_manager import betting_manager
-        from .race_data_manager import race_data_manager
-        return {
-            "betting_manager": betting_manager,
-            "race_data_manager": race_data_manager,
-        }
-
     # Start the event manager for time-based notifications
     from .event_manager import event_manager
 
@@ -40,31 +40,3 @@ def create_app():
     event_manager.schedule_all_race_notifications()
 
     return app
-
-
-def configure_logging(app):
-    """Configure logging for the Flask application."""
-    log_dir = os.path.join(app.instance_path, "logs") if app.instance_path else "logs"
-    os.makedirs(log_dir, exist_ok=True)
-
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-
-    file_handler = RotatingFileHandler(
-        os.path.join(log_dir, "app.log"), maxBytes=1024 * 1024, backupCount=5
-    )
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    console_handler.setFormatter(formatter)
-
-    app.logger.handlers.clear()
-    app.logger.addHandler(file_handler)
-    app.logger.addHandler(console_handler)
-    app.logger.setLevel(logging.DEBUG)
-
-    app.logger.info("Logging configured successfully")
-    app.logger.debug(f"Log directory: {log_dir}")

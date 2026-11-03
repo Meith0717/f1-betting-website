@@ -17,7 +17,7 @@ from flask import Blueprint, request, jsonify, session, flash, redirect, url_for
 from ..auth_decorators import login_required, admin_required
 from ..core import config
 from ..push_manager import push_manager
-from ..auth_utils import load_users
+from ..services.user_service import user_service
 
 notifications_bp = Blueprint("notifications", __name__, url_prefix="/api")
 
@@ -98,7 +98,7 @@ def admin_send_test():
     title = data.get("title", "Test Notification")
     message = data.get("message", "This is a test push notification")
 
-    if not username or username not in load_users():
+    if not username or not user_service.exists(username):
         flash("User not found", "error")
         return redirect(url_for("admin.admin_dashboard"))
 

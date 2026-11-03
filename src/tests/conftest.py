@@ -12,7 +12,6 @@ import pytz
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
-from app.betting_manager import BettingManager
 from app.race_data_manager import RaceDataManager
 
 
@@ -40,17 +39,11 @@ def runner(app):
 
 
 @pytest.fixture(scope="function")
-def betting_manager(app):
-    """Provide a betting manager instance for testing with isolated data."""
+def bet_service(app):
+    """Provide the bet service with isolated data for each test."""
+    from app.services import bet_service as svc, resolution_service
     with app.app_context():
-        # Clear the bets file before each test for isolation
-        from app.services import bet_service
-        bet_service.save_all({"race_bets": {}, "metadata": {}})
-
-        manager = BettingManager()
-
-        # Set up test driver teams via the resolution service's public API
-        from app.services import resolution_service
+        svc.save_all({"race_bets": {}, "metadata": {}})
         resolution_service.set_driver_teams({
             "verstappen": "red_bull",
             "hamilton": "mercedes",
@@ -59,11 +52,8 @@ def betting_manager(app):
             "russell": "mercedes",
             "sainz": "ferrari",
         })
-
-        yield manager
-
-        # Clean up after test
-        bet_service.save_all({"race_bets": {}, "metadata": {}})
+        yield svc
+        svc.save_all({"race_bets": {}, "metadata": {}})
 
 
 @pytest.fixture(scope="function")
