@@ -59,12 +59,6 @@ class BetService:
                 result[race_id] = user_bets[username]
         return result
 
-    def get_race_bets(self, race_id: str) -> Dict[str, dict]:
-        """Get all user bets for a specific race."""
-        data = self.load_all()
-        race_entry = data["race_bets"].get(race_id, {})
-        return race_entry.get("user_bets", {})
-
     def get_race_status(self, race_id: str) -> Optional[str]:
         """Get the status of a race's bet pool ('active', 'closed', 'resolved')."""
         data = self.load_all()

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from ..auth_utils import (
-    load_users, save_users, ensure_first_admin,
+    load_users, ensure_first_admin,
     hash_password, verify_password, get_registration_password,
 )
 from ..auth_decorators import login_required

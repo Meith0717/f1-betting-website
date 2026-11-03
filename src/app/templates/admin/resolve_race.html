@@ -1,0 +1,82 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container">
+  <div class="mobile-betting-header">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-button">←</a>
+    <h1 class="page-title">🎯 Resolve Race (Manual)</h1>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Enter Race Results</h2>
+    </div>
+    <div class="card-content">
+      <form method="POST" action="{{ url_for('admin.resolve_race') }}">
+        <div class="form-group">
+          <label for="race_id">Race</label>
+          <select id="race_id" name="race_id" class="form-control" required>
+            <option value="" disabled selected>Select race...</option>
+            {% for race in races %}
+            <option value="{{ race.id }}">{{ race.name }} ({{ race.country }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="driver_1">1st Place</label>
+          <select id="driver_1" name="driver_1" class="form-control" required>
+            <option value="" disabled selected>Select driver...</option>
+            {% for driver in drivers %}
+            <option value="{{ driver.driver_id }}">#{{ driver.number }} - {{ driver.name }} ({{ driver.team }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="driver_2">2nd Place</label>
+          <select id="driver_2" name="driver_2" class="form-control" required>
+            <option value="" disabled selected>Select driver...</option>
+            {% for driver in drivers %}
+            <option value="{{ driver.driver_id }}">#{{ driver.number }} - {{ driver.name }} ({{ driver.team }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="driver_3">3rd Place</label>
+          <select id="driver_3" name="driver_3" class="form-control" required>
+            <option value="" disabled selected>Select driver...</option>
+            {% for driver in drivers %}
+            <option value="{{ driver.driver_id }}">#{{ driver.number }} - {{ driver.name }} ({{ driver.team }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="fastest_lap">Fastest Lap (optional)</label>
+          <select id="fastest_lap" name="fastest_lap" class="form-control">
+            <option value="">— None —</option>
+            {% for driver in drivers %}
+            <option value="{{ driver.driver_id }}">#{{ driver.number }} - {{ driver.name }} ({{ driver.team }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-actions" style="display: flex; gap: 12px; margin-top: 16px;">
+          <button type="submit" class="btn btn-primary">Resolve Race</button>
+          <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-betting-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .page-title { color: var(--primary); font-size: 24px; font-weight: 700; margin: 0; flex: 1; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+  .form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+</style>
+
+{% endblock %}

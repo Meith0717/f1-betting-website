@@ -5,8 +5,6 @@ Preserves the module-level function API used by routes and decorators
 while delegating all work to services/user_service.py.
 """
 
-import os
-
 from .core import config
 from .services.user_service import user_service
 

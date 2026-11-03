@@ -15,7 +15,7 @@ Structure of push_subscriptions.json:
 
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .core import JsonStore, config
 from .core.logger import get_logger

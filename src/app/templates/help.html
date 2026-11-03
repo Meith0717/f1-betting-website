@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container">
+  <div class="mobile-betting-header">
+    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
+    <h1 class="page-title">❓ Help</h1>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">🏁 How to Play</h2>
+    </div>
+    <div class="card-content">
+      <h3>Placing Bets</h3>
+      <p>Before each race, predict the <strong>top 3 finishers</strong> and the <strong>fastest lap</strong> driver. Bets close when the race starts.</p>
+
+      <h3>Scoring</h3>
+      <ul>
+        <li>+1 point per correct driver in the correct position</li>
+        <li>+1 point per correct team in the correct position</li>
+        <li>+1 point for correct fastest lap</li>
+        <li>+1 bonus for a perfect podium (all drivers AND teams correct)</li>
+      </ul>
+      <p>Maximum <strong>8 points</strong> per race.</p>
+
+      <h3>Leaderboard</h3>
+      <p>Your total score is the sum of all race results. Check the home page for the current leaderboard.</p>
+
+      <h3>Notifications</h3>
+      <p>Enable push notifications on the home page to get alerts for qualifying, race start, and betting deadlines.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-betting-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .page-title { color: var(--primary); font-size: 24px; font-weight: 700; margin: 0; flex: 1; }
+  .card-content h3 { color: var(--primary); margin-top: 16px; }
+  .card-content ul { padding-left: 20px; line-height: 1.8; }
+</style>
+
+{% endblock %}

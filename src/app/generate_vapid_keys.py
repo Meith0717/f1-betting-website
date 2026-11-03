@@ -9,7 +9,6 @@ Usage:
 This will create .env and vapid_keys.json in the project root with VAPID keys.
 """
 
-import os
 import json
 import base64
 import sys

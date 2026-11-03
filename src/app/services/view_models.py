@@ -4,7 +4,7 @@ View-model builders — transform service data into template-ready structures.
 Keeps data-shaping logic out of route handlers and templates.
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 
 def race_summary(race: Dict) -> Dict:

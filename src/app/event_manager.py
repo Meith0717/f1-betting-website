@@ -8,7 +8,7 @@ and fires them at the right time. Message content lives in NotificationService.
 import time
 import threading
 from datetime import datetime, timedelta
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, Optional
 
 from .core.logger import get_logger
 from .timezone_utils import timezone_utils

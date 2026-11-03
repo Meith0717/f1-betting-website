@@ -90,24 +90,6 @@ class RaceDataManager:
         data.setdefault("races", []).append(race_data)
         self.save_races(data)
 
-    def update_race(self, race_id: str, updated_data: Dict) -> bool:
-        data = self.load_races()
-        for i, race in enumerate(data.get("races", [])):
-            if race.get("id") == race_id:
-                data["races"][i] = updated_data
-                self.save_races(data)
-                return True
-        return False
-
-    def delete_race(self, race_id: str) -> bool:
-        data = self.load_races()
-        original = len(data.get("races", []))
-        data["races"] = [r for r in data.get("races", []) if r.get("id") != race_id]
-        if len(data["races"]) < original:
-            self.save_races(data)
-            return True
-        return False
-
     # -- Race queries -------------------------------------------------------
 
     def _upcoming(self) -> List[Dict]:
@@ -287,22 +269,6 @@ class RaceDataManager:
         if not api_data:
             return False
         return self.save_drivers(api_data)
-
-    # -- Bootstrap ----------------------------------------------------------
-
-    def ensure_data_file_exists(self) -> None:
-        """Create races.json from API or a placeholder if it doesn't exist."""
-        if os.path.exists(self._races_store.filepath):
-            return
-        api_data = self.fetch_f1_api_data()
-        if api_data:
-            self.save_races(self.transform_api_data(api_data))
-            return
-        self.save_races({"races": [{
-            "id": "n/a", "name": "n/a", "country": "n/a", "circuit": "n/a",
-            "date": "2024-01-01", "time": "00:00:00",
-            "sessions": [{"type": "n/a", "date": "2024-01-01", "time": "00:00:00"}],
-        }]})
 
 
 race_data_manager = RaceDataManager()
