@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% import '_icons.html' as icons %}
 {% block content %}
 
 <div class="container legal-content main-content-offset">
   <div class="card">
     <div class="card-header">
-      <h1 class="card-title">⚖️ Legal Notice & Game Information</h1>
+      <h1 class="card-title">{{ icons.icon('scale') }} Legal Notice & Game Information</h1>
     </div>
     <div class="card-content">
       
@@ -95,7 +96,7 @@
 
   <div class="card footer-card mt-4">
     <div class="card-content text-center">
-      <h3 class="section-title" style="font-size: 1.1rem;">Mentions Légales / Contact</h3>
+      <h3 class="section-title" >Mentions Légales / Contact</h3>
       <p class="text-muted small">
         <strong>Editeur:</strong> Thierry Meiers<br>
         <strong>Localisation:</strong> Contern, LU<br>
@@ -105,7 +106,7 @@
           <i class="fab fa-github"></i> View on GitHub
         </a>
       </div>
-      <p class="text-muted mt-3" style="font-size: 0.85rem;">
+      <p class="text-muted mt-3" >
         © 2026 F1 Betting Game | Privately Hosted | Version 1.0
       </p>
     </div>

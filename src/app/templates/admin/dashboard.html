@@ -1,15 +1,16 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %} {% block content %}
 
 <div class="container">
-  <div class="mobile-admin-header">
-    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
-    <h1 class="page-title">🏎️ Admin Dashboard</h1>
+  <div class="page-header">
+    <a href="{{ url_for('main.index') }}" class="back-button">{{ icons.icon('back') }}</a>
+    <h1 class="page-title">{{ icons.icon('crown') }} Admin Dashboard</h1>
   </div>
 
   <!-- Mobile Admin Info Box -->
   <div class="card mobile-info-box">
     <div class="card-content">
-      <h4>⚠️ Administrator Access</h4>
+      <h4>{{ icons.icon('lock') }} Administrator Access</h4>
       <p>You have full access to manage the F1 Betting application. Use these tools responsibly.</p>
     </div>
   </div>
@@ -17,24 +18,24 @@
   <!-- Mobile Data Management Section -->
   <div class="card mobile-admin-section">
     <div class="card-header">
-      <h2 class="card-title">📊 Data Management</h2>
+      <h2 class="card-title">{{ icons.icon('chart') }} Data Management</h2>
     </div>
     <div class="card-content">
       <div class="mobile-admin-actions">
         <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
           <button type="submit" class="btn btn-primary btn-block" title="Update race data from F1 API">
-            🔄 Update Races
+            {{ icons.icon('calendar') }} Update Races
           </button>
         </form>
         <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
           <button type="submit" class="btn btn-primary btn-block" title="Update driver data from F1 API">
-            🔄 Update Drivers
+            {{ icons.icon('driver') }} Update Drivers
           </button>
         </form>
         <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form"
               onsubmit="return confirm('Are you sure you want to reset ALL user points to 0? This cannot be undone.');">
           <button type="submit" class="btn btn-danger btn-block">
-            🔥 Reset All Points
+            {{ icons.icon('trash') }} Reset All Points
           </button>
         </form>
       </div>
@@ -44,7 +45,7 @@
   <!-- Mobile Cancelled Races Section -->
   <div class="card mobile-admin-section">
     <div class="card-header">
-      <h2 class="card-title">🚫 Cancelled Races</h2>
+      <h2 class="card-title">{{ icons.icon('cross') }} Cancelled Races</h2>
     </div>
     <div class="card-content">
       <p class="data-section-description mb-4">
@@ -63,7 +64,7 @@
               {% endfor %}
             </select>
             <button type="submit" class="btn btn-danger btn-block">
-              🚫 Cancel Race
+              {{ icons.icon('cross') }} Cancel Race
             </button>
           </div>
         </form>
@@ -107,23 +108,23 @@
   <!-- Logs Section -->
   <div class="card admin-section">
     <div class="card-header">
-      <h2 class="card-title">📜 Application Logs</h2>
+      <h2 class="card-title">{{ icons.icon('list') }} Application Logs</h2>
     </div>
     <div class="card-content">
       <div class="info-box mb-4">
-        <h4>📜 Application Logs</h4>
+        <h4>{{ icons.icon('list') }} Application Logs</h4>
         <p>View and manage application logs. Use the toggle wrap button to switch between wrapped and unwrapped text display.</p>
       </div>
 
       <div class="log-header mb-4">
         <div class="log-controls">
           <button onclick="toggleLogWrap()" class="btn btn-secondary btn-small">
-            📄 Toggle Wrap
+            {{ icons.icon('list') }} Toggle Wrap
           </button>
           <form method="POST" action="{{ url_for('admin.clear_logs') }}" class="clear-logs-form">
             <button type="submit" class="btn btn-danger btn-small"
                     onclick="return confirm('Are you sure you want to clear the log file? This cannot be undone.');">
-              🗑️ Clear Logs
+              {{ icons.icon('trash') }} Clear Logs
             </button>
           </form>
         </div>
@@ -135,7 +136,7 @@
       </div>
       {% else %}
       <div class="no-logs text-center">
-        📜 No log file found
+        {{ icons.icon('list') }} No log file found
         <p class="log-description">
           Logs will appear here once the application generates them.
         </p>
@@ -147,11 +148,11 @@
   <!-- Users & Security Section -->
   <div class="card admin-section">
     <div class="card-header">
-      <h2 class="card-title">👥 Users & Security</h2>
+      <h2 class="card-title">{{ icons.icon('user') }} Users & Security</h2>
     </div>
     <div class="card-content">
       <div class="info-box mb-4">
-        <h4>👥 Users & Security</h4>
+        <h4>{{ icons.icon('user') }} Users & Security</h4>
         <p>Manage user accounts, permissions, and security settings. Toggle notifications and adjust user roles as needed.</p>
       </div>
 
@@ -171,36 +172,36 @@
             {% for username, user_data in users.items() %}
             <tr>
               <td>{{ username }}</td>
-              <td>{{ user_data.score }} 🎯</td>
+              <td>{{ user_data.score }} {{ icons.icon('target') }}</td>
               <td>{{ user_data.created_at }}</td>
               <td>
                 {{ user_data.last_login if user_data.last_login else 'Never' }}
               </td>
               <td>
                 {% if user_data.is_admin %}
-                <span class="admin-badge">👑 Admin</span>
+                <span class="admin-badge">{{ icons.icon('crown') }} Admin</span>
                 {% else %}
-                <span class="regular-badge">👤 Regular</span>
+                <span class="regular-badge">{{ icons.icon('user') }} Regular</span>
                 {% endif %}
               </td>
               <td class="action-cell">
                 {% if not user_data.is_admin %}
                 <form method="POST" action="{{ url_for('admin.promote_user', username=username) }}" class="action-form">
                   <button type="submit" class="btn btn-success btn-small" title="Promote to admin">
-                    👑 Promote
+                    {{ icons.icon('crown') }} Promote
                   </button>
                 </form>
                 {% else %}
                 <form method="POST" action="{{ url_for('admin.demote_user', username=username) }}" class="action-form">
                   <button type="submit" class="btn btn-warning btn-small" title="Demote from admin">
-                    👤 Demote
+                    {{ icons.icon('user') }} Demote
                   </button>
                 </form>
                 {% endif %}
                 <!-- Test notification button -->
                 <form method="POST" action="{{ url_for('admin.send_test_notification', username=username) }}" class="action-form">
                   <button type="submit" class="btn btn-primary btn-small" title="Send test push notification">
-                    📬 Test Notify
+                    {{ icons.icon('megaphone') }} Test Notify
                   </button>
                 </form>
                 <!-- Delete button - prevent admins from deleting themselves -->
@@ -208,7 +209,7 @@
                 <form method="POST" action="{{ url_for('admin.delete_user', username=username) }}" class="action-form"
                       onsubmit="return confirm('Are you sure you want to delete user {{ username }}? This cannot be undone.');">
                   <button type="submit" class="btn btn-danger btn-small" title="Delete user">
-                    🗑️ Delete
+                    {{ icons.icon('trash') }} Delete
                   </button>
                 </form>
                 {% endif %}
@@ -223,7 +224,7 @@
         <strong>Registration Password: {{ registration_password }}</strong>
         <form method="POST" action="{{ url_for('admin.change_registration_password') }}" class="registration-form">
           <button type="submit" class="btn btn-primary btn-small" title="Generate new registration password">
-            🔐 New Password
+            {{ icons.icon('lock') }} New Password
           </button>
         </form>
       </div>
@@ -231,225 +232,6 @@
   </div>
 </div>
 
-<style>
-  /* Mobile-first admin dashboard styles */
-  .mobile-admin-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-
-  .page-title {
-    color: var(--primary);
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0;
-    flex: 1;
-  }
-
-  .mobile-info-box {
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .mobile-admin-section {
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  /* Mobile admin actions */
-  .mobile-admin-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .btn-block {
-    min-height: 48px;
-  }
-
-  /* Mobile cancel controls */
-  .mobile-cancel-controls {
-    margin-bottom: 24px;
-  }
-
-  .mobile-race-select-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .mobile-select {
-    padding: 14px 16px;
-    font-size: 16px;
-    border-radius: 10px;
-    min-height: 50px;
-  }
-
-  /* Mobile races grid */
-  .mobile-races-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-top: 16px;
-  }
-
-  .mobile-race-item {
-    background-color: var(--surface);
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .race-info {
-    flex: 1;
-  }
-
-  .race-name {
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .race-country {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-  }
-
-  .race-date {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .race-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .no-canceled-races {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
-  /* Logs section - mobile friendly */
-  .log-container {
-    background-color: var(--background);
-    border-radius: 8px;
-    padding: 16px;
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    font-size: 12px;
-    max-height: 300px;
-    overflow-y: auto;
-    margin-top: 16px;
-  }
-
-  .log-controls {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-
-  /* Users table - mobile friendly */
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-top: 16px;
-  }
-
-  .user-table {
-    width: 100%;
-    min-width: 800px;
-  }
-
-  .user-table th,
-  .user-table td {
-    padding: 10px 12px;
-    white-space: nowrap;
-    font-size: 13px;
-  }
-
-  .action-cell {
-    white-space: nowrap;
-  }
-
-  .action-form {
-    display: inline;
-    margin: 0 4px;
-  }
-
-  .btn-small {
-    min-height: 32px;
-    min-width: 60px;
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  /* Responsive adjustments */
-  @media (min-width: 768px) {
-    .mobile-admin-actions {
-      flex-direction: row;
-    }
-
-    .mobile-races-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .user-table {
-      min-width: auto;
-    }
-  }
-
-  /* Touch targets */
-  .mobile-race-item {
-    min-height: 80px;
-  }
-
-  .btn-block,
-  .mobile-select {
-    min-height: 50px;
-  }
-
-  /* Admin badges */
-  .admin-badge {
-    background-color: var(--primary);
-    color: var(--surface);
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    display: inline-block;
-  }
-
-  .regular-badge {
-    background-color: var(--success);
-    color: var(--surface);
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    display: inline-block;
-  }
-
-  .btn-warning {
-    background-color: var(--warning);
-    color: var(--background);
-  }
-
-  .btn-warning:hover {
-    background-color: #ffdd00;
-  }
-</style>
 
 <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
 

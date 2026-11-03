@@ -1,14 +1,16 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
   <div class="mobile-dashboard-header">
     <div class="user-greeting">
-      <h1 class="mobile-page-title">🏎️ Welcome, {{ username }}!</h1>
+      <h1 class="mobile-page-title">{{ icons.icon('driver') }} Welcome, {{ username }}!</h1>
       <div class="header-buttons">
-        <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-small mobile-profile-btn">⚙️ Profile</a>
+        <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-small mobile-profile-btn">{{ icons.icon('gear') }} Profile</a>
         {% if 'username' in session %}
         <button onclick="toggleNotifications()" id="notifications-btn" class="btn btn-notifications btn-small mobile-profile-btn">
-          <span id="notifications-icon">🔔</span>
+          <span id="notifications-icon">{{ icons.icon('bell') }}</span>
           <span id="notifications-text">Enable</span>
         </button>
         {% endif %}
@@ -23,14 +25,14 @@
     <div class="card-header">
       <div class="mobile-card-header-content">
         <div class="race-info-header">
-          <h3 class="card-title">🏁 Next Race</h3>
+          <h3 class="card-title">{{ icons.icon('flag') }} Next Race</h3>
           <p class="card-subtitle">Round {{next_race.round}} - {{ next_race.name }}</p>
         </div>
         <div class="mobile-card-header-actions">
-          <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">📅 All Races</a>
+          <a href="{{ url_for('main.races') }}" class="btn btn-secondary btn-small">{{ icons.icon('calendar') }} All Races</a>
           {% if can_bet and next_race.id not in user_bets %}
           <a href="{{ url_for('betting.place_bet', race_id=next_race.id) }}" class="btn btn-primary btn-small">
-            💰 Bet Now
+            {{ icons.icon('money') }} Bet Now
           </a>
           {% endif %}
         </div>
@@ -39,22 +41,22 @@
     <div class="card-content">
       <div class="mobile-race-info-grid">
         <div class="race-info-item">
-          <span class="info-label">🌍 Country:</span>
+          <span class="info-label">{{ icons.icon('globe') }} Country:</span>
           <span class="info-value">{{ next_race.country }}</span>
         </div>
         <div class="race-info-item">
-          <span class="info-label">🏁 Circuit:</span>
+          <span class="info-label">{{ icons.icon('flag') }} Circuit:</span>
           <span class="info-value">{{ next_race.circuit }}</span>
         </div>
         <div class="race-info-item">
-          <span class="info-label">📅 Date:</span>
-          <span class="info-value">{{ next_race.sessions[-1].date[8:10] }}.{{ next_race.sessions[-1].date[5:7] }}.{{ next_race.sessions[-1].date[0:4] }}</span>
+          <span class="info-label">{{ icons.icon('calendar') }} Date:</span>
+          <span class="info-value">{{ next_race.sessions[-1].date|date_fmt }}</span>
         </div>
       </div>
 
       <!-- Mobile Sessions - Using bet prediction style with inline timers -->
       <div class="mobile-sessions-container">
-        <h4 class="sessions-title">📋 Race Weekend</h4>
+        <h4 class="sessions-title">{{ icons.icon('list') }} Race Weekend</h4>
         {% if next_race.sessions and next_race.sessions|length > 0 %}
         <div class="sessions-list">
           {% for session in next_race.sessions %}
@@ -71,7 +73,7 @@
                 {% endif %}
               </span>
               {% endif %}
-              {% if session.date %}{{ session.date[8:10] }}.{{ session.date[5:7] }}{% endif %} |
+              {% if session.date %}{{ session.date|date_fmt('%d.%m') }}{% endif %} |
               {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
             </span>
           </div>
@@ -86,7 +88,7 @@
       <div class="mobile-timers-container">
         {% if can_bet and next_race.id not in user_bets %}
         <div class="mobile-timer-item betting-timer">
-          <span class="timer-label">⏰ Betting closes in:</span>
+          <span class="timer-label">{{ icons.icon('clock') }} Betting closes in:</span>
           <div class="timer-right-content">
             <span id="betting-countdown-{{ next_race.id }}" class="countdown-timer mobile-countdown"
                   data-race-time="{{ next_race_iso }}">
@@ -106,7 +108,7 @@
   {% for bet in active_bets %}
   <div class="card mobile-bet-list-card">
     <div class="card-header">
-      <h3 class="card-title">🏁 Your Active Bets</h3>
+      <h3 class="card-title">{{ icons.icon('flag') }} Your Active Bets</h3>
     </div>
     <div class="card-content">
       <div class="compact-bet-item">
@@ -133,12 +135,12 @@
           </div>
         </div>
         <div class="bet-footer">
-          <span class="bet-timestamp">🕒 {{ bet.created_at[:16] if bet.created_at else 'N/A' }}</span>
+          <span class="bet-timestamp">{{ icons.icon('clock') }} {{ bet.created_at[:16] if bet.created_at else 'N/A' }}</span>
           <div class="bet-actions">
-            <a href="{{ url_for('betting.edit_bet', race_id=bet.race_id) }}" class="btn btn-secondary btn-small">✏️ Edit</a>
-            <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=bet.race_id) }}" style="display: inline;">
+            <a href="{{ url_for('betting.edit_bet', race_id=bet.race_id) }}" class="btn btn-secondary btn-small">{{ icons.icon('edit') }} Edit</a>
+            <form method="POST" action="{{ url_for('betting.cancel_bet', race_id=bet.race_id) }}" class="inline-form">
               <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Are you sure you want to delete this bet?');">
-                🗑️ Delete
+                {{ icons.icon('trash') }} Delete
               </button>
             </form>
           </div>
@@ -153,7 +155,7 @@
   <div class="stats-container">
     <div class="card stat-card">
       <div class="card-content">
-        <h3 class="card-title">🏆 Your Score</h3>
+        <h3 class="card-title">{{ icons.icon('trophy') }} Your Score</h3>
         <div class="card-value">{{ users[username].score }}</div>
         <p class="card-description">Current competition score</p>
       </div>
@@ -161,7 +163,7 @@
 
     <div class="card stat-card">
       <div class="card-content">
-        <h3 class="card-title">🥇 Your Rank</h3>
+        <h3 class="card-title">{{ icons.icon('crown') }} Your Rank</h3>
         <div class="card-value">{{ user_rank }}</div>
         <p class="card-description">Out of {{ users|length }} users</p>
       </div>
@@ -169,7 +171,7 @@
 
     <div class="card stat-card">
       <div class="card-content">
-        <h3 class="card-title">📊 Your Bets</h3>
+        <h3 class="card-title">{{ icons.icon('chart') }} Your Bets</h3>
         <div class="card-value">{{ user_bets | length }}</div>
         <p class="card-description">
           <a href="{{ url_for('betting.betting_dashboard') }}" class="stat-link">
@@ -183,7 +185,7 @@
   <!-- Leaderboard -->
   <div class="card">
     <div class="card-header">
-      <h2 class="card-title">🏆 Leaderboard</h2>
+      <h2 class="card-title">{{ icons.icon('trophy') }} Leaderboard</h2>
     </div>
     <div class="card-content">
       <div class="mobile-leaderboard">
@@ -193,7 +195,7 @@
             <span class="rank-number">{{ loop.index }}</span>
             {% if loop.index <= 3 %}
             <span class="rank-medal">
-              {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+              {% if loop.index == 1 %}{{ icons.icon('trophy') }}{% elif loop.index == 2 %}{{ icons.icon('trophy') }}{% else %}{{ icons.icon('trophy') }}{% endif %}
             </span>
             {% endif %}
           </div>
@@ -205,7 +207,7 @@
           </div>
           <div class="leaderboard-score">
             <span class="score-value">{{ user_data.score }}</span>
-            <span class="score-icon">🎯</span>
+            <span class="score-icon">{{ icons.icon('target') }}</span>
           </div>
         </div>
         {% endfor %}
@@ -245,7 +247,7 @@ async function toggleNotifications() {
       if (confirm('Disable push notifications? You can re-enable them later.')) {
         await disablePushNotifications('{{ username }}');
         btn.classList.remove('enabled');
-        icon.textContent = '🔔';
+        icon.textContent = '';
         text.textContent = 'Enable';
       }
     } else {
@@ -253,7 +255,7 @@ async function toggleNotifications() {
       await enablePushNotifications('{{ username }}');
       // Update UI after enable completes
       btn.classList.add('enabled');
-      icon.textContent = '📢';
+      icon.textContent = '';
       text.textContent = 'Enabled';
     }
   } catch (error) {
@@ -281,11 +283,11 @@ async function updateNotificationButtonState() {
     
     if (status.subscribed) {
       btn.classList.add('enabled');
-      icon.textContent = '📢';
+      icon.textContent = '';
       text.textContent = 'Enabled';
     } else {
       btn.classList.remove('enabled');
-      icon.textContent = '🔔';
+      icon.textContent = '';
       text.textContent = 'Enable';
     }
   } catch (error) {

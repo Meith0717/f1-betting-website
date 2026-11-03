@@ -1,35 +1,37 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="betting-header">
-    <h1>{% if mode == 'edit' %}📝 Edit Your Bet{% else %}💰 Place Your Bet{% endif %}</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
-  </div>
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'Edit Your Bet' if mode == 'edit' else 'Place Your Bet' %}
+  {% set icon = 'edit' if mode == 'edit' else 'money' %}
+  {% include '_page_header.html' %}
 
   <div class="card bet-form-compact">
     <div class="card-header">
-      <h2 class="card-title">🏁 {{ race.name }}</h2>
+      <h2 class="card-title">{{ icons.icon('flag') }} {{ race.name }}</h2>
     </div>
     <div class="card-content">
       <div class="race-info-row mb-4">
         <div class="race-details-inline">
-          <span class="race-detail-item">🏁 {{ race.circuit }}</span>
-          <span class="race-detail-item">🌍 {{ race.country }}</span>
-          <span class="race-detail-item">📅 {{ race.date }}</span>
+          <span class="race-detail-item">{{ icons.icon('flag') }} {{ race.circuit }}</span>
+          <span class="race-detail-item">{{ icons.icon('globe') }} {{ race.country }}</span>
+          <span class="race-detail-item">{{ icons.icon('calendar') }} {{ race.date|date_fmt }}</span>
         </div>
       </div>
 
       <div class="bet-selections-section">
-        <h3 class="card-subtitle">{% if mode == 'edit' %}🏆 Update Your Prediction{% else %}🏆 Your Prediction{% endif %}</h3>
-        
+        <h3 class="card-subtitle">{{ icons.icon('podium') }} {% if mode == 'edit' %}Update Your Prediction{% else %}Your Prediction{% endif %}</h3>
+
         <form method="POST" action="{{ url_for('betting.' + ('edit_bet' if mode == 'edit' else 'place_bet'), race_id=race.get('id', race_id)) }}" class="bet-form-inner">
-          
+
           {% if mode != 'edit' %}
           <div class="form-hint mb-4">
-            🏆 Predict the top 3 drivers and who will get the fastest lap. Points are awarded based on accuracy!
+            {{ icons.icon('trophy') }} Predict the top 3 drivers and who will get the fastest lap. Points are awarded based on accuracy!
           </div>
           {% endif %}
-          
+
           <div class="position-selector-vertical">
             <div class="form-group">
               <label for="position_1">1st Position</label>

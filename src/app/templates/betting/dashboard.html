@@ -1,14 +1,15 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %} {% block content %}
 
 <div class="container">
-  <div class="mobile-betting-header">
-    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
-    <h1 class="page-title">🏆 Betting</h1>
+  <div class="page-header">
+    <a href="{{ url_for('main.index') }}" class="back-button">{{ icons.icon('back') }}</a>
+    <h1 class="page-title">{{ icons.icon('trophy') }} Betting</h1>
   </div>
 
   <div class="card mobile-card">
     <div class="card-header">
-      <h2 class="card-title">🏁 Bets by Race</h2>
+      <h2 class="card-title">{{ icons.icon('flag') }} Bets by Race</h2>
     </div>
     <div class="card-content">
       {% if races_with_bets or races_without_bets %}
@@ -22,14 +23,14 @@
           <div class="race-meta mobile-race-meta">
             {% set race_status = race_data.race_bet_info.status %}
             {% if race_status == 'resolved' %}
-              <span class="status-indicator resolved mobile-status">✅ Resolved</span>
+              <span class="status-indicator resolved mobile-status">{{ icons.icon('check') }} Resolved</span>
             {% else %}
-              <span class="status-indicator closed mobile-status">🔒 Closed</span>
+              <span class="status-indicator closed mobile-status">{{ icons.icon('lock') }} Closed</span>
               {% if is_admin %}
               <div class="resolve-buttons-group">
-                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
+                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" class="inline-form">
                   <button type="submit" class="btn btn-success btn-small mobile-resolve-btn" title="Resolve this race using F1 API">
-                    🎯 Resolve
+                    {{ icons.icon('target') }} Resolve
                   </button>
                 </form>
               </div>
@@ -37,7 +38,7 @@
             {% endif %}
             
             <span class="race-date mobile-race-date">
-              📅 {{ race_data.race_info.sessions[-1].date }}
+              {{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt }}
             </span>
           </div>
         </div>
@@ -100,7 +101,7 @@
             </div>
             {% if bet.created_at %}
             <div class="bet-timestamp">
-              🕒 {{ bet.created_at[:16] }}
+              {{ icons.icon('clock') }} {{ bet.created_at[:16] }}
             </div>
             {% endif %}
           </div>
@@ -111,7 +112,7 @@
             {% if race_data.race_bet_info.status == 'resolved' and race_data.race_results %}
             {% set rr = race_data.race_results %}
             <div class="mobile-actual-results">
-              <div class="results-header">🏆 Actual Results</div>
+              <div class="results-header">{{ icons.icon('trophy') }} Actual Results</div>
               <div class="bet-predictions-list">
                 {% for pos in range(3) %}
                 <div class="bet-prediction-row">
@@ -148,14 +149,14 @@
           <div class="race-meta">
             {% set race_status = race_data.race_bet_info.status %}
             {% if race_status == 'resolved' %}
-              <span class="status-indicator resolved">✅ Resolved</span>
+              <span class="status-indicator resolved">{{ icons.icon('check') }} Resolved</span>
             {% else %}
-              <span class="status-indicator closed">🔒 Closed</span>
+              <span class="status-indicator closed">{{ icons.icon('lock') }} Closed</span>
               {% if is_admin %}
               <div class="resolve-buttons-group">
-                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" style="display: inline;">
+                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" class="inline-form">
                   <button type="submit" class="btn btn-success btn-small" title="Resolve this race using F1 API">
-                    🎯 API Resolve
+                    {{ icons.icon('target') }} API Resolve
                   </button>
                 </form>
               </div>
@@ -163,7 +164,7 @@
             {% endif %}
             
             <span class="race-date">
-              📅 {{ race_data.race_info.sessions[-1].date }}
+              {{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt }}
             </span>
           </div>
         </div>
@@ -176,7 +177,7 @@
         {% if race_data.race_bet_info.status == 'resolved' and race_data.race_results %}
         {% set rr = race_data.race_results %}
         <div class="mobile-actual-results">
-          <div class="results-header">🏆 Actual Results</div>
+          <div class="results-header">{{ icons.icon('trophy') }} Actual Results</div>
           <div class="bet-predictions-list">
             {% for pos in range(3) %}
             <div class="bet-prediction-row">
@@ -211,331 +212,5 @@
   </div>
 </div>
 
-<style>
-  /* Mobile-first betting dashboard styles */
-  .mobile-betting-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-
-  .page-title {
-    color: var(--primary);
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0;
-    flex: 1;
-  }
-
-  .mobile-card {
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .mobile-race-section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .mobile-race-section:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
-  .mobile-race-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    color: var(--primary);
-  }
-
-  .mobile-race-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-
-  .mobile-status {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .mobile-race-date {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-left: auto;
-  }
-
-  .mobile-resolve-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    min-height: 32px;
-  }
-
-  /* Mobile bet cards */
-  .mobile-table-responsive {
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  .mobile-bets-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .mobile-bet-card {
-    background-color: var(--surface);
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    transition: all 0.2s ease;
-  }
-
-  .mobile-bet-card:hover {
-    border-color: var(--primary);
-    box-shadow: var(--shadow);
-  }
-
-  .mobile-bet-card.current-user {
-    border-color: var(--primary);
-    background-color: rgba(225, 6, 0, 0.05);
-  }
-
-  .mobile-bet-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .mobile-bet-username {
-    font-weight: 600;
-    color: var(--text);
-    font-size: 14px;
-  }
-
-  .mobile-bet-points {
-    background-color: var(--success);
-    color: var(--background);
-    padding: 4px 8px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  /* Compact bets list layout */
-  .compact-bets-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
-  }
-
-  .compact-bet-item {
-    background-color: var(--surface);
-    border-radius: 10px;
-    padding: 12px;
-    border: 1px solid var(--border);
-    margin-bottom: 12px;
-  }
-
-  .compact-bet-item.current-user {
-    border-color: var(--primary);
-    background-color: rgba(225, 6, 0, 0.05);
-  }
-
-  .bet-user-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 8px;
-  }
-
-  .bet-username {
-    font-weight: 600;
-    color: var(--text);
-    font-size: 14px;
-  }
-
-  .bet-total-points {
-    background-color: var(--success);
-    color: var(--background);
-    padding: 4px 8px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .bet-predictions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-
-  .bet-prediction-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 13px;
-  }
-
-  .prediction-position {
-    font-weight: 600;
-    color: var(--text-muted);
-    min-width: 35px;
-  }
-
-  .prediction-driver {
-    color: var(--text);
-    font-weight: 500;
-    flex: 1;
-    text-align: right;
-  }
-
-  .bet-timestamp {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 6px;
-  }
-
-
-
-  .points-badge {
-    background-color: var(--success);
-    color: var(--surface);
-    padding: 2px 6px;
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 600;
-    margin-left: auto;
-  }
-
-  /* Actual results */
-  .mobile-actual-results {
-    background-color: rgba(225, 6, 0, 0.1);
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 16px;
-    border: 1px solid rgba(225, 6, 0, 0.2);
-  }
-
-  .results-header {
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 12px;
-    font-size: 14px;
-  }
-
-  .mobile-results-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .result-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 13px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .result-item:last-child {
-    border-bottom: none;
-  }
-
-  .result-label {
-    font-weight: 600;
-    color: var(--text-muted);
-    min-width: 40px;
-    font-size: 13px;
-  }
-
-  .result-value {
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 14px;
-    flex: 1;
-    text-align: right;
-  }
-
-  .team-info {
-    color: var(--text-muted);
-    font-weight: 400;
-    font-size: 12px;
-    margin-left: 4px;
-  }
-
-  /* No bets message */
-  .no-bets-message {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
-  /* Responsive adjustments */
-  @media (min-width: 768px) {
-    .mobile-bet-predictions,
-    .mobile-results-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-
-    .mobile-prediction-item,
-    .result-item {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      padding: 8px 0;
-    }
-
-    .mobile-prediction-item:not(:last-child),
-    .result-item:not(:last-child) {
-      border-right: 1px solid var(--border);
-    }
-
-    .prediction-label,
-    .result-label {
-      min-width: auto;
-      font-size: 14px;
-    }
-
-    .prediction-value,
-    .result-value {
-      font-size: 15px;
-    }
-
-    .points-badge {
-      margin-left: auto;
-    }
-  }
-
-  /* Touch targets */
-  .mobile-bet-card {
-    min-height: 120px;
-  }
-
-  .mobile-resolve-btn {
-    min-width: 80px;
-  }
-</style>
 
 {% endblock %}

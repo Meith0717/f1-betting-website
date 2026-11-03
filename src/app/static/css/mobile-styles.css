@@ -2111,3 +2111,310 @@ strong {
         --surface: #0f0f1a;
     }
 }
+/*****************************
+* Icons (SVG)
+*****************************/
+.icon {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: -0.2em;
+    flex-shrink: 0;
+}
+
+.page-title-icon {
+    width: 1em;
+    height: 1em;
+}
+
+.nav-icon .icon {
+    width: 18px;
+    height: 18px;
+}
+
+/*****************************
+* Shared Page Header
+*****************************/
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+}
+
+/*****************************
+* Forms (consolidated from inline styles)
+*****************************/
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 16px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/*****************************
+* Utility classes (replacing inline style attributes)
+*****************************/
+.mb-16 { margin-bottom: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mt-6 { margin-top: 6px; }
+.text-center { text-align: center; }
+.p-32 { padding: 32px; }
+.text-muted { color: var(--text-muted); }
+.text-small { font-size: 13px; }
+.float-right { float: right; }
+.text-success { color: var(--success); font-weight: 600; }
+.inline-form { display: inline; }
+.bet-history-item {
+    margin-bottom: 8px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+/*****************************
+* Welcome page
+*****************************/
+.welcome-container {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 12px;
+}
+
+.welcome-content {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+.welcome-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.logo-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+}
+
+.welcome-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--primary);
+}
+
+.welcome-card {
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    text-align: left;
+}
+
+.welcome-description {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+/*****************************
+* Profile page
+*****************************/
+.profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/*****************************
+* Help / content pages
+*****************************/
+.card-content h3 {
+    color: var(--primary);
+    margin-top: 16px;
+}
+
+.card-content ul {
+    padding-left: 20px;
+    line-height: 1.8;
+}
+
+/*****************************
+* Betting dashboard extras
+*****************************/
+.mobile-card {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.mobile-race-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.mobile-race-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.mobile-race-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--primary);
+}
+
+.mobile-race-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/*****************************
+* Races list extras
+*****************************/
+.mobile-races-card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.mobile-race-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mobile-race-card {
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.mobile-race-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow);
+}
+
+.mobile-race-card.past-race {
+    opacity: 0.8;
+}
+
+.mobile-race-card[data-canceled="true"] {
+    opacity: 0.6;
+    border-color: rgba(225, 6, 0, 0.3);
+}
+
+.mobile-race-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.race-round-badge {
+    background-color: var(--primary);
+    color: var(--surface);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.canceled-badge {
+    background-color: rgba(225, 6, 0, 0.2);
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mobile-sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.mobile-session-item {
+    background-color: var(--background);
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+}
+
+.session-date-time {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/*****************************
+* Admin dashboard extras
+*****************************/
+.mobile-info-box {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.mobile-admin-section {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.mobile-admin-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

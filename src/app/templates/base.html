@@ -1,3 +1,4 @@
+{% import '_icons.html' as icons %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -49,39 +50,39 @@
           <img src="{{ url_for('static', filename='icons/icon-128x128.png') }}" alt="F1 Betting logo" class="nav-logo" width="28" height="28" />
           <span class="nav-title">F1 Betting</span>
         </div>
-        <button class="menu-button" onclick="toggleMobileMenu()" aria-label="Toggle menu">☰</button>
+        <button class="menu-button" onclick="toggleMobileMenu()" aria-label="Toggle menu">{{ icons.icon('list') }}</button>
         <div class="nav-right">
           {% if 'username' in session %}
           <a href="{{ url_for('main.index') }}" class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Home">
-            <span class="nav-icon">🏠</span>
+            <span class="nav-icon">{{ icons.icon('home') }}</span>
             <span class="nav-text">Home</span>
           </a>
           <a href="{{ url_for('main.races') }}" class="nav-link {% if request.endpoint == 'main.races' %}active{% endif %}" title="Races">
-            <span class="nav-icon">📅</span>
+            <span class="nav-icon">{{ icons.icon('calendar') }}</span>
             <span class="nav-text">Races</span>
           </a>
           <a href="{{ url_for('betting.betting_dashboard') }}" class="nav-link {% if request.endpoint.startswith('betting.') %}active{% endif %}" title="Betting">
-            <span class="nav-icon">💰</span>
+            <span class="nav-icon">{{ icons.icon('money') }}</span>
             <span class="nav-text">Betting</span>
           </a>
           <a href="{{ url_for('auth.logout') }}" class="nav-link" title="Logout">
-            <span class="nav-icon">🚪</span>
+            <span class="nav-icon">{{ icons.icon('logout') }}</span>
             <span class="nav-text">Logout</span>
           </a>
           {% if session.get('is_admin') %}
           <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint.startswith('admin.') %}active{% endif %}" title="Admin">
-            <span class="nav-icon">👑</span>
+            <span class="nav-icon">{{ icons.icon('crown') }}</span>
             <span class="nav-text">Admin</span>
           </a>
           {% endif %}
           {% else %}
           <!-- Show login/register when no user is logged in -->
           <a href="{{ url_for('main.index') }}" class="nav-link login-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Login">
-            <span class="nav-icon">🔑</span>
+            <span class="nav-icon">{{ icons.icon('key') }}</span>
             <span class="nav-text">Login</span>
           </a>
           <a href="{{ url_for('auth.register') }}" class="nav-link register-link {% if request.endpoint == 'auth.register' %}active{% endif %}" title="Register">
-            <span class="nav-icon">👤</span>
+            <span class="nav-icon">{{ icons.icon('user') }}</span>
             <span class="nav-text">Register</span>
           </a>
           {% endif %}

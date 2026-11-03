@@ -1,14 +1,16 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="mobile-betting-header">
-    <a href="{{ url_for('main.index') }}" class="back-button">←</a>
-    <h1 class="page-title">❓ Help</h1>
-  </div>
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'Help' %}
+  {% set icon = 'question' %}
+  {% include '_page_header.html' %}
 
   <div class="card">
     <div class="card-header">
-      <h2 class="card-title">🏁 How to Play</h2>
+      <h2 class="card-title">{{ icons.icon('flag') }} How to Play</h2>
     </div>
     <div class="card-content">
       <h3>Placing Bets</h3>
@@ -31,12 +33,5 @@
     </div>
   </div>
 </div>
-
-<style>
-  .mobile-betting-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-  .page-title { color: var(--primary); font-size: 24px; font-weight: 700; margin: 0; flex: 1; }
-  .card-content h3 { color: var(--primary); margin-top: 16px; }
-  .card-content ul { padding-left: 20px; line-height: 1.8; }
-</style>
 
 {% endblock %}

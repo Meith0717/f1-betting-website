@@ -1,10 +1,12 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="mobile-betting-header">
-    <a href="{{ url_for('betting.betting_dashboard') }}" class="back-button">←</a>
-    <h1 class="page-title">🎯 Manual Resolve: {{ race_id }}</h1>
-  </div>
+  {% set back_url = url_for('betting.betting_dashboard') %}
+  {% set title = 'Manual Resolve: ' ~ race_id %}
+  {% set icon = 'target' %}
+  {% include '_page_header.html' %}
 
   <div class="card">
     <div class="card-header">
@@ -52,7 +54,7 @@
           </select>
         </div>
 
-        <div class="form-actions" style="display: flex; gap: 12px; margin-top: 16px;">
+        <div class="form-actions">
           <button type="submit" class="btn btn-primary">Resolve Race</button>
           <a href="{{ url_for('betting.betting_dashboard') }}" class="btn btn-secondary">Cancel</a>
         </div>
@@ -60,13 +62,5 @@
     </div>
   </div>
 </div>
-
-<style>
-  .mobile-betting-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-  .page-title { color: var(--primary); font-size: 24px; font-weight: 700; margin: 0; flex: 1; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
-  .form-control { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
-</style>
 
 {% endblock %}

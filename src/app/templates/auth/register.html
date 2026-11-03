@@ -1,9 +1,11 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="auth-container">
   <div class="card auth-card">
     <div class="auth-header">
-      <h1 class="auth-title">👤 Create Account</h1>
+      <h1 class="auth-title">{{ icons.icon('user') }} Create Account</h1>
       <p class="auth-subtitle">Join the F1 betting community</p>
     </div>
 
@@ -44,20 +46,20 @@
           class="form-control mobile-input"
         />
         <p class="form-hint mobile-hint">
-          <span class="hint-icon">🔒</span> Please contact an administrator to get the registration code
+          {{ icons.icon('lock') }} Please contact an administrator to get the registration code
         </p>
       </div>
       {% endif %}
 
       <button type="submit" class="btn btn-primary btn-block btn-large">
-        <span class="btn-icon">👤</span> Create Account
+        {{ icons.icon('user') }} Create Account
       </button>
     </form>
 
     <div class="auth-footer">
-      <p class="auth-footer-text">Already have an account? 
-        <a href="{{ url_for('auth.login') }}" class="auth-link">
-          <span class="link-icon">🔑</span> Sign in
+      <p class="auth-footer-text">Already have an account?
+        <a href="{{ url_for('main.index') }}" class="auth-link">
+          {{ icons.icon('key') }} Sign in
         </a>
       </p>
     </div>

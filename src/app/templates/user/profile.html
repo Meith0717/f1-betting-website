@@ -1,16 +1,18 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="profile-header">
-    <h1>👤 Your Profile</h1>
-    <a href="{{ url_for('main.index') }}" class="back-button">Back</a>
-  </div>
-  
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'Your Profile' %}
+  {% set icon = 'user' %}
+  {% include '_page_header.html' %}
+
   <div class="profile-details">
     <!-- Profile Info -->
     <div class="card profile-section">
       <div class="card-header">
-        <h2 class="card-title">👤 Profile Information</h2>
+        <h2 class="card-title">{{ icons.icon('user') }} Profile Information</h2>
       </div>
       <div class="card-content">
         <div class="profile-info-grid">
@@ -20,40 +22,32 @@
           </div>
           <div class="profile-info-item">
             <strong>Account Type:</strong>
-            <span>{% if users[username].is_admin %}👑 Administrator{% else %}👤 Regular User{% endif %}</span>
+            <span>{% if users[username].is_admin %}{{ icons.icon('crown') }} Administrator{% else %}{{ icons.icon('user') }} Regular User{% endif %}</span>
           </div>
           <div class="profile-info-item">
             <strong>Member Since:</strong>
-            <span>📅 {{ users[username].created_at }}</span>
+            <span>{{ icons.icon('calendar') }} {{ users[username].created_at[:10]|date_fmt }}</span>
           </div>
           <div class="profile-info-item">
             <strong>Last Login:</strong>
-            <span>🕒 {{ users[username].last_login if users[username].last_login else 'First time' }}</span>
+            <span>{{ icons.icon('clock') }} {{ users[username].last_login[:10]|date_fmt if users[username].last_login else 'First time' }}</span>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Account Actions -->
     <div class="card profile-section">
       <div class="card-header">
-        <h2 class="card-title">⚙️ Account Actions</h2>
+        <h2 class="card-title">{{ icons.icon('gear') }} Account Actions</h2>
       </div>
       <div class="card-content">
         <div class="profile-actions">
-          <a href="{{ url_for('main.change_password') }}" class="btn btn-secondary">🔒 Change Password</a>
+          <a href="{{ url_for('main.change_password') }}" class="btn btn-secondary">{{ icons.icon('lock') }} Change Password</a>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<style>
-.profile-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-</style>
 
 {% endblock %}

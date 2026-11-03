@@ -1,27 +1,29 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="mobile-betting-header">
-    <a href="{{ url_for('betting.betting_dashboard') }}" class="back-button">←</a>
-    <h1 class="page-title">📜 Bet History</h1>
-  </div>
+  {% set back_url = url_for('betting.betting_dashboard') %}
+  {% set title = 'Bet History' %}
+  {% set icon = 'list' %}
+  {% include '_page_header.html' %}
 
   {% if races_with_bets %}
   {% for race_id, race_data in races_with_bets.items() %}
-  <div class="card" style="margin-bottom: 16px;">
+  <div class="card mb-16">
     <div class="card-header">
-      <h3 class="card-title">🏁 {{ race_data.race_info.name }}</h3>
-      <span style="color: var(--text-muted); font-size: 13px;">📅 {{ race_data.race_info.sessions[-1].date if race_data.race_info.sessions else race_data.race_info.date }}</span>
+      <h3 class="card-title">{{ icons.icon('flag') }} {{ race_data.race_info.name }}</h3>
+      <span class="text-muted text-small">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else race_data.race_info.date|date_fmt }}</span>
     </div>
     <div class="card-content">
       {% for bet in race_data.bets %}
-      <div class="compact-bet-item {% if bet.username == username %}current-user{% endif %}" style="margin-bottom: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+      <div class="bet-history-item {% if bet.username == username %}current-user{% endif %}">
         <strong>{{ bet.username }}</strong>
         {% if bet.username == username %}<span class="you-badge">(You)</span>{% endif %}
         {% if bet.points_awarded is not none %}
-        <span style="float: right; color: var(--success); font-weight: 600;">+{{ bet.points_awarded }} pts</span>
+        <span class="float-right text-success">+{{ bet.points_awarded }} pts</span>
         {% endif %}
-        <div style="margin-top: 6px; font-size: 13px; color: var(--text-muted);">
+        <div class="mt-6 text-small text-muted">
           Podium: {{ bet.drivers_short|join(', ') }} | Fastest: {{ bet.fastest_lap_short }}
         </div>
       </div>
@@ -31,17 +33,11 @@
   {% endfor %}
   {% else %}
   <div class="card">
-    <div class="card-content" style="text-align: center; padding: 32px;">
-      <p style="color: var(--text-muted);">No bet history yet.</p>
+    <div class="card-content text-center p-32">
+      <p class="text-muted">No bet history yet.</p>
     </div>
   </div>
   {% endif %}
 </div>
-
-<style>
-  .mobile-betting-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-  .page-title { color: var(--primary); font-size: 24px; font-weight: 700; margin: 0; flex: 1; }
-  .you-badge { font-size: 11px; color: var(--primary); margin-left: 4px; }
-</style>
 
 {% endblock %}

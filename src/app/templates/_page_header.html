@@ -1,0 +1,5 @@
+{#- Shared page header. Usage: {% include '_page_header.html' with context %} -#}
+<div class="page-header">
+  {% if back_url %}<a href="{{ back_url }}" class="back-button">{{ icons.icon('back') }}</a>{% endif %}
+  <h1 class="page-title">{% if icon %}{{ icons.icon(icon, 'page-title-icon') }} {% endif %}{{ title }}</h1>
+</div>
