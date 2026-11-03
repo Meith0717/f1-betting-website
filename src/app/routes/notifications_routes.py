@@ -12,91 +12,21 @@ Endpoints:
 - GET  /api/admin/subscriptions/count — subscription stats (admin)
 """
 
-import json
-import os
-from flask import Blueprint, request, jsonify, session, current_app, flash, redirect, url_for
+from flask import Blueprint, request, jsonify, session, flash, redirect, url_for
 
 from ..auth_decorators import login_required, admin_required
+from ..core import config
 from ..push_manager import push_manager
 from ..auth_utils import load_users
 
 notifications_bp = Blueprint("notifications", __name__, url_prefix="/api")
 
 
-# -- VAPID key helpers -------------------------------------------------------
-
-def _vapid_keys():
-    """Load VAPID keys from env, falling back to .env file."""
-    public = os.environ.get("VAPID_PUBLIC_KEY")
-    private = os.environ.get("VAPID_PRIVATE_KEY")
-    claim = os.environ.get("VAPID_CLAIM_EMAIL", "mailto:f1betting@icloud.com")
-
-    if not public or not private:
-        env_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", ".env"
-        )
-        if os.path.exists(env_path):
-            with open(env_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith("VAPID_PUBLIC_KEY="):
-                        public = line.split("=", 1)[1].strip()
-                    elif line.startswith("VAPID_PRIVATE_KEY="):
-                        private = line.split("=", 1)[1].strip()
-                    elif line.startswith("VAPID_CLAIM_EMAIL="):
-                        claim = line.split("=", 1)[1].strip()
-
-    return public, private, claim
-
-
-def _send_to_user(username, title, message, data=None, url=None):
-    """Send a push notification to one user. Returns result dict."""
-    import pywebpush
-
-    public, private, claim = _vapid_keys()
-    if not public or not private:
-        return {"success": False, "error": "VAPID keys not configured", "sent": 0, "failed": 0}
-
-    subs = push_manager.get_user_subscriptions(username)
-    if not subs:
-        return {"success": True, "sent": 0, "failed": 0, "message": f"No subscriptions for {username}"}
-
-    payload = json.dumps({
-        "title": title, "body": message,
-        "data": data or {}, "url": url or "/",
-    })
-
-    sent = failed = 0
-    errors = []
-    for sub in subs:
-        try:
-            pywebpush.webpush(
-                subscription_info={
-                    "endpoint": sub["endpoint"],
-                    "keys": {"p256dh": sub["p256dh"], "auth": sub["auth"]},
-                },
-                data=payload,
-                vapid_private_key=private,
-                vapid_claims={"sub": claim},
-                ttl=3600,
-            )
-            sent += 1
-        except pywebpush.exceptions.HTTPNOTFOUND:
-            push_manager.remove_subscription(username, sub["endpoint"])
-            failed += 1
-            errors.append({"endpoint": sub["endpoint"], "error": "expired", "action": "removed"})
-        except Exception as e:
-            failed += 1
-            errors.append({"endpoint": sub["endpoint"], "error": str(e)})
-
-    return {"success": failed == 0, "sent": sent, "failed": failed, "errors": errors}
-
-
 # -- Public / user endpoints -------------------------------------------------
 
 @notifications_bp.route("/vapid-public-key", methods=["GET"])
 def get_vapid_public_key():
-    public, _, _ = _vapid_keys()
+    public = config.vapid_public_key()
     if not public:
         return jsonify({"success": False, "error": "VAPID keys not configured"}), 500
     return jsonify({"success": True, "vapidPublicKey": public}), 200
@@ -172,7 +102,7 @@ def admin_send_test():
         flash("User not found", "error")
         return redirect(url_for("admin.admin_dashboard"))
 
-    result = _send_to_user(username, title, message)
+    result = push_manager.send_to_user(username, title, message)
     if result.get("sent", 0) > 0:
         flash(f"Sent to {username}! Sent: {result['sent']}, Failed: {result['failed']}", "success")
     else:
@@ -187,15 +117,11 @@ def admin_send_to_all():
     title = data.get("title", "Important Update")
     message = data.get("message", "Check out the latest F1 news!")
 
-    all_subs = push_manager.get_all_subscriptions()
-    sent_total = failed_total = 0
-    for username in all_subs:
-        r = _send_to_user(username, title, message)
-        sent_total += r.get("sent", 0)
-        failed_total += r.get("failed", 0)
+    result = push_manager.send_to_all(title, message)
+    total_users = len(push_manager.get_all_subscriptions())
 
-    if sent_total > 0:
-        flash(f"Sent to {len(all_subs)} users! Sent: {sent_total}, Failed: {failed_total}", "success")
+    if result.get("sent", 0) > 0:
+        flash(f"Sent to {total_users} users! Sent: {result['sent']}, Failed: {result['failed']}", "success")
     else:
         flash("No notifications sent", "warning")
     return redirect(url_for("admin.admin_dashboard"))

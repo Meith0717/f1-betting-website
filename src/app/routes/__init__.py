@@ -3,3 +3,4 @@ from .main_routes import *
 from .admin_routes import *
 from .betting_routes import *
 from .notifications_routes import *
+from .system_routes import *

@@ -13,7 +13,7 @@ import os
 from typing import Dict, List, Optional
 
 from .core.logger import get_logger
-from .services import bet_service, resolution_service, user_service
+from .services import bet_service, resolution_service, user_service, notification_service
 
 
 class BettingManager:
@@ -23,11 +23,13 @@ class BettingManager:
         self._logger = get_logger(__name__)
         # Wire up dependencies (race_manager injected after it's available)
         from .race_data_manager import race_data_manager
+        from .push_manager import push_manager
 
         bet_service.set_race_manager(race_data_manager)
         resolution_service.set_dependencies(
             bet_service, user_service, race_data_manager
         )
+        notification_service.set_push_manager(push_manager)
 
     # -- Pass-through: bet operations ---------------------------------------
 

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from ..auth_decorators import login_required
 from ..betting_manager import betting_manager
 from ..race_data_manager import race_data_manager
-from ..services import bet_service, user_service
+from ..services import bet_service, user_service, resolution_service
 from ..services.view_models import build_betting_dashboard, race_summary
 
 betting_bp = Blueprint("betting", __name__)
@@ -17,7 +17,7 @@ def betting_dashboard():
         current_app.logger.info(f"Closed bets for {closed} races")
 
     races_with_bets, races_without_bets = build_betting_dashboard(
-        bet_service, race_data_manager
+        bet_service, race_data_manager, resolution_service
     )
     username = session["username"]
 

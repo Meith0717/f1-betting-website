@@ -2,8 +2,9 @@ from flask import (
     Blueprint, render_template, request, redirect, url_for,
     session, flash, current_app,
 )
-from ..auth_utils import load_users, save_users, get_registration_password
+from ..auth_utils import load_users, get_registration_password
 from ..auth_decorators import admin_required
+from ..core import config
 from ..race_data_manager import race_data_manager
 from ..push_manager import push_manager
 from ..services.user_service import user_service
@@ -109,55 +110,21 @@ def delete_user(username):
 @admin_required
 def send_test_notification(username):
     """Send a test push notification to a specific user."""
-    import pywebpush
-    import json as json_module
-
     if not user_service.exists(username):
         flash(f"User {username} not found", "error")
         return redirect(url_for("admin.admin_dashboard"))
 
-    public_key = os.environ.get("VAPID_PUBLIC_KEY")
-    private_key = os.environ.get("VAPID_PRIVATE_KEY")
-    claim_email = os.environ.get("VAPID_CLAIM_EMAIL", "mailto:f1betting@icloud.com")
+    result = push_manager.send_to_user(
+        username,
+        "Test Notification",
+        f"Hello {username}! This is a test notification from the admin.",
+        data={"test": True, "from_admin": True},
+    )
 
-    if not public_key or not private_key:
-        flash("Push notifications not configured (missing VAPID keys)", "error")
-        return redirect(url_for("admin.admin_dashboard"))
-
-    subscriptions = push_manager.get_user_subscriptions(username)
-    if not subscriptions:
-        flash(f"{username} has no active push subscriptions", "info")
-        return redirect(url_for("admin.admin_dashboard"))
-
-    payload = {
-        "title": "Test Notification",
-        "body": f"Hello {username}! This is a test notification from the admin.",
-        "data": {"test": True, "from_admin": True},
-        "url": "/",
-    }
-
-    sent = failed = 0
-    errors = []
-    for sub in subscriptions:
-        try:
-            pywebpush.webpush(
-                subscription_info={
-                    "endpoint": sub["endpoint"],
-                    "keys": {"p256dh": sub["p256dh"], "auth": sub["auth"]},
-                },
-                data=json_module.dumps(payload),
-                vapid_private_key=private_key,
-                vapid_claims={"sub": claim_email},
-            )
-            sent += 1
-        except Exception as e:
-            failed += 1
-            errors.append(str(e))
-
-    if sent:
-        flash(f"Test notification sent to {username} ({sent} device(s))", "success")
+    if result.get("sent", 0) > 0:
+        flash(f"Test notification sent to {username} ({result['sent']} device(s))", "success")
     else:
-        flash(f"Failed: {errors[0] if errors else 'Unknown error'}", "error")
+        flash(f"Failed: {result.get('error', 'No subscriptions or unknown error')}", "error")
 
     return redirect(url_for("admin.admin_dashboard"))
 
@@ -167,7 +134,7 @@ def send_test_notification(username):
 def change_registration_password():
     """Generate a new random registration password."""
     new_password = secrets.token_urlsafe(16)
-    os.environ["REGISTRATION_PASSWORD"] = new_password
+    config.set_registration_password(new_password)
     flash(f"Registration password changed to: {new_password}", "success")
     return redirect(url_for("admin.admin_dashboard"))
 
@@ -216,11 +183,17 @@ def resolve_race():
             request.form.get("driver_2"),
             request.form.get("driver_3"),
         ]
+        fastest_lap = request.form.get("fastest_lap")
+
         if not all([race_id] + drivers):
             flash("Please fill in all fields", "error")
             return redirect(url_for("admin.resolve_race"))
 
-        summary = betting_manager.resolve_race(race_id, drivers)
+        if fastest_lap:
+            summary = betting_manager.resolve_race_with_fastest_lap(race_id, drivers, fastest_lap)
+        else:
+            summary = betting_manager.resolve_race(race_id, drivers)
+
         if summary:
             flash(f"Race resolved! Points awarded to {len(summary)} users", "success")
         else:

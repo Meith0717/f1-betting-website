@@ -273,37 +273,14 @@ class EventManager:
 
     def _race_notification_callback(self, event_id: str, data: Dict) -> None:
         """
-        Callback for race notifications that sends push notifications to all users.
+        Callback for race notifications — delegates to NotificationService.
 
         Args:
             event_id: The event identifier
             data: Event data dictionary with race_id, race_name, session_type, offset
         """
-        from .push_manager import push_manager
-
-        race_name = data.get("race_name", data.get("race_id", "Unknown"))
-        session_type = data.get("session_type", "Session")
-        offset = data.get("offset", "")
-
-        # Determine title and body based on event type
-        if offset == "start":
-            if session_type == "Qualifying":
-                title = f"🏁 {session_type} Starting Now"
-                body = f"{race_name} {session_type} is starting."
-            else:  # Race
-                title = f"🏁 {session_type} Starting Now"
-                body = f"{race_name} race is starting NOW!"
-        elif offset == "1h_before":
-            title = f"⏰ Last Chance to Bet - {race_name}"
-            body = f"Race starts in 1 hour. Place your bets now before it's too late!"
-        else:
-            title = f"F1 Notification: {race_name}"
-            body = f"{session_type} event for {race_name}"
-
-        # Send to all subscribed users
-        result = push_manager.send_to_all(title, body)
-        if not result.get("success"):
-            self._logger.warning(f"Failed to send push notification: {title}")
+        from .services.notification_service import notification_service
+        notification_service.send_race_notification(data)
 
     def _get_due_events(self) -> List[tuple]:
         """Get all events that are due to trigger."""

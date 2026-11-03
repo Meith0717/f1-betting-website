@@ -1,9 +1,6 @@
-from flask import Flask, jsonify, send_from_directory
-import platform
+from flask import Flask
 import secrets
-import sys
 import os
-import importlib.metadata
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -14,13 +11,16 @@ def create_app():
     configure_logging(app)
 
     # Import and register blueprints from routes package
-    from .routes import main_bp, auth_bp, admin_bp, betting_bp, notifications_bp
+    from .routes import (
+        main_bp, auth_bp, admin_bp, betting_bp, notifications_bp, system_bp,
+    )
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(betting_bp)
     app.register_blueprint(notifications_bp)
+    app.register_blueprint(system_bp)
 
     # Inject shared managers into all templates so routes don't need to
     # pass betting_manager / race_data_manager explicitly
@@ -38,34 +38,6 @@ def create_app():
 
     event_manager.start()
     event_manager.schedule_all_race_notifications()
-
-    # Serve service worker from root for push notifications
-    # This allows the SW to have scope '/' and work with all pages
-    @app.route("/sw.js")
-    def serve_service_worker():
-        """Serve the service worker file from static folder at root path."""
-        return send_from_directory(os.path.join(app.root_path, "static"), "sw.js")
-
-    # Add debug endpoint
-    @app.route("/_debug")
-    def debug_info():
-        """Debug endpoint to show application state."""
-        debug_info = {
-            "app_name": app.name,
-            "python_version": sys.version,
-            "flask_version": importlib.metadata.version("flask"),
-            "platform": platform.platform(),
-            "debug_mode": app.debug,
-            "config": {
-                "SECRET_KEY": "*****" if app.config["SECRET_KEY"] else None,
-                "SESSION_COOKIE_NAME": app.config.get("SESSION_COOKIE_NAME"),
-            },
-            "registered_blueprints": list(app.blueprints.keys()),
-            "routes": [str(rule) for rule in app.url_map.iter_rules()],
-        }
-
-        app.logger.debug("Debug endpoint accessed")
-        return jsonify(debug_info)
 
     return app
 

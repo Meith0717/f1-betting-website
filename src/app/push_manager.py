@@ -14,11 +14,10 @@ Structure of push_subscriptions.json:
 """
 
 import json
-import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-from .core import JsonStore
+from .core import JsonStore, config
 from .core.logger import get_logger
 from .timezone_utils import timezone_utils
 
@@ -137,6 +136,64 @@ class PushManager:
 
     # -- Sending ------------------------------------------------------------
 
+    def send_to_user(
+        self,
+        username: str,
+        title: str,
+        body: str,
+        data: Dict = None,
+        url: str = None,
+    ) -> Dict:
+        """
+        Send a push notification to a single user's subscriptions.
+
+        Returns:
+            {"success": bool, "sent": int, "failed": int, "errors": list}
+        """
+        if not PYWEBPUSH_AVAILABLE:
+            return {"success": False, "sent": 0, "failed": 0, "error": "pywebpush not installed"}
+
+        _, private_key, claim = config.vapid_keys()
+        if not private_key:
+            return {"success": False, "sent": 0, "failed": 0, "error": "VAPID_PRIVATE_KEY not configured"}
+
+        subs = self.get_user_subscriptions(username)
+        if not subs:
+            return {"success": True, "sent": 0, "failed": 0, "message": f"No subscriptions for {username}"}
+
+        payload = json.dumps({
+            "title": title,
+            "body": body,
+            "data": data or {},
+            "url": url or "/",
+        })
+
+        sent = failed = 0
+        errors = []
+        for sub in subs:
+            try:
+                webpush(
+                    subscription_info={
+                        "endpoint": sub["endpoint"],
+                        "keys": {"p256dh": sub["p256dh"], "auth": sub["auth"]},
+                    },
+                    data=payload,
+                    vapid_private_key=private_key,
+                    vapid_claims={"sub": claim},
+                    ttl=3600,
+                )
+                sent += 1
+            except pywebpush.exceptions.HTTPNOTFOUND:
+                self.remove_subscription(username, sub["endpoint"])
+                failed += 1
+                errors.append({"endpoint": sub["endpoint"], "error": "expired", "action": "removed"})
+            except Exception as e:
+                failed += 1
+                errors.append({"endpoint": sub["endpoint"], "error": str(e)})
+                self._logger.error("Push failed for %s: %s", username, e)
+
+        return {"success": failed == 0, "sent": sent, "failed": failed, "errors": errors}
+
     def send_to_all(self, title: str, body: str, data: Dict = None, url: str = None) -> Dict:
         """Send a push notification to all subscribed users."""
         if not PYWEBPUSH_AVAILABLE:
@@ -146,35 +203,20 @@ class PushManager:
         if not all_subs:
             return {"success": True, "sent": 0, "failed": 0, "message": "No active subscriptions"}
 
-        private_key = os.environ.get("VAPID_PRIVATE_KEY")
-        claim = os.environ.get("VAPID_CLAIM_EMAIL", "mailto:f1-betting@example.com")
-        if not private_key:
-            return {"success": False, "sent": 0, "failed": 0, "error": "VAPID_PRIVATE_KEY not configured"}
+        sent_total = failed_total = 0
+        errors_total = []
+        for username in all_subs:
+            r = self.send_to_user(username, title, body, data, url)
+            sent_total += r.get("sent", 0)
+            failed_total += r.get("failed", 0)
+            errors_total.extend(r.get("errors", []))
 
-        payload = json.dumps({"title": title, "body": body, "data": data or {}, "url": url or "/"})
-        sent = failed = 0
-        errors = []
-
-        for username, subs in all_subs.items():
-            for sub in subs:
-                try:
-                    webpush(
-                        subscription_info={
-                            "endpoint": sub["endpoint"],
-                            "keys": {"p256dh": sub["p256dh"], "auth": sub["auth"]},
-                        },
-                        data=payload,
-                        vapid_private_key=private_key,
-                        vapid_claims={"sub": claim},
-                        ttl=3600,
-                    )
-                    sent += 1
-                except Exception as e:
-                    failed += 1
-                    errors.append(f"{username}: {e}")
-                    self._logger.error("Push failed for %s: %s", username, e)
-
-        return {"success": failed == 0, "sent": sent, "failed": failed, "errors": errors}
+        return {
+            "success": failed_total == 0,
+            "sent": sent_total,
+            "failed": failed_total,
+            "errors": errors_total,
+        }
 
 
 push_manager = PushManager()

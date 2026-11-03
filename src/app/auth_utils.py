@@ -7,12 +7,13 @@ while delegating all work to services/user_service.py.
 
 import os
 
+from .core import config
 from .services.user_service import user_service
 
 
 def get_registration_password() -> str:
-    """Get the current registration password from environment variable."""
-    return os.environ.get("REGISTRATION_PASSWORD", "f1betting2024")
+    """Get the current registration password."""
+    return config.registration_password()
 
 
 def load_users():

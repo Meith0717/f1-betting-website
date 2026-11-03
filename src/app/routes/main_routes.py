@@ -4,6 +4,7 @@ from ..auth_decorators import login_required
 from ..race_data_manager import race_data_manager
 from ..betting_manager import betting_manager
 from ..services.user_service import user_service
+from ..services.view_models import build_overview_context
 from datetime import datetime
 import pytz
 
@@ -59,6 +60,9 @@ def index():
         users = load_users()
         leaderboard = user_service.get_leaderboard()
         rank = user_service.get_rank(username)
+        overview = build_overview_context(
+            betting_manager, race_data_manager, username, next_race, next_session
+        )
 
         return render_template(
             "user/overview.html",
@@ -72,6 +76,7 @@ def index():
             upcoming_races=upcoming_races,
             driver_teams=race_data_manager.get_driver_teams(),
             driver_short_names=race_data_manager.get_driver_short_names(),
+            **overview,
         )
     except Exception as e:
         current_app.logger.error(f"Error rendering dashboard: {e}")
