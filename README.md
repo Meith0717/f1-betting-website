@@ -55,7 +55,18 @@ A **Formula 1 prediction game** built with **Flask**, allowing users to place be
 
    The app will start automatically and be available at `http://localhost:<port>`.
 
+### Docker
+
+The app runs in a Docker container (production mode via gunicorn):
+
+```bash
+docker compose up -d --build     # builds and starts on port 8080
+```
+
+Data (`src/app/data/`) and runtime state (`src/instance/` — logs + secret key) are Docker volumes, so they persist across container restarts. VAPID keys are read from `.env` at the repo root (copied into the image at build time; override with `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` env vars in `docker-compose.yml` if preferred). Put the container behind a reverse proxy with HTTPS — required for push notifications.
+
 ---
+
 
 ## Project Structure
 

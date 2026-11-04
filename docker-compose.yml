@@ -1,0 +1,21 @@
+services:
+  f1-betting:
+    build: .
+    container_name: f1-betting
+    ports:
+      - "8080:8080"
+    volumes:
+      - f1-data:/app/src/app/data
+      - f1-instance:/app/src/instance
+    environment:
+      # VAPID keys are read from /app/.env (copied at build time);
+      # override here if you prefer env vars:
+      # - VAPID_PUBLIC_KEY=...
+      # - VAPID_PRIVATE_KEY=...
+      - FLASK_ENV=production
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+
+volumes:
+  f1-data:
+  f1-instance:
