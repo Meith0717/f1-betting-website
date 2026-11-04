@@ -780,7 +780,7 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
 .rank-divider { width: 1px; align-self: stretch; background: var(--border); }
 
-.rank-link { margin-left: auto; flex-shrink: 0; }
+.rank-links { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
 
 .next-session-banner {
   display: flex;
