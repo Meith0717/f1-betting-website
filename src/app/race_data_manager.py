@@ -215,7 +215,15 @@ class RaceDataManager:
             return None
 
     def transform_api_data(self, api_data: Dict) -> Dict:
-        """Transform Ergast-format season schedule into our race format."""
+        """Transform Ergast-format season schedule into our race format.
+
+        Reuses existing race IDs (matched by season+round) so stored bets
+        keep pointing at the right race across API updates.
+        """
+        existing = {
+            (r.get("round")): r.get("id")
+            for r in self.get_all_races()
+        }
         races = []
         for api_race in api_data.get("MRData", {}).get("RaceTable", {}).get("Races", []):
             sessions = []
@@ -243,9 +251,10 @@ class RaceDataManager:
             season = api_race.get("season", "")
             slug = "".join(c if c.isalnum() else "_" for c in api_race.get("raceName", "race").lower())
             slug = "_".join(filter(None, slug.split("_")))
+            round_num = int(api_race.get("round", 0))
 
             races.append({
-                "id": f"{slug}_{season}",
+                "id": existing.get(round_num) or f"{slug}_{season}",
                 "name": api_race.get("raceName"),
                 "country": location.get("country", "Unknown"),
                 "circuit": circuit.get("circuitName", "Unknown"),
