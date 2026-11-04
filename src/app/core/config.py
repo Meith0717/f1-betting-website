@@ -59,11 +59,14 @@ def vapid_keys() -> Tuple[Optional[str], Optional[str], str]:
 # -- Flask ----------------------------------------------------------------
 
 def secret_key() -> str:
-    """Persistent Flask SECRET_KEY — env var, then a generated file in instance/."""
+    """Persistent Flask SECRET_KEY — env var, then a generated file in the app
+    instance dir (src/instance), which is the Docker volume in production."""
     key = _get("SECRET_KEY")
     if key:
         return key
-    key_file = os.path.join(_PROJECT_ROOT, "instance", ".secret_key")
+    key_file = os.path.join(
+        os.path.dirname(__file__), "..", "..", "instance", ".secret_key"
+    )
     if os.path.exists(key_file):
         with open(key_file) as f:
             key = f.read().strip()

@@ -11,9 +11,10 @@ WORKDIR /app
 COPY src/requirements.txt /app/src/requirements.txt
 RUN pip install --no-cache-dir -r /app/src/requirements.txt
 
-# Copy application source (see .dockerignore for exclusions)
+# Copy application source (see .dockerignore for exclusions).
+# Secrets (.env) are NOT baked into the image — docker-compose loads them
+# via env_file at runtime, so a fresh clone builds without a .env present.
 COPY src/ /app/src/
-COPY .env /app/.env
 
 WORKDIR /app/src
 

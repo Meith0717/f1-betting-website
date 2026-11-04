@@ -34,11 +34,12 @@ A **private Formula 1 prediction game** built with **Flask**: users place bets o
 ```bash
 git clone https://github.com/Meith0717/f1-betting-website.git
 cd f1-betting-website
+cp .env.example .env            # then fill in your VAPID keys / passwords
 docker compose up -d --build     # builds and starts on port 8080
 ```
 
 - Data (`src/app/data/`) and runtime state (`src/instance/` — logs + secret key) are Docker volumes (`f1-data`, `f1-instance`) and persist across restarts.
-- VAPID keys are read from `.env` at the repo root (copied into the image at build time). Override with `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` environment variables in `docker-compose.yml` if preferred.
+- `.env` is loaded into the container at runtime via `env_file` in `docker-compose.yml` (never baked into the image). Anything under `environment:` in the compose file overrides it.
 - Put the container behind a **reverse proxy with HTTPS** — required for push notifications. Then open `https://your-host/`.
 
 ### Local testing / debugging only — `src/build.sh`
@@ -59,8 +60,8 @@ chmod +x build.sh
 ## Project Structure
 
 ```
-├── Dockerfile, docker-compose.yml, .dockerignore
-├── .env                          # VAPID keys, SECRET_KEY, registration password (gitignored)
+├── Dockerfile, docker-compose.yml, .dockerignore, .env.example
+├── .env                          # VAPID keys, SECRET_KEY, registration password (gitignored; loaded via env_file)
 ├── src/
 │   ├── wsgi.py                   # gunicorn entry point (production)
 │   ├── run.py                    # dev server entry (debug mode)
@@ -79,7 +80,7 @@ chmod +x build.sh
 │   │   ├── static/               # css/ (design system), js/, icons/, sw.js, manifest.json
 │   │   └── templates/            # base, welcome, overview, leaderboard, races, betting/*, admin/*, user/*, _icons.html, _page_header.html
 │   └── tests/                    # pytest suite (isolated from real data via temp files)
-└── instance/                     # logs/ + .secret_key (volume)
+│   └── instance/                 # logs/ + .secret_key (Docker volume f1-instance)
 ```
 
 ---
