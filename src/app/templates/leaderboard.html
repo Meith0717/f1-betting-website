@@ -45,9 +45,6 @@
     <div class="card-header">
       <h2 class="card-title"><span class="race-round-badge">{{ latest_race.race_info.round }}</span> {{ latest_race.race_info.name }}</h2>
       <div class="race-meta">
-        {% if latest_race.race_bet_info.status == 'closed' %}
-        <span class="waiting-icon" title="Waiting for an admin to resolve">{{ icons.icon('clock') }}<span class="waiting-text">waiting for admin</span></span>
-        {% endif %}
         <a href="{{ url_for('betting.betting_history') }}" class="btn btn-secondary btn-small">{{ icons.icon('list') }} History</a>
       </div>
     </div>
@@ -67,6 +64,11 @@
       <a href="{{ url_for('betting.race_bet_details', race_id=latest_race_id, back='leaderboard') }}" class="btn btn-secondary btn-small mt-2">
         {{ icons.icon('user') }} Details ({{ latest_race.bet_count }})
       </a>
+      {% if latest_race.race_bet_info.status == 'closed' %}
+      <div class="card-footer-hint">
+        <span class="waiting-icon" title="Waiting for an admin to resolve">{{ icons.icon('clock') }}<span class="waiting-text">waiting for admin</span></span>
+      </div>
+      {% endif %}
     </div>
   </div>
   {% endif %}

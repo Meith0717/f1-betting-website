@@ -1108,3 +1108,11 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .waiting-icon .icon { width: 15px; height: 15px; }
 
 .waiting-text { font-size: 12px; font-weight: 500; margin-left: 2px; }
+
+.card-footer-hint {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
