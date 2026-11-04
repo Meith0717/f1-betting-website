@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="container">
-  {% set back_url = url_for('main.index') %}
+  {% set back_url = url_for('main.leaderboard') %}
   {% set title = 'Bet History' %}
   {% set icon = 'list' %}
   {% include '_page_header.html' %}
@@ -16,7 +16,7 @@
       <div class="race-meta">
         <span class="text-muted text-small">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else race_data.race_info.date|date_fmt }}</span>
         {% if race_data.race_bet_info.status == 'closed' %}
-        <span class="waiting-note waiting-compact" title="Waiting for an admin to resolve">{{ icons.icon('clock') }} waiting</span>
+        <span class="waiting-icon" title="Waiting for an admin to resolve">{{ icons.icon('clock') }}</span>
         {% endif %}
         <a href="{{ url_for('betting.race_bet_details', race_id=race_id) }}" class="btn btn-secondary btn-small">
           {{ icons.icon('user') }} Details ({{ race_data.bet_count }})

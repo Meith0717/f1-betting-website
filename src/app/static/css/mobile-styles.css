@@ -1103,3 +1103,6 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .waiting-note .icon { width: 14px; height: 14px; }
 
 .waiting-compact { margin-top: 0; font-size: 12px; gap: 4px; }
+
+.waiting-icon { display: inline-flex; color: var(--warning); flex-shrink: 0; }
+.waiting-icon .icon { width: 15px; height: 15px; }
