@@ -12,11 +12,14 @@
       <h2 class="section-title">1. About This Application</h2>
       <p>This is a <strong>private, non-commercial F1 prediction game</strong> created for a small circle of friends. It is a fan-led project built for entertainment and coding practice. This platform is <strong>not</strong> affiliated with, sponsored by, or endorsed by the Formula 1 group of companies, the FIA, or any participating teams.</p>
       <p>Access is strictly restricted to invited users via a registration password to maintain a private, non-public environment.</p>
+      <p><strong>Vibe-coded:</strong> This application was generated with <strong>Mistral Vibe</strong> (an AI coding agent by Mistral AI) and <strong>reviewed, tested and approved by Thierry Meiers</strong>, who is responsible for its content and operation.</p>
+      <p><strong>Design:</strong> The interface uses a modern, mobile-first dark design with a bottom tab bar, SVG icons and card-based layouts, built with plain HTML/CSS/JavaScript — no frontend framework.</p>
 
       <hr class="my-4">
 
       <h2 class="section-title">2. Detailed Scoring System</h2>
       <p>Points are calculated automatically based on official race results. The maximum achievable score per Grand Prix is <strong>8 points</strong>:</p>
+      <p><strong>Tie-break:</strong> If two or more players have the same total score, the one who reached that score first ranks higher.</p>
       
       <div class="table-responsive">
         <table class="table table-bordered mt-2">
@@ -87,8 +90,9 @@
       <h2 class="section-title">6. Transparency & Credits</h2>
       <ul class="feature-list">
         <li><strong>Source Code:</strong> The application logic is open for review at our <a href="https://github.com/Meith0717/f1-betting-website" target="_blank" rel="noopener"><strong>GitHub Repository</strong></a>.</li>
-        <li><strong>AI Disclosure:</strong> <strong>Mistral AI</strong> assisted in the majority of the code generation and logic optimization for this project.</li>
-        <li><strong>Data Source:</strong> Real-time race data is provided by <a href="http://f1api.dev" target="_blank" rel="noopener">f1api.dev</a>.</li>
+        <li><strong>AI Disclosure:</strong> This application was <strong>vibe-coded with Mistral Vibe</strong> (Mistral AI) and <strong>reviewed by Thierry Meiers</strong>.</li>
+        <li><strong>Data Source:</strong> Race schedule, driver and results data is provided by the free, open-source <a href="https://jolpi.ca" target="_blank" rel="noopener"><strong>Jolpica F1 API</strong> (api.jolpi.ca)</a>, the community successor to the Ergast API.</li>
+        <li><strong>Tech Stack:</strong> Python / Flask backend with JSON file storage; vanilla HTML/CSS/JS frontend; Web Push notifications via VAPID; installable as a Progressive Web App (PWA).</li>
         <li><strong>Zero-Profit:</strong> This site is 100% free. No real money or gambling is permitted.</li>
       </ul>
     </div>
@@ -103,7 +107,7 @@
         <strong>Contact:</strong> f1betting@icloud.com</p>
       <div class="mt-2">
         <a href="https://github.com/Meith0717/f1-betting-website" target="_blank" class="btn btn-sm btn-outline-dark">
-          <i class="fab fa-github"></i> View on GitHub
+          {{ icons.icon('flag') }} View on GitHub
         </a>
       </div>
       <p class="text-muted mt-3" >
