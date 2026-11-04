@@ -61,7 +61,7 @@
             <span class="nav-icon">{{ icons.icon('calendar') }}</span>
             <span class="nav-text">Races</span>
           </a>
-          <a href="{{ url_for('betting.betting_dashboard') }}" class="nav-link {% if request.endpoint.startswith('betting.') %}active{% endif %}" title="Betting">
+          <a href="{{ url_for('betting.betting_dashboard') }}" class="nav-link {% if request.endpoint == 'betting.betting_dashboard' %}active{% endif %}" title="Betting">
             <span class="nav-icon">{{ icons.icon('money') }}</span>
             <span class="nav-text">Betting</span>
           </a>
@@ -183,7 +183,7 @@
       <a href="{{ url_for('main.races') }}" class="tab-bar-item {% if request.endpoint == 'main.races' %}active{% endif %}">
         {{ icons.icon('calendar') }}<span>Races</span>
       </a>
-      <a href="{{ url_for('betting.betting_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('betting.') %}active{% endif %}">
+      <a href="{{ url_for('betting.betting_dashboard') }}" class="tab-bar-item {% if request.endpoint == 'betting.betting_dashboard' %}active{% endif %}">
         {{ icons.icon('money') }}<span>My Bets</span>
       </a>
       <a href="{{ url_for('main.profile') }}" class="tab-bar-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
