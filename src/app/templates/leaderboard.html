@@ -38,6 +38,33 @@
       </div>
     </div>
   </div>
+
+  <!-- Latest bets -->
+  {% if latest_race %}
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title"><span class="race-round-badge">{{ latest_race.race_info.round }}</span> {{ latest_race.race_info.name }}</h2>
+      <a href="{{ url_for('betting.betting_history') }}" class="btn btn-secondary btn-small">{{ icons.icon('list') }} History</a>
+    </div>
+    <div class="card-content">
+      {% for bet in latest_race.bets %}
+      <div class="bet-history-item {% if bet.username == username %}current-user{% endif %}">
+        <strong>{{ bet.username }}</strong>
+        {% if bet.username == username %}<span class="you-badge">(You)</span>{% endif %}
+        {% if bet.points_awarded is not none %}
+        <span class="float-right text-success">+{{ bet.points_awarded }} pts</span>
+        {% endif %}
+        <div class="mt-6 text-small text-muted">
+          Podium: {{ bet.drivers_short|join(', ') }} | Fastest: {{ bet.fastest_lap_short }}
+        </div>
+      </div>
+      {% endfor %}
+      <a href="{{ url_for('betting.race_bet_details', race_id=latest_race_id) }}" class="btn btn-secondary btn-small mt-2">
+        {{ icons.icon('user') }} Details ({{ latest_race.bet_count }})
+      </a>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock %}

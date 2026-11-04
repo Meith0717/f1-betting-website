@@ -89,13 +89,21 @@ def index():
 @main_bp.route("/leaderboard")
 @login_required
 def leaderboard():
-    """Full leaderboard page."""
+    """Full leaderboard page + latest race's bets."""
     username = session["username"]
+    from ..services import bet_service
+    from ..services.view_models import build_betting_dashboard
+    from ..race_data_manager import race_data_manager
+    races = build_betting_dashboard(bet_service, race_data_manager)
+    latest = next((r for r in races.values() if r.get("bets")), None)
     return render_template(
         "leaderboard.html",
         username=username,
         sorted_users=user_service.get_leaderboard(),
         user_rank=user_service.get_rank(username),
+        latest_race=latest,
+        latest_race_id=next((rid for rid, r in races.items() if r.get("bets")), None),
+        driver_teams=race_data_manager.get_driver_teams(),
     )
 
 
