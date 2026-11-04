@@ -21,9 +21,6 @@
         {% set race_status = race_data.race_bet_info.status %}
         <div class="race-bet-header">
           <h3 class="race-title"><span class="race-round-badge">{{ race_data.race_info.round }}</span> {{ race_data.race_info.name }}</h3>
-          {% if race_status == 'resolved' and race_data.bets and race_data.bets[0].points_awarded %}
-          <span class="bet-total-points race-score">+{{ race_data.bets[0].points_awarded }} pts</span>
-          {% endif %}
           <div class="race-meta">
             {% if race_status == 'resolved' %}
             <span class="status-indicator resolved">{{ icons.icon('check') }} Resolved</span>
@@ -36,6 +33,9 @@
             {% endif %}
             {% endif %}
             <span class="race-date">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else '' }}</span>
+            {% if race_status == 'resolved' and race_data.bets and race_data.bets[0].points_awarded %}
+            <span class="bet-total-points race-score">+{{ race_data.bets[0].points_awarded }} pts</span>
+            {% endif %}
           </div>
         </div>
 
