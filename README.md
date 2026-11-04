@@ -2,7 +2,7 @@
 
 A **private Formula 1 prediction game** built with **Flask**: users place bets on race outcomes (podium + fastest lap), earn points for correct predictions, and compete on a leaderboard. Includes user authentication, race management, an admin dashboard, and **Web Push Notifications** for automatic race alerts. Mobile-first design with a bottom tab bar, installable as a PWA.
 
-> **Vibe-coded:** This project was generated with **Mistral Vibe** (AI coding agent) as an experiment, and **reviewed, tested and approved by Thierry Meiers**, who is responsible for it.
+> **Vibe-coded:** This project was generated with **Mistral Vibe** (AI coding agent) as an experiment, and **reviewed, tested and approved by me**.
 
 ---
 
@@ -10,7 +10,7 @@ A **private Formula 1 prediction game** built with **Flask**: users place bets o
 
 | Category | Description |
 |----------|-------------|
-| **User Authentication** | Login/registration with PBKDF2 password hashing, invite-only registration password, user & admin roles, self-service account deletion. |
+| **User Authentication** | Login/registration with PBKDF2 password hashing, optional "Remember me" (30-day session), invite-only registration password, user & admin roles, self-service account deletion. |
 | **Race Management** | Full F1 season schedule with session timings, fetched live from the Jolpica API; race cancellation support. |
 | **Betting System** | Bet on the next race's podium (top 3) + fastest lap. Bets close automatically when the race starts. Privacy-first: "My Bets" shows only your own bets; per-race details and full history are one click away. |
 | **Scoring System** | Up to 8 points per race: +1 per correct driver, +1 per correct team (per position), +1 fastest lap, +1 perfect-podium bonus. Ties broken by who reached the score first. |
