@@ -190,12 +190,24 @@ class RaceDataManager:
             if d.get("driverId") and d.get("shortName")
         }
 
-    # -- F1 API: races ------------------------------------------------------
+    # -- F1 API (Jolpica / Ergast-compatible, api.jolpi.ca) -------------------
+
+    API_BASE = "https://api.jolpi.ca/ergast/f1"
+
+    # Ergast session key -> our session type label (main race uses top-level date/time)
+    _SESSION_MAP = [
+        ("FirstPractice", "FP1"),
+        ("SecondPractice", "FP2"),
+        ("ThirdPractice", "FP3"),
+        ("SprintQualifying", "Sprint Qualifying"),
+        ("Sprint", "Sprint Race"),
+        ("Qualifying", "Qualifying"),
+    ]
 
     def fetch_f1_api_data(self) -> Optional[Dict]:
         try:
             import requests
-            resp = requests.get("https://f1api.dev/api/current", timeout=10)
+            resp = requests.get(f"{self.API_BASE}/current.json", timeout=10)
             resp.raise_for_status()
             return resp.json()
         except Exception as e:
@@ -203,45 +215,45 @@ class RaceDataManager:
             return None
 
     def transform_api_data(self, api_data: Dict) -> Dict:
-        """Transform raw F1 API schedule into our race format."""
+        """Transform Ergast-format season schedule into our race format."""
         races = []
-        for api_race in api_data.get("races", []):
-            schedule = api_race.get("schedule", {})
+        for api_race in api_data.get("MRData", {}).get("RaceTable", {}).get("Races", []):
             sessions = []
+            for key, label in self._SESSION_MAP:
+                sd = api_race.get(key)
+                if sd and sd.get("date"):
+                    sessions.append({
+                        "type": label,
+                        "date": sd["date"],
+                        "time": sd.get("time", "00:00:00Z"),
+                    })
 
-            def _append(session_type: str, key: str):
-                sd = schedule.get(key)
-                if sd and sd.get("date") and sd.get("time"):
-                    sessions.append({"type": session_type, "date": sd["date"], "time": sd["time"]})
-
-            _append("FP1", "fp1")
-            _append("FP2", "fp2")
-            _append("FP3", "fp3")
-
-            sq = schedule.get("sprintQualy")
-            if sq and sq.get("date") and sq.get("time"):
-                sessions.append({"type": "Sprint Qualifying", "date": sq["date"], "time": sq["time"]})
-
-            _append("Qualifying", "qualy")
-
-            sr = schedule.get("sprintRace")
-            if sr and sr.get("date") and sr.get("time"):
-                sessions.append({"type": "Sprint Race", "date": sr["date"], "time": sr["time"]})
-
-            race_sched = schedule.get("race")
-            if not race_sched or not race_sched.get("date") or not race_sched.get("time"):
+            # Main race datetime comes from the top-level date/time fields
+            if not api_race.get("date"):
                 continue
-            sessions.append({"type": "Race", "date": race_sched["date"], "time": race_sched["time"]})
+            race_session = {
+                "type": "Race",
+                "date": api_race["date"],
+                "time": api_race.get("time", "00:00:00Z"),
+            }
+            sessions.append(race_session)
 
-            circuit = api_race.get("circuit", {})
+            circuit = api_race.get("Circuit", {})
+            location = circuit.get("Location", {})
+            season = api_race.get("season", "")
+            slug = "".join(c if c.isalnum() else "_" for c in api_race.get("raceName", "race").lower())
+            slug = "_".join(filter(None, slug.split("_")))
+
             races.append({
-                "id": api_race.get("raceId"),
+                "id": f"{slug}_{season}",
                 "name": api_race.get("raceName"),
-                "country": circuit.get("country", "Unknown"),
+                "country": location.get("country", "Unknown"),
                 "circuit": circuit.get("circuitName", "Unknown"),
                 "sessions": sessions,
-                "round": api_race.get("round"),
-                "city": circuit.get("city"),
+                "round": int(api_race.get("round", 0)),
+                "city": location.get("locality"),
+                "date": race_session["date"],
+                "time": race_session["time"],
             })
 
         return {"races": races}
@@ -256,11 +268,38 @@ class RaceDataManager:
     # -- F1 API: drivers ----------------------------------------------------
 
     def fetch_drivers_api_data(self) -> Optional[Dict]:
+        """Fetch drivers + driver standings (for team mapping) and merge them."""
         try:
             import requests
-            resp = requests.get("https://f1api.dev/api/current/drivers", timeout=10)
-            resp.raise_for_status()
-            return resp.json()
+            drivers_resp = requests.get(f"{self.API_BASE}/current/drivers.json", timeout=10)
+            drivers_resp.raise_for_status()
+            standings_resp = requests.get(f"{self.API_BASE}/current/driverStandings.json", timeout=10)
+            standings_resp.raise_for_status()
+
+            drivers = drivers_resp.json().get("MRData", {}).get("DriverTable", {}).get("Drivers", [])
+            standings = (
+                standings_resp.json()
+                .get("MRData", {}).get("StandingsTable", {})
+                .get("StandingsLists", [{}])[0]
+                .get("DriverStandings", [])
+            )
+            team_map = {
+                s["Driver"]["driverId"]: s["Constructors"][0]["constructorId"]
+                for s in standings
+                if s.get("Constructors")
+            }
+
+            out = []
+            for d in drivers:
+                out.append({
+                    "driverId": d.get("driverId"),
+                    "name": d.get("givenName", ""),
+                    "surname": d.get("familyName", ""),
+                    "shortName": d.get("code", ""),
+                    "number": d.get("permanentNumber", "N/A"),
+                    "teamId": team_map.get(d.get("driverId"), "Unknown"),
+                })
+            return {"drivers": out}
         except Exception as e:
             logger.error("Error fetching drivers from API: %s", e)
             return None

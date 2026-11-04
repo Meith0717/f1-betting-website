@@ -30,15 +30,14 @@ def betting_dashboard():
         logger.info("Closed bets for %d races", closed)
 
     username = session["username"]
-    races_with_bets, races_without_bets = build_betting_dashboard(
+    races = build_betting_dashboard(
         bet_service, race_data_manager, resolution_service, username=username
     )
 
     return render_template(
         "betting/dashboard.html",
         username=username,
-        races_with_bets=races_with_bets,
-        races_without_bets=races_without_bets,
+        races=races,
         is_admin=user_service.is_admin(username),
         driver_short_names=race_data_manager.get_driver_short_names(),
         driver_teams=race_data_manager.get_driver_teams(),
@@ -50,11 +49,11 @@ def betting_dashboard():
 def race_bet_details(race_id):
     """Show all users' bets for a single race."""
     username = session["username"]
-    races_with_bets, _ = build_betting_dashboard(
+    races = build_betting_dashboard(
         bet_service, race_data_manager, resolution_service
     )
 
-    race_data = races_with_bets.get(race_id)
+    race_data = races.get(race_id)
     if not race_data:
         flash("No bets found for this race", "error")
         return redirect(url_for("betting.betting_dashboard"))
@@ -205,9 +204,15 @@ def betting_history():
             ],
         }
 
+    def _race_date(entry) -> str:
+        sessions = entry[1]["race_info"].get("sessions", [])
+        if sessions and sessions[-1].get("date"):
+            return sessions[-1]["date"]
+        return entry[1]["race_info"].get("date", "")
+
     races_with_bets = dict(sorted(
         races_with_bets.items(),
-        key=lambda x: x[1]["race_info"].get("date", ""),
+        key=_race_date,
         reverse=True,
     ))
 

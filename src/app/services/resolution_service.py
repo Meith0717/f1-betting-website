@@ -118,7 +118,7 @@ class ResolutionService:
     # -- F1 API integration -------------------------------------------------
 
     def fetch_from_api(self, race_id: str) -> Optional[Dict]:
-        """Fetch race results from f1api.dev and cache them."""
+        """Fetch race results from Jolpica (api.jolpi.ca) and cache them."""
         import requests
 
         if not self._race_manager:
@@ -130,7 +130,7 @@ class ResolutionService:
             return None
 
         year = race_id.split("_")[-1]
-        url = f"https://f1api.dev/api/{year}/{race['round']}/race"
+        url = f"https://api.jolpi.ca/ergast/f1/{year}/{race['round']}/results.json"
         logger.info("Fetching race results from %s", url)
 
         try:
@@ -173,46 +173,45 @@ class ResolutionService:
         return True  # resolved (even if no bets)
 
     def _transform(self, api_response: Dict, race_id: str, api_url: str) -> Dict:
-        """Transform raw F1 API response into our standard format."""
+        """Transform Ergast-format results response into our standard format."""
         try:
-            if "races" in api_response:
-                race_data = api_response["races"]
-                raw = race_data.get("results", [])
-            else:
-                raw = api_response.get("results", [])
+            raw = (
+                api_response.get("MRData", {})
+                .get("RaceTable", {})
+                .get("Races", [{}])[0]
+                .get("Results", [])
+            )
 
             results = []
             for r in raw:
-                if "driver" in r:
-                    did = r["driver"].get("driverId")
-                    tid = r.get("team", {}).get("teamId")
-                    name = f"{r['driver'].get('name', '')} {r['driver'].get('surname', '')}".strip()
-                    num = r["driver"].get("number")
-                else:
-                    did = r.get("driverId")
-                    tid = r.get("constructor", {}).get("constructorId")
-                    name = num = None
-
-                fl_time = r.get("fastLap") or r.get("fastestLap", {}).get("time")
+                driver = r.get("Driver", {})
+                constructor = r.get("Constructor", {})
+                fl = r.get("FastestLap", {})
+                fl_time = fl.get("Time", {}).get("time") if fl else None
                 entry = {
                     "position": r.get("position"),
-                    "driverId": did,
-                    "driverName": name,
-                    "driverNumber": num,
-                    "teamId": tid,
+                    "driverId": driver.get("driverId"),
+                    "driverName": f"{driver.get('givenName', '')} {driver.get('familyName', '')}".strip(),
+                    "driverNumber": r.get("number"),
+                    "teamId": constructor.get("constructorId"),
                     "points": r.get("points", 0),
                     "fastLapTime": fl_time,
+                    "fastLapRank": fl.get("rank") if fl else None,
                 }
-                if fl_time:
-                    entry["fastestLap"] = {"time": fl_time}
                 results.append(entry)
 
-            # Find overall fastest lap
+            # Overall fastest lap = the rank-1 FastestLap entry
             fl_driver, fl_time = None, None
             for r in results:
-                if r.get("fastLapTime") and (fl_time is None or r["fastLapTime"] < fl_time):
-                    fl_time = r["fastLapTime"]
+                if r.get("fastLapRank") == "1":
                     fl_driver = r["driverId"]
+                    fl_time = r.get("fastLapTime")
+                    break
+            if fl_driver is None:
+                for r in results:
+                    if r.get("fastLapTime") and (fl_time is None or r["fastLapTime"] < fl_time):
+                        fl_time = r["fastLapTime"]
+                        fl_driver = r["driverId"]
 
             out = {
                 "fetched_at": timezone_utils.now_iso(),

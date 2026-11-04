@@ -14,19 +14,19 @@
       <a href="{{ url_for('betting.betting_history') }}" class="btn btn-secondary btn-small">{{ icons.icon('list') }} History</a>
     </div>
     <div class="card-content">
-      {% if races_with_bets or races_without_bets %}
+      {% if races %}
 
-      {% for race_id, race_data in races_with_bets.items() %}
+      {% for race_id, race_data in races.items() %}
       <div class="race-bet-section">
         <div class="race-bet-header">
-          <h3 class="race-title">{{ race_data.race_info.name }}</h3>
+          <h3 class="race-title"><span class="race-round-badge">{{ race_data.race_info.round }}</span> {{ race_data.race_info.name }}</h3>
           <div class="race-meta">
             {% set race_status = race_data.race_bet_info.status %}
             {% if race_status == 'resolved' %}
             <span class="status-indicator resolved">{{ icons.icon('check') }} Resolved</span>
             {% else %}
             <span class="status-indicator closed">{{ icons.icon('lock') }} Closed</span>
-            {% if is_admin %}
+            {% if is_admin and race_data.bet_count > 0 %}
             <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_id) }}" class="inline-form">
               <button type="submit" class="btn btn-success btn-small">{{ icons.icon('target') }} Resolve</button>
             </form>
@@ -65,7 +65,7 @@
             {% if race_status == 'resolved' and bet.points_awarded %}
             <span class="bet-total-points">+{{ bet.points_awarded }} pts</span>
             {% endif %}
-            {% if race_data.has_others or race_data.bet_count > 0 %}
+            {% if race_data.bet_count > 0 %}
             <a href="{{ url_for('betting.race_bet_details', race_id=race_id) }}" class="btn btn-secondary btn-small">
               {{ icons.icon('user') }} Details ({{ race_data.bet_count }})
             </a>
@@ -81,26 +81,13 @@
         </div>
         {% endif %}
         {% else %}
-        <p class="text-muted text-small">You didn't bet on this race.</p>
-        {% if race_data.has_others %}
+        <p class="text-muted text-small">No bets placed for this race.</p>
+        {% if race_data.bet_count > 0 %}
         <a href="{{ url_for('betting.race_bet_details', race_id=race_id) }}" class="btn btn-secondary btn-small mt-2">
           {{ icons.icon('user') }} See {{ race_data.bet_count }} bets
         </a>
         {% endif %}
         {% endif %}
-      </div>
-      {% endfor %}
-
-      {% for race_id, race_data in races_without_bets.items() %}
-      <div class="race-bet-section no-bets-race">
-        <div class="race-bet-header">
-          <h3 class="race-title">{{ race_data.race_info.name }}</h3>
-          <div class="race-meta">
-            <span class="status-indicator closed">{{ icons.icon('lock') }} Closed</span>
-            <span class="race-date">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else '' }}</span>
-          </div>
-        </div>
-        <p class="text-muted text-small">No bets were placed for this race.</p>
       </div>
       {% endfor %}
 

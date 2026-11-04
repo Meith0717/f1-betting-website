@@ -18,12 +18,10 @@ def race_summary(race: Dict) -> Dict:
     }
 
 
-def build_betting_dashboard(bet_service, race_manager, resolution_service=None, username: str = None) -> Tuple[Dict, Dict]:
+def build_betting_dashboard(bet_service, race_manager, resolution_service=None, username: str = None) -> Dict:
     """
-    Build (races_with_bets, races_without_bets) for the betting dashboard.
-
-    Only includes closed/resolved, non-canceled races, sorted newest first.
-    Pre-computes actual race results so the template doesn't call managers inline.
+    Build {race_id: entry} for the betting dashboard — all past closed/resolved
+    races (including those with no bets), sorted newest first by race date.
 
     If username is given, each race's "bets" list contains only that user's bet,
     and "bet_count" / "has_others" indicate whether a details page is useful.
@@ -33,8 +31,14 @@ def build_betting_dashboard(bet_service, race_manager, resolution_service=None, 
     race_dict = {r["id"]: r for r in race_manager.get_all_races() if r.get("id")}
     short_names = race_manager.get_driver_short_names()
 
-    with_bets: Dict = {}
-    without_bets: Dict = {}
+    combined: Dict = {}
+
+    def _race_date(r: Dict) -> str:
+        """Get the race date from the last session, falling back to top-level date."""
+        sessions = r.get("sessions", [])
+        if sessions and sessions[-1].get("date"):
+            return sessions[-1]["date"]
+        return r.get("date", "")
 
     for race_id, info in race_bets.items():
         if info.get("status") not in ("closed", "resolved"):
@@ -63,7 +67,6 @@ def build_betting_dashboard(bet_service, race_manager, resolution_service=None, 
                 }
 
         user_bets = info.get("user_bets", {})
-        target = with_bets if user_bets else without_bets
         # When filtering by user, only include their own bet
         display_bets = {username: user_bets[username]} if username and username in user_bets else user_bets
         entry = {
@@ -94,16 +97,31 @@ def build_betting_dashboard(bet_service, race_manager, resolution_service=None, 
                 for uname, bd in display_bets.items()
             ],
         }
-        target[race_id] = entry
+        combined[race_id] = entry
 
-    def _by_date(d: Dict) -> Dict:
-        return dict(sorted(
-            d.items(),
-            key=lambda x: x[1]["race_info"].get("date", "1970-01-01"),
-            reverse=True,
-        ))
+    # Include past races with no bet entry at all
+    from ..timezone_utils import timezone_utils
+    now = timezone_utils.utc_now()
+    for race_id, race_info in race_dict.items():
+        if race_id in combined or race_info.get("canceled"):
+            continue
+        race_dt = race_manager.get_race_datetime(race_info)
+        if race_dt and race_dt <= now:
+            combined[race_id] = {
+                "race_info": race_info,
+                "race_bet_info": {"status": "closed", "user_bets": {}},
+                "race_results": None,
+                "bet_count": 0,
+                "has_others": False,
+                "bets": [],
+            }
 
-    return _by_date(with_bets), _by_date(without_bets)
+    # Sort all races newest first by actual race date
+    return dict(sorted(
+        combined.items(),
+        key=lambda x: _race_date(x[1]["race_info"]),
+        reverse=True,
+    ))
 
 
 def build_overview_context(bet_service, race_manager, username: str, next_race, next_session) -> Dict:

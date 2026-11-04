@@ -972,3 +972,16 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   border-top: 1px solid var(--border);
 }
 .mt-2 { margin-top: 8px; display: inline-flex; }
+
+.race-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.race-title .race-round-badge {
+  width: 26px;
+  height: 26px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
