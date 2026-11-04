@@ -78,6 +78,10 @@
         {% else %}
         <p class="text-muted text-small">You didn't bet on this race.</p>
         {% endif %}
+
+        {% if race_status == 'closed' %}
+        <p class="waiting-note">{{ icons.icon('clock') }} Betting closed — waiting for an admin to resolve this race</p>
+        {% endif %}
       </div>
       {% endfor %}
 

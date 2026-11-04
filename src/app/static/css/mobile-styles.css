@@ -1091,3 +1091,13 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   .rank-divider { display: none; }
   .rank-links { margin-left: 0; flex-basis: 100%; justify-content: flex-start; }
 }
+
+.waiting-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--warning);
+  margin-top: 10px;
+}
+.waiting-note .icon { width: 14px; height: 14px; }
