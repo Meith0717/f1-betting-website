@@ -1080,5 +1080,5 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
 .race-bet-header { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 .race-bet-header .race-title { flex: 1; min-width: 0; }
-.race-score { margin-left: auto; font-size: 18px; flex-shrink: 0; }
+.race-score { margin-left: auto; font-size: 14px; flex-shrink: 0; align-self: center; }
 .race-bet-header .race-meta { flex-basis: 100%; }
