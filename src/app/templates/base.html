@@ -73,12 +73,6 @@
             <span class="nav-icon">{{ icons.icon('logout') }}</span>
             <span class="nav-text">Logout</span>
           </a>
-          {% if session.get('is_admin') %}
-          <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint.startswith('admin.') %}active{% endif %}" title="Admin">
-            <span class="nav-icon">{{ icons.icon('crown') }}</span>
-            <span class="nav-text">Admin</span>
-          </a>
-          {% endif %}
           {% else %}
           <!-- Show login/register when no user is logged in -->
           <a href="{{ url_for('main.index') }}" class="nav-link login-link {% if request.endpoint == 'main.index' %}active{% endif %}" title="Login">
@@ -189,11 +183,6 @@
       <a href="{{ url_for('main.profile') }}" class="tab-bar-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
         {{ icons.icon('user') }}<span>Profile</span>
       </a>
-      {% if session.get('is_admin') %}
-      <a href="{{ url_for('admin.admin_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('admin.') %}active{% endif %}">
-        {{ icons.icon('crown') }}<span>Admin</span>
-      </a>
-      {% endif %}
     </nav>
     {% endif %}
   </body>

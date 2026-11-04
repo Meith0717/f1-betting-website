@@ -8,6 +8,16 @@
   {% set icon = 'user' %}
   {% include '_page_header.html' %}
 
+  {% if users[username].is_admin %}
+  <div class="card profile-section">
+    <div class="card-content">
+      <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary btn-block">
+        {{ icons.icon('crown') }} Admin Dashboard
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Profile Info -->
   <div class="card profile-section">
     <div class="card-header">
