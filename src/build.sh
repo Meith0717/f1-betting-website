@@ -1,30 +1,28 @@
 #!/usr/bin/env bash
 
-set -e # exit on any error 
+# Local development / testing ONLY.
+# For production deployment use Docker:  docker compose up -d --build  (see ../README.md)
 
-# Default configuration
+set -e # exit on any error
+
 VENV_DIR=".venv"
 APP_FILE="run.py"
-ENVIRONMENT="production"  # default to production
 CUSTOM_PORT=""
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --test|-t)
-            ENVIRONMENT="test"
-            shift
-            ;;
-        --prod|-p)
-            ENVIRONMENT="production"
-            shift
-            ;;
         --port|-P)
             CUSTOM_PORT="$2"
             shift 2
             ;;
+        --prod|-p)
+            echo "ℹ️  Production runs via Docker only:  docker compose up -d --build  (from the repo root)"
+            exit 0
+            ;;
         -*|--*)
             echo "Unknown option: $1"
+            echo "Usage: ./build.sh [--port PORT]   (local test/debug on port 5000)"
             exit 1
             ;;
         *)
@@ -33,10 +31,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo "▶ Starting in $ENVIRONMENT mode"
-if [ -n "$CUSTOM_PORT" ]; then
-    echo "▶ Using custom port: $CUSTOM_PORT"
-fi
+PORT="${CUSTOM_PORT:-5000}"
+echo "▶ Local TEST mode (debug server on port $PORT)"
+echo "▶ For production use Docker: docker compose up -d --build"
 
 echo "▶ Checking for Python 3..."
 python3 --version
@@ -60,7 +57,7 @@ pip install --upgrade pip
 # 4 Install requirements
 if [ -f "requirements.txt" ]; then
     echo "▶ Installing requirements"
-    pip install -r requirements.txt
+    pip install -r requirements-dev.txt
 else
     echo "⚠️ requirements.txt not found, installing Flask manually..."
     pip install flask flask-cors
@@ -74,26 +71,9 @@ else
     echo "⚠️ generate_vapid_keys.py not found, skipping VAPID key generation"
 fi
 
-# 5 Run the app
-if [ -f "$APP_FILE" ]; then
-    echo "▶ Starting Python app: $APP_FILE"
-    
-    if [ "$ENVIRONMENT" = "test" ]; then
-        echo "▶ Running in TEST mode (port 5000, debug=True)"
-        export FLASK_ENV=development
-        export FLASK_DEBUG=1
-        python "$APP_FILE"
-    else
-        if [ -n "$CUSTOM_PORT" ]; then
-            echo "▶ Running in PRODUCTION mode with custom port $CUSTOM_PORT"
-            # Pass custom port to the application
-            export APP_PORT="$CUSTOM_PORT"
-        else
-            echo "▶ Running in PRODUCTION mode (port 8080, debug=False)"
-        fi
-        python "$APP_FILE"
-    fi
-else
-    echo "❌ $APP_FILE not found"
-    exit 1
-fi
+# 5 Run the app in debug mode
+echo "▶ Starting dev server: $APP_FILE (port $PORT, debug=True)"
+export FLASK_ENV=development
+export FLASK_DEBUG=1
+export APP_PORT="$PORT"
+python "$APP_FILE"

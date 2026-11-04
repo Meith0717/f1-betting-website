@@ -34,26 +34,16 @@ A **Formula 1 prediction game** built with **Flask**, allowing users to place be
    cd f1-betting-website
    ```
 
-2. **Run the build script**:
-   The build scripts automate setup: virtual environment creation, dependency installation, VAPID key generation, and running the app.
-
-   **Linux/macOS** (`src/build.sh`):
-   ```bash
-   cd src
-   chmod +x build.sh
-   ./build.sh --test    # Port 5000, debug ON
-   ./build.sh --prod   # Port 8080, debug OFF
-   ./build.sh --port X # Custom port
-   ```
-
-   **Windows** (`src/build.bat`):
-   ```batch
-   cd src
-   build.bat           # Port 8080, debug OFF
-   build.bat --port X  # Custom port
-   ```
-
-   The app will start automatically and be available at `http://localhost:<port>`.
+2. **Run the app**:
+   - **Production (recommended):** Docker — see [Docker](#docker) below. `docker compose up -d --build`, then open `http://localhost:8080` behind your HTTPS reverse proxy.
+   - **Local testing/debugging only** (`src/build.sh`): sets up a venv, installs deps, generates VAPID keys, and starts the Flask dev server with debug ON:
+     ```bash
+     cd src
+     chmod +x build.sh
+     ./build.sh            # Port 5000, debug ON
+     ./build.sh --port X   # Custom port
+     ```
+     (`./build.sh --prod` prints a reminder that production runs via Docker.)
 
 ### Docker
 
