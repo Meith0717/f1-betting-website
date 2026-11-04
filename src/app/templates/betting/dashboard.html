@@ -1,216 +1,114 @@
 {% extends 'base.html' %}
-{% import '_icons.html' as icons %} {% block content %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="page-header">
-    <a href="{{ url_for('main.index') }}" class="back-button">{{ icons.icon('back') }}</a>
-    <h1 class="page-title">{{ icons.icon('trophy') }} Betting</h1>
-  </div>
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'My Bets' %}
+  {% set icon = 'money' %}
+  {% include '_page_header.html' %}
 
-  <div class="card mobile-card">
+  <div class="card">
     <div class="card-header">
       <h2 class="card-title">{{ icons.icon('flag') }} Bets by Race</h2>
+      <a href="{{ url_for('betting.betting_history') }}" class="btn btn-secondary btn-small">{{ icons.icon('list') }} History</a>
     </div>
     <div class="card-content">
       {% if races_with_bets or races_without_bets %}
-      
-      <!-- Races with bets -->
+
       {% for race_id, race_data in races_with_bets.items() %}
-      <div class="race-bet-section mobile-race-section">
+      <div class="race-bet-section">
         <div class="race-bet-header">
-          <h3 class="race-title mobile-race-title">{{ race_data.race_info.name }}</h3>
-          
-          <div class="race-meta mobile-race-meta">
+          <h3 class="race-title">{{ race_data.race_info.name }}</h3>
+          <div class="race-meta">
             {% set race_status = race_data.race_bet_info.status %}
             {% if race_status == 'resolved' %}
-              <span class="status-indicator resolved mobile-status">{{ icons.icon('check') }} Resolved</span>
+            <span class="status-indicator resolved">{{ icons.icon('check') }} Resolved</span>
             {% else %}
-              <span class="status-indicator closed mobile-status">{{ icons.icon('lock') }} Closed</span>
-              {% if is_admin %}
-              <div class="resolve-buttons-group">
-                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" class="inline-form">
-                  <button type="submit" class="btn btn-success btn-small mobile-resolve-btn" title="Resolve this race using F1 API">
-                    {{ icons.icon('target') }} Resolve
-                  </button>
-                </form>
-              </div>
-              {% endif %}
+            <span class="status-indicator closed">{{ icons.icon('lock') }} Closed</span>
+            {% if is_admin %}
+            <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_id) }}" class="inline-form">
+              <button type="submit" class="btn btn-success btn-small">{{ icons.icon('target') }} Resolve</button>
+            </form>
             {% endif %}
-            
-            <span class="race-date mobile-race-date">
-              {{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt }}
-            </span>
+            {% endif %}
+            <span class="race-date">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else '' }}</span>
           </div>
         </div>
 
-        <!-- Compact Bet List Layout -->
-        <div class="compact-bets-list">
-          {% for bet in race_data.bets %}
-          <div class="compact-bet-item {% if bet.username == username %}current-user{% endif %}">
-            <div class="bet-user-header">
-              <span class="bet-username">
-                {{ bet.username }}
-                {% if bet.username == username %}
-                  <span class="you-badge">(You)</span>
-                {% endif %}
-              </span>
-              {% if race_data.race_bet_info.status == 'resolved' and bet.points_awarded %}
-              <span class="bet-total-points">+{{ bet.points_awarded }} pts</span>
-              {% endif %}
+        {% if race_data.bets %}
+        {% for bet in race_data.bets %}
+        <div class="my-bet-row">
+          <div class="bet-predictions-list">
+            <div class="bet-prediction-row">
+              <span class="prediction-position">1</span>
+              <span class="prediction-driver">{{ bet.drivers_short[0] if bet.drivers_short else '—' }} <span class="team-info">({{ driver_teams.get(bet.drivers[0], '?') }})</span></span>
+              {% if race_status == 'resolved' and bet.points_breakdown %}<span class="points-badge">+{{ bet.points_breakdown.position_1 }}</span>{% endif %}
             </div>
-            <div class="bet-predictions-list">
-              <div class="bet-prediction-row">
-                <span class="prediction-position">1st:</span>
-                <span class="prediction-driver">
-                  {{ bet.drivers_short[0] if bet.drivers_short and bet.drivers_short|length > 0 else bet.drivers[0] }}
-                  <span class="team-info">({{ driver_teams.get(bet.drivers[0], '?') }})</span>
-                </span>
-                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                <span class="points-badge">+{{ bet.points_breakdown.position_1 }}</span>
-                {% endif %}
-              </div>
-              <div class="bet-prediction-row">
-                <span class="prediction-position">2nd:</span>
-                <span class="prediction-driver">
-                  {{ bet.drivers_short[1] if bet.drivers_short and bet.drivers_short|length > 1 else bet.drivers[1] }}
-                  <span class="team-info">({{ driver_teams.get(bet.drivers[1], '?') }})</span>
-                </span>
-                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                <span class="points-badge">+{{ bet.points_breakdown.position_2 }}</span>
-                {% endif %}
-              </div>
-              <div class="bet-prediction-row">
-                <span class="prediction-position">3rd:</span>
-                <span class="prediction-driver">
-                  {{ bet.drivers_short[2] if bet.drivers_short and bet.drivers_short|length > 2 else bet.drivers[2] }}
-                  <span class="team-info">({{ driver_teams.get(bet.drivers[2], '?') }})</span>
-                </span>
-                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                <span class="points-badge">+{{ bet.points_breakdown.position_3 }}</span>
-                {% endif %}
-              </div>
-              <div class="bet-prediction-row">
-                <span class="prediction-position">Fastest:</span>
-                <span class="prediction-driver">
-                  {{ bet.fastest_lap_short if bet.fastest_lap_short else '-' }}
-                </span>
-                {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-                <span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>
-                {% endif %}
-              </div>
+            <div class="bet-prediction-row">
+              <span class="prediction-position">2</span>
+              <span class="prediction-driver">{{ bet.drivers_short[1] if bet.drivers_short|length > 1 else '—' }} <span class="team-info">({{ driver_teams.get(bet.drivers[1], '?') }})</span></span>
+              {% if race_status == 'resolved' and bet.points_breakdown %}<span class="points-badge">+{{ bet.points_breakdown.position_2 }}</span>{% endif %}
             </div>
-            {% if bet.created_at %}
-            <div class="bet-timestamp">
-              {{ icons.icon('clock') }} {{ bet.created_at[:16] }}
+            <div class="bet-prediction-row">
+              <span class="prediction-position">3</span>
+              <span class="prediction-driver">{{ bet.drivers_short[2] if bet.drivers_short|length > 2 else '—' }} <span class="team-info">({{ driver_teams.get(bet.drivers[2], '?') }})</span></span>
+              {% if race_status == 'resolved' and bet.points_breakdown %}<span class="points-badge">+{{ bet.points_breakdown.position_3 }}</span>{% endif %}
             </div>
+            <div class="bet-prediction-row">
+              <span class="prediction-position">{{ icons.icon('clock') }}</span>
+              <span class="prediction-driver">{{ bet.fastest_lap_short or '—' }}</span>
+              {% if race_status == 'resolved' and bet.points_breakdown %}<span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="my-bet-footer">
+            {% if race_status == 'resolved' and bet.points_awarded %}
+            <span class="bet-total-points">+{{ bet.points_awarded }} pts</span>
+            {% endif %}
+            {% if race_data.has_others or race_data.bet_count > 0 %}
+            <a href="{{ url_for('betting.race_bet_details', race_id=race_id) }}" class="btn btn-secondary btn-small">
+              {{ icons.icon('user') }} Details ({{ race_data.bet_count }})
+            </a>
             {% endif %}
           </div>
-          {% endfor %}
         </div>
-            
-            <!-- Actual results -->
-            {% if race_data.race_bet_info.status == 'resolved' and race_data.race_results %}
-            {% set rr = race_data.race_results %}
-            <div class="mobile-actual-results">
-              <div class="results-header">{{ icons.icon('trophy') }} Actual Results</div>
-              <div class="bet-predictions-list">
-                {% for pos in range(3) %}
-                <div class="bet-prediction-row">
-                  <span class="prediction-position">{{ pos + 1 }}st:</span>
-                  <span class="prediction-driver">
-                    {% if rr.top3 and rr.top3|length > pos %}
-                      {{ rr.top3[pos].driver_short }}
-                      <span class="team-info">({{ rr.top3[pos].team }})</span>
-                    {% else %}
-                      -
-                    {% endif %}
-                  </span>
-                </div>
-                {% endfor %}
-                <div class="bet-prediction-row">
-                  <span class="prediction-position">Fastest:</span>
-                  <span class="prediction-driver">
-                    {{ rr.fastest_lap_short if rr.fastest_lap_short else '-' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-            {% endif %}
+        {% endfor %}
+
+        {% if race_status == 'resolved' and race_data.race_results %}
+        {% set rr = race_data.race_results %}
+        <div class="mobile-actual-results">
+          <div class="results-header">{{ icons.icon('trophy') }} Actual: {{ rr.top3[0].driver_short if rr.top3 else '-' }}, {{ rr.top3[1].driver_short if rr.top3|length > 1 else '-' }}, {{ rr.top3[2].driver_short if rr.top3|length > 2 else '-' }} · FL: {{ rr.fastest_lap_short or '-' }}</div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="text-muted text-small">You didn't bet on this race.</p>
+        {% if race_data.has_others %}
+        <a href="{{ url_for('betting.race_bet_details', race_id=race_id) }}" class="btn btn-secondary btn-small mt-2">
+          {{ icons.icon('user') }} See {{ race_data.bet_count }} bets
+        </a>
+        {% endif %}
+        {% endif %}
+      </div>
       {% endfor %}
-      {% endif %}
 
-      <!-- Races without bets -->
-      {% if races_without_bets %}
       {% for race_id, race_data in races_without_bets.items() %}
       <div class="race-bet-section no-bets-race">
         <div class="race-bet-header">
           <h3 class="race-title">{{ race_data.race_info.name }}</h3>
-          
           <div class="race-meta">
-            {% set race_status = race_data.race_bet_info.status %}
-            {% if race_status == 'resolved' %}
-              <span class="status-indicator resolved">{{ icons.icon('check') }} Resolved</span>
-            {% else %}
-              <span class="status-indicator closed">{{ icons.icon('lock') }} Closed</span>
-              {% if is_admin %}
-              <div class="resolve-buttons-group">
-                <form method="POST" action="{{ url_for('betting.resolve_race_from_api', race_id=race_data.race_info.id) }}" class="resolve-form" class="inline-form">
-                  <button type="submit" class="btn btn-success btn-small" title="Resolve this race using F1 API">
-                    {{ icons.icon('target') }} API Resolve
-                  </button>
-                </form>
-              </div>
-              {% endif %}
-            {% endif %}
-            
-            <span class="race-date">
-              {{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt }}
-            </span>
+            <span class="status-indicator closed">{{ icons.icon('lock') }} Closed</span>
+            <span class="race-date">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else '' }}</span>
           </div>
         </div>
-        
-        <div class="no-bets-message">
-          <p>No bets were placed for this race.</p>
-        </div>
-        
-        <!-- Actual results for races without bets -->
-        {% if race_data.race_bet_info.status == 'resolved' and race_data.race_results %}
-        {% set rr = race_data.race_results %}
-        <div class="mobile-actual-results">
-          <div class="results-header">{{ icons.icon('trophy') }} Actual Results</div>
-          <div class="bet-predictions-list">
-            {% for pos in range(3) %}
-            <div class="bet-prediction-row">
-              <span class="prediction-position">{{ pos + 1 }}st:</span>
-              <span class="prediction-driver">
-                {% if rr.top3 and rr.top3|length > pos %}
-                  {{ rr.top3[pos].driver_short }}
-                  <span class="team-info">({{ rr.top3[pos].team }})</span>
-                {% else %}
-                  -
-                {% endif %}
-              </span>
-            </div>
-            {% endfor %}
-            <div class="bet-prediction-row">
-              <span class="prediction-position">Fastest:</span>
-              <span class="prediction-driver">
-                {{ rr.fastest_lap_short if rr.fastest_lap_short else '-' }}
-              </span>
-            </div>
-          </div>
-        </div>
-        {% endif %}
+        <p class="text-muted text-small">No bets were placed for this race.</p>
       </div>
       {% endfor %}
+
       {% else %}
-      <div class="no-bets">
-        <p>No bet history yet.</p>
-      </div>
+      <div class="no-bets"><p>No bet history yet.</p></div>
       {% endif %}
     </div>
   </div>
 </div>
-
 
 {% endblock %}

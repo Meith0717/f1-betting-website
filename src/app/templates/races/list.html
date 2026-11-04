@@ -3,12 +3,12 @@
 {% block content %}
 
 <div class="container">
-  <div class="page-header">
-    <a href="{{ url_for('main.index') }}" class="back-button">{{ icons.icon('back') }}</a>
-    <h1 class="page-title">{{ icons.icon('flag') }} F1 Race Calendar</h1>
-  </div>
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'F1 Race Calendar' %}
+  {% set icon = 'calendar' %}
+  {% include '_page_header.html' %}
 
-  <!-- Mobile Upcoming Races -->
+  <!-- Upcoming Races -->
   <div class="card mobile-races-card">
     <div class="card-header">
       <h2 class="card-title">{{ icons.icon('calendar') }} Upcoming Races</h2>
@@ -19,83 +19,60 @@
         {% for race in upcoming_races %}
         <div class="mobile-race-card" data-canceled="{{ race.canceled|default(false, true) }}">
           <div class="mobile-race-header">
-            <div class="race-round-badge">{{ race.round }}</div>
-            {% if race.canceled %}
-            <div class="canceled-badge">{{ icons.icon('cross') }} CANCELED</div>
-            {% endif %}
+            <span class="race-round-badge">{{ race.round }}</span>
             <h3 class="mobile-race-title">{{ race.name }}</h3>
-          </div>
-
-          <div class="mobile-race-info-grid">
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('flag') }}</span>
-              <span class="info-value">{{ race.circuit }}</span>
-            </div>
-            {% if race.city %}
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('pin') }}</span>
-              <span class="info-value">{{ race.city }}</span>
-            </div>
+            {% if race.canceled %}
+            <span class="canceled-badge">{{ icons.icon('cross') }} Canceled</span>
             {% endif %}
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('globe') }}</span>
-              <span class="info-value">{{ race.country }}</span>
-            </div>
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('calendar') }}</span>
-              <span class="info-value">
-                {% if race.sessions and race.sessions|length >= 2 %}
-                {% set first_session = race.sessions[0] %}
-                {% set last_session = race.sessions[-1] %}
-                {% if first_session.date and last_session.date %}
-                {{ first_session.date|date_fmt('%d.%m') }} - 
-                {{ last_session.date|date_fmt }}
-                {% else %}
-                {{ race.date|date_fmt }}
-                {% endif %}
-                {% else %}
-                {{ race.date|date_fmt }}
-                {% endif %}
-              </span>
-            </div>
           </div>
 
-          <!-- Mobile Sessions -->
-          <div class="mobile-sessions-container">
-            <h4 class="sessions-title">{{ icons.icon('list') }} Sessions</h4>
+          <div class="race-meta-line">
+            <span>{{ icons.icon('flag') }} {{ race.circuit }}</span>
+            <span>{{ icons.icon('globe') }} {{ race.country }}{% if race.city %}, {{ race.city }}{% endif %}</span>
+            <span>{{ icons.icon('calendar') }}
+              {% if race.sessions and race.sessions|length >= 2 and race.sessions[0].date and race.sessions[-1].date %}
+              {{ race.sessions[0].date|date_range(race.sessions[-1].date) }}
+              {% else %}
+              {{ race.date|date_fmt }}
+              {% endif %}
+            </span>
+          </div>
+
+          {% if race.sessions %}
+          <details class="sessions-details">
+            <summary>
+              {{ icons.icon('list') }} Sessions
+              <span class="sessions-count">{{ race.sessions|length }}</span>
+              {{ icons.icon('chevron') }}
+            </summary>
             <div class="mobile-sessions-grid">
               {% for session in race.sessions %}
               {% if session.date and session.time %}
               <div class="mobile-session-item">
                 <span class="session-type">{{ session.type }}</span>
                 <div class="session-date-time">
-                  <span class="session-date">
-                    {% if session.date %}{{ session.date|date_fmt('%d.%m') }}{% endif %}
-                  </span>
-                  <span class="session-time">
-                    {% if session.time_info %}{{ session.time_info.time_only }} {% else %} {{ session.time[:5] }} {% endif %}
-                  </span>
+                  <span class="session-date">{{ session.date|date_fmt('%d.%m') }}</span>
+                  <span>{{ session.time_info.time_only if session.time_info else session.time[:5] }}</span>
                 </div>
               </div>
               {% endif %}
               {% endfor %}
             </div>
-          </div>
+          </details>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <div class="no-races-message">
-        <p>No upcoming races scheduled.</p>
-      </div>
+      <div class="no-races-message"><p>No upcoming races scheduled.</p></div>
       {% endif %}
     </div>
   </div>
 
-  <!-- Mobile Past Races -->
+  <!-- Past Races -->
   <div class="card mobile-races-card">
     <div class="card-header">
-      <h2 class="card-title">{{ icons.icon('flag') }} Past Races</h2>
+      <h2 class="card-title">{{ icons.icon('check') }} Past Races</h2>
     </div>
     <div class="card-content">
       {% if past_races %}
@@ -103,56 +80,29 @@
         {% for race in past_races %}
         <div class="mobile-race-card past-race">
           <div class="mobile-race-header">
+            <span class="race-round-badge">{{ race.round }}</span>
             <h3 class="mobile-race-title">{{ race.name }}</h3>
-            <span class="race-status completed">{{ icons.icon('check') }} Completed</span>
+            <span class="race-status completed">{{ icons.icon('check') }}</span>
           </div>
-
-          <div class="mobile-race-info-grid">
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('globe') }}</span>
-              <span class="info-value">{{ race.country }}</span>
-            </div>
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('flag') }}</span>
-              <span class="info-value">{{ race.circuit }}</span>
-            </div>
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('calendar') }}</span>
-              <span class="info-value">
-                {% if race.sessions and race.sessions|length >= 2 %}
-                {% set first_session = race.sessions[0] %}
-                {% set last_session = race.sessions[-1] %}
-                {% if first_session.date and last_session.date %}
-                {{ first_session.date|date_fmt('%d.%m') }} - 
-                {{ last_session.date|date_fmt }}
-                {% else %}
-                {{ race.date|date_fmt }}
-                {% endif %}
-                {% else %}
-                {{ race.date|date_fmt }}
-                {% endif %}
-              </span>
-            </div>
-            {% if race.city %}
-            <div class="race-info-item">
-              <span class="info-icon">{{ icons.icon('pin') }}</span>
-              <span class="info-value">{{ race.city }}</span>
-            </div>
-            {% endif %}
+          <div class="race-meta-line">
+            <span>{{ icons.icon('flag') }} {{ race.circuit }}</span>
+            <span>{{ icons.icon('globe') }} {{ race.country }}</span>
+            <span>{{ icons.icon('calendar') }}
+              {% if race.sessions and race.sessions|length >= 2 and race.sessions[0].date and race.sessions[-1].date %}
+              {{ race.sessions[0].date|date_range(race.sessions[-1].date) }}
+              {% else %}
+              {{ race.date|date_fmt }}
+              {% endif %}
+            </span>
           </div>
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <div class="no-races-message">
-        <p>No past races available.</p>
-      </div>
+      <div class="no-races-message"><p>No past races available.</p></div>
       {% endif %}
     </div>
   </div>
 </div>
-
-
-<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
 
 {% endblock %}

@@ -18,12 +18,15 @@ def race_summary(race: Dict) -> Dict:
     }
 
 
-def build_betting_dashboard(bet_service, race_manager, resolution_service=None) -> Tuple[Dict, Dict]:
+def build_betting_dashboard(bet_service, race_manager, resolution_service=None, username: str = None) -> Tuple[Dict, Dict]:
     """
     Build (races_with_bets, races_without_bets) for the betting dashboard.
 
     Only includes closed/resolved, non-canceled races, sorted newest first.
     Pre-computes actual race results so the template doesn't call managers inline.
+
+    If username is given, each race's "bets" list contains only that user's bet,
+    and "bet_count" / "has_others" indicate whether a details page is useful.
     """
     all_bets = bet_service.load_all()
     race_bets = all_bets.get("race_bets", {})
@@ -61,10 +64,14 @@ def build_betting_dashboard(bet_service, race_manager, resolution_service=None) 
 
         user_bets = info.get("user_bets", {})
         target = with_bets if user_bets else without_bets
+        # When filtering by user, only include their own bet
+        display_bets = {username: user_bets[username]} if username and username in user_bets else user_bets
         entry = {
             "race_info": race_info,
             "race_bet_info": info,
             "race_results": race_results,
+            "bet_count": len(user_bets),
+            "has_others": len(user_bets) > (1 if username and username in user_bets else 0),
             "bets": [
                 {
                     "username": uname,
@@ -84,7 +91,7 @@ def build_betting_dashboard(bet_service, race_manager, resolution_service=None) 
                         if bd.get("actual_results") else []
                     ),
                 }
-                for uname, bd in user_bets.items()
+                for uname, bd in display_bets.items()
             ],
         }
         target[race_id] = entry

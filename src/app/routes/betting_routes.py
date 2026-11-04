@@ -24,15 +24,15 @@ def _extract_bet_form() -> tuple:
 @betting_bp.route("/betting")
 @login_required
 def betting_dashboard():
-    """Show closed/resolved bets grouped by race."""
+    """Show the current user's own bets grouped by race."""
     closed = bet_service.check_and_close_expired()
     if closed:
         logger.info("Closed bets for %d races", closed)
 
-    races_with_bets, races_without_bets = build_betting_dashboard(
-        bet_service, race_data_manager, resolution_service
-    )
     username = session["username"]
+    races_with_bets, races_without_bets = build_betting_dashboard(
+        bet_service, race_data_manager, resolution_service, username=username
+    )
 
     return render_template(
         "betting/dashboard.html",
@@ -41,6 +41,30 @@ def betting_dashboard():
         races_without_bets=races_without_bets,
         is_admin=user_service.is_admin(username),
         driver_short_names=race_data_manager.get_driver_short_names(),
+        driver_teams=race_data_manager.get_driver_teams(),
+    )
+
+
+@betting_bp.route("/betting/race/<race_id>")
+@login_required
+def race_bet_details(race_id):
+    """Show all users' bets for a single race."""
+    username = session["username"]
+    races_with_bets, _ = build_betting_dashboard(
+        bet_service, race_data_manager, resolution_service
+    )
+
+    race_data = races_with_bets.get(race_id)
+    if not race_data:
+        flash("No bets found for this race", "error")
+        return redirect(url_for("betting.betting_dashboard"))
+
+    return render_template(
+        "betting/race_detail.html",
+        username=username,
+        race_data=race_data,
+        race_id=race_id,
+        is_admin=user_service.is_admin(username),
         driver_teams=race_data_manager.get_driver_teams(),
     )
 

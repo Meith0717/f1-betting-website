@@ -8,46 +8,123 @@
   {% set icon = 'user' %}
   {% include '_page_header.html' %}
 
-  <div class="profile-details">
-    <!-- Profile Info -->
-    <div class="card profile-section">
-      <div class="card-header">
-        <h2 class="card-title">{{ icons.icon('user') }} Profile Information</h2>
-      </div>
-      <div class="card-content">
-        <div class="profile-info-grid">
-          <div class="profile-info-item">
-            <strong>Username:</strong>
-            <span>{{ username }}</span>
-          </div>
-          <div class="profile-info-item">
-            <strong>Account Type:</strong>
-            <span>{% if users[username].is_admin %}{{ icons.icon('crown') }} Administrator{% else %}{{ icons.icon('user') }} Regular User{% endif %}</span>
-          </div>
-          <div class="profile-info-item">
-            <strong>Member Since:</strong>
-            <span>{{ icons.icon('calendar') }} {{ users[username].created_at[:10]|date_fmt }}</span>
-          </div>
-          <div class="profile-info-item">
-            <strong>Last Login:</strong>
-            <span>{{ icons.icon('clock') }} {{ users[username].last_login[:10]|date_fmt if users[username].last_login else 'First time' }}</span>
-          </div>
-        </div>
-      </div>
+  <!-- Profile Info -->
+  <div class="card profile-section">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('user') }} Profile Information</h2>
     </div>
-
-    <!-- Account Actions -->
-    <div class="card profile-section">
-      <div class="card-header">
-        <h2 class="card-title">{{ icons.icon('gear') }} Account Actions</h2>
-      </div>
-      <div class="card-content">
-        <div class="profile-actions">
-          <a href="{{ url_for('main.change_password') }}" class="btn btn-secondary">{{ icons.icon('lock') }} Change Password</a>
+    <div class="card-content">
+      <div class="profile-info-grid">
+        <div class="profile-info-item">
+          <strong>Username:</strong>
+          <span>{{ username }}</span>
+        </div>
+        <div class="profile-info-item">
+          <strong>Account Type:</strong>
+          <span>{% if users[username].is_admin %}{{ icons.icon('crown') }} Administrator{% else %}{{ icons.icon('user') }} Regular User{% endif %}</span>
+        </div>
+        <div class="profile-info-item">
+          <strong>Member Since:</strong>
+          <span>{{ icons.icon('calendar') }} {{ users[username].created_at[:10]|date_fmt }}</span>
+        </div>
+        <div class="profile-info-item">
+          <strong>Last Login:</strong>
+          <span>{{ icons.icon('clock') }} {{ users[username].last_login[:10]|date_fmt if users[username].last_login else 'First time' }}</span>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Notifications -->
+  <div class="card profile-section">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('bell') }} Notifications</h2>
+      <span id="notif-status-badge" class="notif-badge notif-off">Off</span>
+    </div>
+    <div class="card-content">
+      <p class="notif-description">
+        Get push alerts for race start, qualifying, and betting deadlines.
+      </p>
+      <div class="notif-toggle-row">
+        <div class="notif-toggle-info">
+          <span class="notif-toggle-label" id="notif-toggle-label">Enable push notifications</span>
+          <span class="notif-toggle-hint" id="notif-toggle-hint">You will be asked for browser permission</span>
+        </div>
+        <button id="notif-toggle" class="toggle-switch" role="switch" aria-checked="false" onclick="toggleNotifications()">
+          <span class="toggle-knob"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Actions -->
+  <div class="card profile-section">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('gear') }} Account Actions</h2>
+    </div>
+    <div class="card-content">
+      <div class="profile-actions">
+        <a href="{{ url_for('main.change_password') }}" class="btn btn-secondary">{{ icons.icon('lock') }} Change Password</a>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+async function updateNotifUI() {
+  const badge = document.getElementById('notif-status-badge');
+  const toggle = document.getElementById('notif-toggle');
+  const label = document.getElementById('notif-toggle-label');
+  const hint = document.getElementById('notif-toggle-hint');
+  if (!badge) return;
+
+  const status = await checkNotificationStatus();
+
+  if (!status.supported) {
+    badge.textContent = 'Unsupported';
+    badge.className = 'notif-badge notif-off';
+    toggle.disabled = true;
+    hint.textContent = 'Your browser does not support push notifications';
+    return;
+  }
+
+  if (status.subscribed && status.permission === 'granted') {
+    badge.textContent = 'Active';
+    badge.className = 'notif-badge notif-on';
+    toggle.classList.add('on');
+    toggle.setAttribute('aria-checked', 'true');
+    label.textContent = 'Push notifications enabled';
+    hint.textContent = 'You will receive race alerts on this device';
+  } else {
+    badge.textContent = 'Off';
+    badge.className = 'notif-badge notif-off';
+    toggle.classList.remove('on');
+    toggle.setAttribute('aria-checked', 'false');
+    label.textContent = 'Enable push notifications';
+    hint.textContent = 'You will be asked for browser permission';
+  }
+}
+
+async function toggleNotifications() {
+  const toggle = document.getElementById('notif-toggle');
+  toggle.disabled = true;
+  try {
+    const status = await checkNotificationStatus();
+    if (status.subscribed) {
+      await disablePushNotifications('{{ username }}');
+    } else {
+      await enablePushNotifications('{{ username }}');
+    }
+  } catch (error) {
+    if (error.message !== 'Permission denied by user') {
+      alert('Error: ' + (error.message || 'Please try again.'));
+    }
+  }
+  await updateNotifUI();
+  toggle.disabled = false;
+}
+
+document.addEventListener('DOMContentLoaded', updateNotifUI);
+</script>
 
 {% endblock %}

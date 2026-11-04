@@ -27,7 +27,7 @@ def test_score_updating(app):
         })
 
         # Clear and create test users
-        user_service.save_all({"users": {}})
+        user_service.save_all({})
         user_service.create("test_user1", "test", is_admin=False)
         user_service.create("test_user2", "test", is_admin=False)
         user_service.update("test_user1", score=10)
@@ -64,7 +64,7 @@ def test_score_updating(app):
         assert u1["score_history"][0]["points"] == 8
 
         # Clean up
-        user_service.save_all({"users": {}})
+        user_service.save_all({})
         bet_service.save_all({"race_bets": {}, "metadata": {}})
 
 

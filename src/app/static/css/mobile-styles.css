@@ -276,6 +276,10 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
 .card-header {
   padding: 16px 20px 12px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .card-title {
@@ -747,3 +751,224 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .float-right { float: right; }
 .text-success { color: var(--success); font-weight: 600; }
 .small { font-size: 13px; }
+
+/*****************************
+* Home page — rank card, next session, betting CTA
+*****************************/
+.rank-card-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 20px;
+}
+
+.rank-info { display: flex; flex-direction: column; gap: 2px; }
+
+.rank-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rank-value { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.rank-total { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+
+.rank-divider { width: 1px; align-self: stretch; background: var(--border); }
+
+.rank-link { margin-left: auto; flex-shrink: 0; }
+
+.next-session-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 14px;
+  margin-bottom: 4px;
+}
+
+.next-session-type { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+.next-session-banner .countdown-timer { color: var(--primary); font-size: 18px; }
+
+.active-bet-display { display: flex; flex-direction: column; gap: 10px; }
+.active-bet-display .bet-race-name { font-size: 16px; }
+.active-bet-display .bet-actions { display: flex; gap: 8px; padding-top: 4px; }
+
+.bet-cta { display: flex; flex-direction: column; gap: 12px; }
+.bet-cta .betting-timer { margin-top: 4px; }
+
+.bet-cta-race {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin: 0;
+}
+
+.bet-cta-race .icon { color: var(--primary); }
+
+/*****************************
+* Notification settings (profile)
+*****************************/
+.notif-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.notif-badge.notif-on { background: var(--success-soft); color: var(--success); }
+.notif-badge.notif-off { background: var(--surface-3); color: var(--text-muted); }
+
+.notif-description { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+
+.notif-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.notif-toggle-info { display: flex; flex-direction: column; gap: 2px; }
+.notif-toggle-label { font-size: 15px; font-weight: 600; color: var(--text); }
+.notif-toggle-hint { font-size: 13px; color: var(--text-muted); }
+
+.toggle-switch {
+  position: relative;
+  width: 52px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--surface-3);
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.toggle-switch.on { background: var(--success); }
+.toggle-switch:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: #fff;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-switch.on .toggle-knob { transform: translateX(22px); }
+
+.next-race-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.next-race-name { font-size: 18px; font-weight: 700; color: var(--text); }
+.next-race-title-row .card-subtitle { margin: 2px 0 0; }
+
+/*****************************
+* Collapsible sessions (details/summary)
+*****************************/
+.sessions-details { margin-top: 4px; }
+
+.sessions-details summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  list-style: none;
+  user-select: none;
+  border-top: 1px solid var(--border);
+}
+
+.sessions-details summary::-webkit-details-marker { display: none; }
+
+.sessions-details summary .icon:first-child { color: var(--primary); }
+
+.sessions-details summary .icon:last-child {
+  margin-left: auto;
+  transition: transform var(--transition);
+  color: var(--text-muted);
+}
+
+.sessions-details[open] summary .icon:last-child { transform: rotate(180deg); }
+
+.sessions-count { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+.sessions-details .mobile-sessions-grid {
+  padding: 4px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sessions-details .mobile-session-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.sessions-details .session-type { font-size: 13px; font-weight: 600; color: var(--text); }
+
+.sessions-details .session-date-time {
+  flex-direction: row;
+  gap: 8px;
+  font-size: 12px;
+  align-items: center;
+}
+
+.sessions-details .session-date { font-weight: 500; }
+
+/*****************************
+* Races list — compact meta line
+*****************************/
+.race-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.race-meta-line span { display: inline-flex; align-items: center; gap: 5px; }
+.race-meta-line .icon { width: 14px; height: 14px; color: var(--primary); }
+
+.mobile-race-card .sessions-details summary { border-top: none; padding: 8px 0 4px; }
+
+/*****************************
+* My bets (compact rows on betting dashboard)
+*****************************/
+.my-bet-row { padding: 4px 0; }
+.my-bet-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.mt-2 { margin-top: 8px; display: inline-flex; }

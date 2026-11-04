@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
+
+<div class="container">
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'Leaderboard' %}
+  {% set icon = 'trophy' %}
+  {% include '_page_header.html' %}
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('trophy') }} Standings</h2>
+      {% if user_rank %}
+      <span class="you-badge">Rank #{{ user_rank }}</span>
+      {% endif %}
+    </div>
+    <div class="card-content">
+      <div class="mobile-leaderboard">
+        {% for name, user_data in sorted_users %}
+        <div class="leaderboard-item {% if name == username %}current-user{% endif %}">
+          <div class="leaderboard-rank">
+            <span class="rank-number">{{ loop.index }}</span>
+            {% if loop.index <= 3 %}
+            <span class="rank-medal">{{ icons.icon('trophy') }}</span>
+            {% endif %}
+          </div>
+          <div class="leaderboard-user">
+            <span class="username">{{ name }}</span>
+            {% if name == username %}<span class="you-badge">(You)</span>{% endif %}
+          </div>
+          <div class="leaderboard-score">
+            <span class="score-value">{{ user_data.score }}</span>
+            <span class="score-icon">{{ icons.icon('target') }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

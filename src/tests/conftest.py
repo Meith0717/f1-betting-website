@@ -15,6 +15,22 @@ from app import create_app
 from app.race_data_manager import RaceDataManager
 
 
+@pytest.fixture(scope="session", autouse=True)
+def isolated_data_files(tmp_path_factory):
+    """Redirect all singleton JsonStores to temp files so tests never touch real data."""
+    import tempfile, os
+    from app.core import JsonStore
+    from app.services import bet_service, user_service, resolution_service
+    from app.push_manager import push_manager
+
+    tmp = tmp_path_factory.mktemp("test_data")
+    bet_service._store = JsonStore(str(tmp / "bets.json"), default={"race_bets": {}, "metadata": {}})
+    user_service._store = JsonStore(str(tmp / "users.json"), default={"users": {}})
+    resolution_service._cache = JsonStore(str(tmp / "race_results.json"), default={})
+    push_manager._store = JsonStore(str(tmp / "push_subscriptions.json"), default={"subscriptions": {}})
+    yield
+
+
 @pytest.fixture(scope="session")
 def app():
     """Create and configure a new app instance for each test."""

@@ -86,6 +86,19 @@ def index():
         return redirect(url_for("main.index"))
 
 
+@main_bp.route("/leaderboard")
+@login_required
+def leaderboard():
+    """Full leaderboard page."""
+    username = session["username"]
+    return render_template(
+        "leaderboard.html",
+        username=username,
+        sorted_users=user_service.get_leaderboard(),
+        user_rank=user_service.get_rank(username),
+    )
+
+
 @main_bp.route("/profile")
 @login_required
 def profile():

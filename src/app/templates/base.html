@@ -65,6 +65,10 @@
             <span class="nav-icon">{{ icons.icon('money') }}</span>
             <span class="nav-text">Betting</span>
           </a>
+          <a href="{{ url_for('main.profile') }}" class="nav-link {% if request.endpoint == 'main.profile' %}active{% endif %}" title="Profile">
+            <span class="nav-icon">{{ icons.icon('user') }}</span>
+            <span class="nav-text">Profile</span>
+          </a>
           <a href="{{ url_for('auth.logout') }}" class="nav-link" title="Logout">
             <span class="nav-icon">{{ icons.icon('logout') }}</span>
             <span class="nav-text">Logout</span>
@@ -182,13 +186,12 @@
       <a href="{{ url_for('betting.betting_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('betting.') %}active{% endif %}">
         {{ icons.icon('money') }}<span>Bets</span>
       </a>
+      <a href="{{ url_for('main.profile') }}" class="tab-bar-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
+        {{ icons.icon('user') }}<span>Profile</span>
+      </a>
       {% if session.get('is_admin') %}
       <a href="{{ url_for('admin.admin_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('admin.') %}active{% endif %}">
         {{ icons.icon('crown') }}<span>Admin</span>
-      </a>
-      {% else %}
-      <a href="{{ url_for('main.profile') }}" class="tab-bar-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
-        {{ icons.icon('user') }}<span>Profile</span>
       </a>
       {% endif %}
     </nav>
