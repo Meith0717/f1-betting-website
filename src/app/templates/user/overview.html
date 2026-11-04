@@ -139,5 +139,5 @@
 
 </div>
 
-<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+<script src="{{ url_for('static', filename='js/countdown.js', v=config['STATIC_VERSION']) }}"></script>
 {% endblock %}

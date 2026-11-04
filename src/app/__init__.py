@@ -8,10 +8,15 @@ from .core.logger import setup_logging
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = config.secret_key()
-    # Cache-busting version for static assets — based on CSS file mtime,
-    # so browsers refetch whenever the stylesheet actually changes
-    css_path = os.path.join(app.root_path, "static", "css", "mobile-styles.css")
-    app.config["STATIC_VERSION"] = str(int(os.path.getmtime(css_path))) if os.path.exists(css_path) else "1"
+    # Cache-busting version for static assets — max mtime of css/js files,
+    # so browsers refetch whenever any stylesheet or script changes
+    static_dir = os.path.join(app.root_path, "static")
+    mtimes = []
+    for sub in ("css", "js"):
+        d = os.path.join(static_dir, sub)
+        if os.path.isdir(d):
+            mtimes.extend(os.path.getmtime(os.path.join(d, f)) for f in os.listdir(d) if os.path.isfile(os.path.join(d, f)))
+    app.config["STATIC_VERSION"] = str(int(max(mtimes))) if mtimes else "1"
 
     log_dir = os.path.join(app.instance_path, "logs") if app.instance_path else "logs"
     setup_logging(log_dir)

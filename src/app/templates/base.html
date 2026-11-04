@@ -23,10 +23,10 @@
     />
     
     <!-- PWA Install Prompt -->
-    <script src="{{ url_for('static', filename='js/pwa-install.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/pwa-install.js', v=config['STATIC_VERSION']) }}" defer></script>
     
     <!-- Push Notifications -->
-    <script src="{{ url_for('static', filename='js/push-config.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/push-config.js', v=config['STATIC_VERSION']) }}" defer></script>
   </head>
   <body>
     <!-- Service Worker Registration -->

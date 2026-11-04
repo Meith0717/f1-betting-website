@@ -233,6 +233,6 @@
 </div>
 
 
-<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin_dashboard.js', v=config['STATIC_VERSION']) }}"></script>
 
 {% endblock %}

@@ -94,6 +94,6 @@
   </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/betting_form.js') }}"></script>
+<script src="{{ url_for('static', filename='js/betting_form.js', v=config['STATIC_VERSION']) }}"></script>
 
 {% endblock %}
