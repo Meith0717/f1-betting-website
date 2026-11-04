@@ -19,6 +19,7 @@ def login():
         if username in users and user_service.verify_password(users[username]["password"], password):
             session["username"] = username
             session["is_admin"] = users[username].get("is_admin", False)
+            session.permanent = bool(request.form.get("remember_me"))
 
             # Migrate legacy plaintext passwords
             if not users[username]["password"].startswith("pbkdf2_sha256$"):

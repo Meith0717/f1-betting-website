@@ -1,5 +1,6 @@
 from flask import Flask
 import os
+from datetime import timedelta
 
 from .core import config
 from .core.logger import setup_logging
@@ -8,6 +9,8 @@ from .core.logger import setup_logging
 def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = config.secret_key()
+    # "Remember me" sessions live 30 days instead of browser-session only
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
     # Cache-busting version for static assets — max mtime of css/js files,
     # so browsers refetch whenever any stylesheet or script changes
     static_dir = os.path.join(app.root_path, "static")

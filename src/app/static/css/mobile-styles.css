@@ -1136,3 +1136,21 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .admin-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .log-controls { display: flex; gap: 6px; }
 .mb-16 { margin-bottom: 16px; }
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
