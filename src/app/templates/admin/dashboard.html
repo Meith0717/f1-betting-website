@@ -1,21 +1,36 @@
 {% extends 'base.html' %}
-{% import '_icons.html' as icons %} {% block content %}
+{% import '_icons.html' as icons %}
+{% block content %}
 
 <div class="container">
-  <div class="page-header">
-    <a href="{{ url_for('main.index') }}" class="back-button">{{ icons.icon('back') }}</a>
-    <h1 class="page-title">{{ icons.icon('crown') }} Admin Dashboard</h1>
-  </div>
+  {% set back_url = url_for('main.index') %}
+  {% set title = 'Admin Dashboard' %}
+  {% set icon = 'crown' %}
+  {% include '_page_header.html' %}
 
-  <!-- Mobile Admin Info Box -->
-  <div class="card mobile-info-box">
-    <div class="card-content">
-      <h4>{{ icons.icon('lock') }} Administrator Access</h4>
-      <p>You have full access to manage the F1 Betting application. Use these tools responsibly.</p>
+  <!-- Stats overview -->
+  <div class="stats-container">
+    <div class="card stat-card">
+      <div class="card-content">
+        <h3 class="card-title">{{ icons.icon('user') }} Users</h3>
+        <div class="card-value">{{ users|length }}</div>
+      </div>
+    </div>
+    <div class="card stat-card">
+      <div class="card-content">
+        <h3 class="card-title">{{ icons.icon('target') }} Total Pts</h3>
+        <div class="card-value">{{ total_points }}</div>
+      </div>
+    </div>
+    <div class="card stat-card">
+      <div class="card-content">
+        <h3 class="card-title">{{ icons.icon('calendar') }} Races</h3>
+        <div class="card-value">{{ races|length }}</div>
+      </div>
     </div>
   </div>
 
-  <!-- Mobile Data Management Section -->
+  <!-- Data Management -->
   <div class="card mobile-admin-section">
     <div class="card-header">
       <h2 class="card-title">{{ icons.icon('chart') }} Data Management</h2>
@@ -23,215 +38,142 @@
     <div class="card-content">
       <div class="mobile-admin-actions">
         <form method="POST" action="{{ url_for('admin.update_races') }}" class="action-form">
-          <button type="submit" class="btn btn-primary btn-block" title="Update race data from F1 API">
-            {{ icons.icon('calendar') }} Update Races
-          </button>
+          <button type="submit" class="btn btn-primary btn-block">{{ icons.icon('calendar') }} Update Races</button>
         </form>
         <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
-          <button type="submit" class="btn btn-primary btn-block" title="Update driver data from F1 API">
-            {{ icons.icon('driver') }} Update Drivers
-          </button>
+          <button type="submit" class="btn btn-primary btn-block">{{ icons.icon('driver') }} Update Drivers</button>
         </form>
+        <a href="{{ url_for('admin.resolve_race') }}" class="btn btn-secondary btn-block">{{ icons.icon('target') }} Resolve Race</a>
         <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form"
-              onsubmit="return confirm('Are you sure you want to reset ALL user points to 0? This cannot be undone.');">
-          <button type="submit" class="btn btn-danger btn-block">
-            {{ icons.icon('trash') }} Reset All Points
-          </button>
+              onsubmit="return confirm('Reset ALL user points to 0? This cannot be undone.');">
+          <button type="submit" class="btn btn-danger btn-block">{{ icons.icon('trash') }} Reset All Points</button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Mobile Cancelled Races Section -->
+  <!-- Cancelled Races -->
   <div class="card mobile-admin-section">
     <div class="card-header">
       <h2 class="card-title">{{ icons.icon('cross') }} Cancelled Races</h2>
     </div>
     <div class="card-content">
-      <p class="data-section-description mb-4">
-        Manage cancelled races and reactivate them if needed
-      </p>
-      
-      <div class="mobile-cancel-controls mb-4">
-        <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form">
-          <div class="mobile-race-select-container">
-            <select name="race_id" id="race-select" class="race-select-dropdown form-control mobile-select" required>
-              <option value="" disabled selected>Select race to cancel...</option>
-              {% for race in races %} 
-              {% if race.id not in canceled_race_ids %}
-              <option value="{{ race.id }}">{{ race.name }}</option>
-              {% endif %} 
-              {% endfor %}
-            </select>
-            <button type="submit" class="btn btn-danger btn-block">
-              {{ icons.icon('cross') }} Cancel Race
-            </button>
-          </div>
-        </form>
-      </div>
+      <form method="POST" action="{{ url_for('admin.cancel_race') }}" class="cancel-form mb-16">
+        <div class="form-group">
+          <select name="race_id" class="form-control" required>
+            <option value="" disabled selected>Select race to cancel...</option>
+            {% for race in races %}
+            {% if race.id not in canceled_race_ids %}
+            <option value="{{ race.id }}">R{{ race.round }} — {{ race.name }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-danger btn-block">{{ icons.icon('cross') }} Cancel Race</button>
+      </form>
 
-      <div class="mobile-resolved-races-list">
-        <div class="resolved-race-header">
-          <h4>Cancelled Races List</h4>
-        </div>
-        {% if canceled_race_ids|length > 0 %}
-        <div class="mobile-races-grid">
-          {% for race in races %}
-          {% if race.id in canceled_race_ids %}
-          <div class="mobile-race-item">
-            <div class="race-info">
-              <div class="race-name">{{ race.name }}</div>
-              <div class="race-country">{{ race.country }}</div>
-              <div class="race-date">{{ race.date }}</div>
-            </div>
-            <div class="race-actions">
-              <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="reactivate-form">
-                <input type="hidden" name="race_id" value="{{ race.id }}" />
-                <button type="submit" class="btn btn-success btn-small" title="Reactivate this race">
-                  ↻ Reactivate
-                </button>
-              </form>
-            </div>
+      {% if canceled_race_ids|length > 0 %}
+      <div class="mobile-race-list">
+        {% for race in races %}
+        {% if race.id in canceled_race_ids %}
+        <div class="mobile-race-card" data-canceled="true">
+          <div class="mobile-race-header">
+            <span class="race-round-badge">{{ race.round }}</span>
+            <h3 class="mobile-race-title">{{ race.name }}</h3>
+            <span class="canceled-badge">{{ icons.icon('cross') }} Canceled</span>
           </div>
-          {% endif %}
-          {% endfor %}
-        </div>
-        {% else %}
-        <div class="no-canceled-races">
-          No cancelled races found
+          <div class="race-meta-line">
+            <span>{{ icons.icon('globe') }} {{ race.country }}</span>
+            <span>{{ icons.icon('calendar') }} {{ race.sessions[-1].date|date_fmt if race.sessions else race.date|date_fmt }}</span>
+          </div>
+          <div class="race-actions mt-2">
+            <form method="POST" action="{{ url_for('admin.uncancel_race') }}" class="inline-form">
+              <input type="hidden" name="race_id" value="{{ race.id }}" />
+              <button type="submit" class="btn btn-success btn-small">{{ icons.icon('check') }} Reactivate</button>
+            </form>
+          </div>
         </div>
         {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Logs Section -->
-  <div class="card admin-section">
-    <div class="card-header">
-      <h2 class="card-title">{{ icons.icon('list') }} Application Logs</h2>
-    </div>
-    <div class="card-content">
-      <div class="info-box mb-4">
-        <h4>{{ icons.icon('list') }} Application Logs</h4>
-        <p>View and manage application logs. Use the toggle wrap button to switch between wrapped and unwrapped text display.</p>
-      </div>
-
-      <div class="log-header mb-4">
-        <div class="log-controls">
-          <button onclick="toggleLogWrap()" class="btn btn-secondary btn-small">
-            {{ icons.icon('list') }} Toggle Wrap
-          </button>
-          <form method="POST" action="{{ url_for('admin.clear_logs') }}" class="clear-logs-form">
-            <button type="submit" class="btn btn-danger btn-small"
-                    onclick="return confirm('Are you sure you want to clear the log file? This cannot be undone.');">
-              {{ icons.icon('trash') }} Clear Logs
-            </button>
-          </form>
-        </div>
-      </div>
-      
-      {% if log_file_exists %}
-      <div class="log-container" id="logContainer">
-        <pre class="log-content">{{ log_entries|join('') }}</pre>
+        {% endfor %}
       </div>
       {% else %}
-      <div class="no-logs text-center">
-        {{ icons.icon('list') }} No log file found
-        <p class="log-description">
-          Logs will appear here once the application generates them.
-        </p>
-      </div>
+      <p class="text-muted text-small">No cancelled races.</p>
       {% endif %}
     </div>
   </div>
 
-  <!-- Users & Security Section -->
+  <!-- Users & Security -->
   <div class="card admin-section">
     <div class="card-header">
       <h2 class="card-title">{{ icons.icon('user') }} Users & Security</h2>
     </div>
     <div class="card-content">
-      <div class="info-box mb-4">
-        <h4>{{ icons.icon('user') }} Users & Security</h4>
-        <p>Manage user accounts, permissions, and security settings. Toggle notifications and adjust user roles as needed.</p>
+      {% for username, user_data in users.items() %}
+      <div class="user-row">
+        <div class="user-row-info">
+          <span class="username">{{ username }}</span>
+          {% if user_data.is_admin %}
+          <span class="admin-badge">{{ icons.icon('crown') }} Admin</span>
+          {% else %}
+          <span class="regular-badge">{{ icons.icon('user') }} User</span>
+          {% endif %}
+          <span class="user-row-meta">{{ user_data.score }} pts · joined {{ user_data.created_at[:10]|date_fmt }} · {{ user_data.last_login[:10]|date_fmt if user_data.last_login else 'never logged in' }}</span>
+        </div>
+        <div class="action-cell">
+          {% if not user_data.is_admin %}
+          <form method="POST" action="{{ url_for('admin.promote_user', username=username) }}" class="inline-form">
+            <button type="submit" class="btn btn-success btn-small" title="Promote to admin">{{ icons.icon('crown') }}</button>
+          </form>
+          {% else %}
+          <form method="POST" action="{{ url_for('admin.demote_user', username=username) }}" class="inline-form">
+            <button type="submit" class="btn btn-warning btn-small" title="Demote from admin">{{ icons.icon('user') }}</button>
+          </form>
+          {% endif %}
+          <form method="POST" action="{{ url_for('admin.send_test_notification', username=username) }}" class="inline-form">
+            <button type="submit" class="btn btn-primary btn-small" title="Send test push notification">{{ icons.icon('megaphone') }}</button>
+          </form>
+          {% if username != session['username'] %}
+          <form method="POST" action="{{ url_for('admin.delete_user', username=username) }}" class="inline-form"
+                onsubmit="return confirm('Delete user {{ username }}? This cannot be undone.');">
+            <button type="submit" class="btn btn-danger btn-small" title="Delete user">{{ icons.icon('trash') }}</button>
+          </form>
+          {% endif %}
+        </div>
       </div>
-
-      <div class="table-responsive">
-        <table class="user-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Points</th>
-              <th>Created</th>
-              <th>Last Login</th>
-              <th>Admin</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for username, user_data in users.items() %}
-            <tr>
-              <td>{{ username }}</td>
-              <td>{{ user_data.score }} {{ icons.icon('target') }}</td>
-              <td>{{ user_data.created_at }}</td>
-              <td>
-                {{ user_data.last_login if user_data.last_login else 'Never' }}
-              </td>
-              <td>
-                {% if user_data.is_admin %}
-                <span class="admin-badge">{{ icons.icon('crown') }} Admin</span>
-                {% else %}
-                <span class="regular-badge">{{ icons.icon('user') }} Regular</span>
-                {% endif %}
-              </td>
-              <td class="action-cell">
-                {% if not user_data.is_admin %}
-                <form method="POST" action="{{ url_for('admin.promote_user', username=username) }}" class="action-form">
-                  <button type="submit" class="btn btn-success btn-small" title="Promote to admin">
-                    {{ icons.icon('crown') }} Promote
-                  </button>
-                </form>
-                {% else %}
-                <form method="POST" action="{{ url_for('admin.demote_user', username=username) }}" class="action-form">
-                  <button type="submit" class="btn btn-warning btn-small" title="Demote from admin">
-                    {{ icons.icon('user') }} Demote
-                  </button>
-                </form>
-                {% endif %}
-                <!-- Test notification button -->
-                <form method="POST" action="{{ url_for('admin.send_test_notification', username=username) }}" class="action-form">
-                  <button type="submit" class="btn btn-primary btn-small" title="Send test push notification">
-                    {{ icons.icon('megaphone') }} Test Notify
-                  </button>
-                </form>
-                <!-- Delete button - prevent admins from deleting themselves -->
-                {% if username != session['username'] %}
-                <form method="POST" action="{{ url_for('admin.delete_user', username=username) }}" class="action-form"
-                      onsubmit="return confirm('Are you sure you want to delete user {{ username }}? This cannot be undone.');">
-                  <button type="submit" class="btn btn-danger btn-small" title="Delete user">
-                    {{ icons.icon('trash') }} Delete
-                  </button>
-                </form>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+      {% endfor %}
 
       <div class="admin-actions mt-4">
-        <strong>Registration Password: {{ registration_password }}</strong>
-        <form method="POST" action="{{ url_for('admin.change_registration_password') }}" class="registration-form">
-          <button type="submit" class="btn btn-primary btn-small" title="Generate new registration password">
-            {{ icons.icon('lock') }} New Password
-          </button>
+        <span class="text-small text-muted">Registration password: <strong>{{ registration_password }}</strong></span>
+        <form method="POST" action="{{ url_for('admin.change_registration_password') }}" class="inline-form">
+          <button type="submit" class="btn btn-primary btn-small">{{ icons.icon('lock') }} New Password</button>
         </form>
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Logs -->
+  <div class="card admin-section">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('list') }} Application Logs</h2>
+      <div class="log-controls">
+        <button onclick="toggleLogWrap()" class="btn btn-secondary btn-small">{{ icons.icon('list') }} Wrap</button>
+        <form method="POST" action="{{ url_for('admin.clear_logs') }}" class="inline-form">
+          <button type="submit" class="btn btn-danger btn-small"
+                  onclick="return confirm('Clear the log file? This cannot be undone.');">{{ icons.icon('trash') }} Clear</button>
+        </form>
+      </div>
+    </div>
+    <div class="card-content">
+      {% if log_file_exists %}
+      <div class="log-container" id="logContainer">
+        <pre class="log-content">{{ log_entries|join('') }}</pre>
+      </div>
+      {% else %}
+      <p class="text-muted text-small text-center p-32">No log file found yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
 <script src="{{ url_for('static', filename='js/admin_dashboard.js', v=config['STATIC_VERSION']) }}"></script>
 

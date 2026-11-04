@@ -1116,3 +1116,23 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   padding-top: 10px;
   border-top: 1px solid var(--border);
 }
+
+/*****************************
+* Admin dashboard
+*****************************/
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.user-row:last-of-type { border-bottom: none; }
+.user-row-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.user-row-info .username { font-weight: 700; font-size: 15px; }
+.user-row-meta { font-size: 12px; color: var(--text-muted); }
+.admin-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.log-controls { display: flex; gap: 6px; }
+.mb-16 { margin-bottom: 16px; }
