@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 
 try:
     import pywebpush
-    from pywebpush import webpush
+    from pywebpush import webpush, WebPushException
 
     PYWEBPUSH_AVAILABLE = True
 except ImportError:
@@ -184,10 +184,19 @@ class PushManager:
                     ttl=3600,
                 )
                 sent += 1
-            except pywebpush.exceptions.HTTPNOTFOUND:
-                self.remove_subscription(username, sub["endpoint"])
-                failed += 1
-                errors.append({"endpoint": sub["endpoint"], "error": "expired", "action": "removed"})
+            except WebPushException as e:
+                # 404/410 = subscription expired/gone; 400 (e.g. VapidPkHashMismatch)
+                # = stale subscription after key rotation — remove it either way
+                status = getattr(getattr(e, "response", None), "status_code", None)
+                if status in (400, 404, 410):
+                    self.remove_subscription(username, sub["endpoint"])
+                    failed += 1
+                    errors.append({"endpoint": sub["endpoint"], "error": f"stale subscription (HTTP {status})", "action": "removed"})
+                    logger.warning("Removed stale push subscription for %s (HTTP %s)", username, status)
+                else:
+                    failed += 1
+                    errors.append({"endpoint": sub["endpoint"], "error": str(e)})
+                    logger.error("Push failed for %s: %s", username, e)
             except Exception as e:
                 failed += 1
                 errors.append({"endpoint": sub["endpoint"], "error": str(e)})
