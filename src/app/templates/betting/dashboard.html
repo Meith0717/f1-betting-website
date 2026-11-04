@@ -33,7 +33,7 @@
             {% endif %}
             {% endif %}
             <span class="race-date">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else '' }}</span>
-            {% if race_status == 'resolved' and race_data.bets and race_data.bets[0].points_awarded %}
+            {% if race_status == 'resolved' and race_data.bets and race_data.bets[0].points_awarded is not none %}
             <span class="bet-total-points race-score">+{{ race_data.bets[0].points_awarded }} pts</span>
             {% endif %}
           </div>
