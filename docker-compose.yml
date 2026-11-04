@@ -7,11 +7,12 @@ services:
     volumes:
       - f1-data:/app/src/app/data
       - f1-instance:/app/src/instance
+    env_file:
+      # VAPID keys, SECRET_KEY, REGISTRATION_PASSWORD — copy .env.example to .env
+      # and fill it in (build.sh / app/generate_vapid_keys.py generate the VAPID keys)
+      - .env
     environment:
-      # VAPID keys are read from /app/.env (copied at build time);
-      # override here if you prefer env vars:
-      # - VAPID_PUBLIC_KEY=...
-      # - VAPID_PRIVATE_KEY=...
+      # Anything set here overrides .env
       - FLASK_ENV=production
       - LOG_LEVEL=INFO
     restart: unless-stopped
