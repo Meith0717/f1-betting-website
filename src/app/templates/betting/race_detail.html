@@ -31,6 +31,7 @@
             {% endif %}
           </div>
           <div class="bet-predictions-list">
+            {% set rr = race_data.race_results if race_data.race_results else none %}
             {% for pos in range(3) %}
             <div class="bet-prediction-row">
               <span class="prediction-position">{{ pos + 1 }}</span>
@@ -40,16 +41,25 @@
                 <span class="team-info">({{ driver_teams.get(bet.drivers[pos], '?') }})</span>
                 {% endif %}
               </span>
-              {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-              <span class="points-badge">+{{ bet.points_breakdown['position_' ~ (pos + 1)] }}</span>
+              {% if race_data.race_bet_info.status == 'resolved' and rr and bet.points_breakdown %}
+              <span class="row-right">
+                <span class="actual-result">
+                  {{ rr.top3[pos].driver_short if rr.top3 and rr.top3|length > pos else '-' }}
+                  {% if rr.top3 and rr.top3|length > pos %}<span class="team-info">({{ rr.top3[pos].team }})</span>{% endif %}
+                </span>
+                <span class="points-badge">+{{ bet.points_breakdown['position_' ~ (pos + 1)] }}</span>
+              </span>
               {% endif %}
             </div>
             {% endfor %}
             <div class="bet-prediction-row">
               <span class="prediction-position">{{ icons.icon('clock') }}</span>
               <span class="prediction-driver">{{ bet.fastest_lap_short or '—' }}</span>
-              {% if race_data.race_bet_info.status == 'resolved' and bet.points_breakdown %}
-              <span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>
+              {% if race_data.race_bet_info.status == 'resolved' and rr and bet.points_breakdown %}
+              <span class="row-right">
+                <span class="actual-result">{{ rr.fastest_lap_short or '-' }}</span>
+                <span class="points-badge">+{{ bet.points_breakdown.fastest_lap }}</span>
+              </span>
               {% endif %}
             </div>
           </div>
@@ -57,27 +67,6 @@
         {% endfor %}
       </div>
 
-      {% if race_data.race_bet_info.status == 'resolved' and race_data.race_results %}
-      {% set rr = race_data.race_results %}
-      <div class="mobile-actual-results">
-        <div class="results-header">{{ icons.icon('trophy') }} Actual Results</div>
-        <div class="bet-predictions-list">
-          {% for pos in range(3) %}
-          <div class="bet-prediction-row">
-            <span class="prediction-position">{{ pos + 1 }}</span>
-            <span class="prediction-driver">
-              {{ rr.top3[pos].driver_short if rr.top3 and rr.top3|length > pos else '-' }}
-              {% if rr.top3 and rr.top3|length > pos %}<span class="team-info">({{ rr.top3[pos].team }})</span>{% endif %}
-            </span>
-          </div>
-          {% endfor %}
-          <div class="bet-prediction-row">
-            <span class="prediction-position">{{ icons.icon('clock') }}</span>
-            <span class="prediction-driver">{{ rr.fastest_lap_short or '-' }}</span>
-          </div>
-        </div>
-      </div>
-      {% endif %}
     </div>
   </div>
 </div>

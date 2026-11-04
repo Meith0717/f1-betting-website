@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% import '_icons.html' as icons %}
+{% block content %}
+
+<div class="container">
+  {% set back_url = url_for('main.profile') %}
+  {% set title = 'Delete Account' %}
+  {% set icon = 'trash' %}
+  {% include '_page_header.html' %}
+
+  <div class="card danger-zone">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('trash') }} Delete Your Account</h2>
+    </div>
+    <div class="card-content">
+      <p class="notif-description">
+        You are about to permanently delete the account <strong>{{ username }}</strong>.
+        This action <strong>cannot be undone</strong>.
+      </p>
+
+      <h3 class="section-title">What will be deleted</h3>
+      <ul class="feature-list">
+        <li>{{ icons.icon('user') }} Your user account, score and score history (<code>users.json</code>)</li>
+        <li>{{ icons.icon('money') }} All your bets on every race (<code>bets.json</code>)</li>
+        <li>{{ icons.icon('bell') }} All your push notification subscriptions and devices (<code>push_subscriptions.json</code>)</li>
+      </ul>
+
+      <h3 class="section-title">What will be kept</h3>
+      <ul class="feature-list">
+        <li>{{ icons.icon('flag') }} Race schedule, results and other users' bets are not affected</li>
+        <li>{{ icons.icon('list') }} Server logs (no personal data beyond usernames in messages)</li>
+      </ul>
+
+      {% if is_last_admin %}
+      <div class="important-notice">
+        {{ icons.icon('lock') }} You are the <strong>last admin</strong> — this account cannot be deleted until another admin exists.
+      </div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('main.delete_account') }}" onsubmit="return confirm('Really delete your account permanently? This cannot be undone.');">
+        <div class="form-group">
+          <label for="delete_password">Confirm with your password</label>
+          <input type="password" id="delete_password" name="password" required class="form-control"
+                 placeholder="Your password" autocomplete="current-password" {% if is_last_admin %}disabled{% endif %} />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-danger" {% if is_last_admin %}disabled{% endif %}>
+            {{ icons.icon('trash') }} Delete My Account Permanently
+          </button>
+          <a href="{{ url_for('main.profile') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

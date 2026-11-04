@@ -654,8 +654,8 @@ select.form-control {
 .no-races-message, .no-bets, .no-logs, .no-sessions { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; }
 
 /* ---------- Betting dashboard ---------- */
-.race-bet-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-.race-bet-section:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.race-bet-section { margin-bottom: 20px; padding-bottom: 4px; }
+.race-bet-section:last-child { padding-bottom: 0; margin-bottom: 0; }
 .race-bet-header { margin-bottom: 12px; }
 .race-title { font-size: 17px; font-weight: 700; color: var(--text); }
 .race-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 6px; }
@@ -963,14 +963,6 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 * My bets (compact rows on betting dashboard)
 *****************************/
 .my-bet-row { padding: 4px 0; }
-.my-bet-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
 .mt-2 { margin-top: 8px; display: inline-flex; }
 
 .race-title {
@@ -985,3 +977,103 @@ hr.my-4 { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   font-size: 12px;
   flex-shrink: 0;
 }
+
+/*****************************
+* Leaderboard podium ranks
+*****************************/
+.leaderboard-item.rank-1 {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+  border-color: rgba(255, 215, 0, 0.4);
+}
+.leaderboard-item.rank-1 .rank-number,
+.leaderboard-item.rank-1 .rank-medal .icon { color: #ffd700; }
+.leaderboard-item.rank-1 .score-value { color: #ffd700; }
+
+.leaderboard-item.rank-2 {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.12), rgba(192, 192, 192, 0.04));
+  border-color: rgba(192, 192, 192, 0.35);
+}
+.leaderboard-item.rank-2 .rank-number,
+.leaderboard-item.rank-2 .rank-medal .icon { color: #c0c0c0; }
+.leaderboard-item.rank-2 .score-value { color: #c0c0c0; }
+
+.leaderboard-item.rank-3 {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.12), rgba(205, 127, 50, 0.04));
+  border-color: rgba(205, 127, 50, 0.35);
+}
+.leaderboard-item.rank-3 .rank-number,
+.leaderboard-item.rank-3 .rank-medal .icon { color: #cd7f32; }
+.leaderboard-item.rank-3 .score-value { color: #cd7f32; }
+
+.danger-zone { border-color: rgba(255, 82, 82, 0.3); }
+.danger-zone .card-title .icon { color: var(--danger); }
+
+.danger-zone-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.danger-zone-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.danger-zone-label .icon { color: var(--danger); }
+
+/*****************************
+* Device list (profile notifications)
+*****************************/
+.device-list { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.device-list-title { font-size: 14px; font-weight: 700; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.device-list-title .icon { color: var(--primary); }
+.device-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.device-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.device-endpoint { font-size: 12px; color: var(--text); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.device-meta { font-size: 11px; color: var(--text-muted); }
+
+/*****************************
+* Compact bet chips (one line per bet)
+*****************************/
+.bet-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.bet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 5px 10px;
+}
+.bet-chip-pos { color: var(--primary); font-weight: 800; font-size: 12px; display: flex; align-items: center; }
+.bet-chip-pos .icon { width: 13px; height: 13px; }
+.bet-chip .team-info { color: var(--text-muted); font-weight: 400; font-size: 11px; }
+.bet-chip .points-badge { font-size: 11px; }
+
+/*****************************
+* Bet row: actual result + points right-aligned
+*****************************/
+.bet-prediction-row { justify-content: flex-start; }
+.row-right { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+.actual-result { font-size: 13px; font-weight: 600; color: var(--success); }
+.actual-result .team-info { color: var(--text-muted); font-weight: 400; font-size: 11px; }
+
+.bet-prediction-row .prediction-driver { flex: 1; min-width: 0; }
+.bet-prediction-row .row-right { margin-left: auto; flex-shrink: 0; }

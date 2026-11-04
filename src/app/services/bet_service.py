@@ -93,6 +93,22 @@ class BetService:
         )
         return True
 
+    def remove_user_bets(self, username: str) -> int:
+        """Remove all of a user's bets across every race. Returns count removed."""
+        data = self.load_all()
+        removed = 0
+        for race_id in list(data["race_bets"].keys()):
+            entry = data["race_bets"][race_id]
+            if username in entry.get("user_bets", {}):
+                del entry["user_bets"][username]
+                removed += 1
+                if not entry["user_bets"] and entry.get("status") == "active":
+                    del data["race_bets"][race_id]
+        if removed:
+            self.save_all(data)
+            logger.info("Removed %d bets for deleted user %s", removed, username)
+        return removed
+
     def remove_bet(self, username: str, race_id: str) -> bool:
         """Remove a user's bet from a race. Cleans up empty race entries."""
         data = self.load_all()

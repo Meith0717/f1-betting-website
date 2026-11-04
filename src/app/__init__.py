@@ -1,13 +1,17 @@
 from flask import Flask
-import secrets
 import os
 
+from .core import config
 from .core.logger import setup_logging
 
 
 def create_app():
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = secrets.token_hex(32)
+    app.config["SECRET_KEY"] = config.secret_key()
+    # Cache-busting version for static assets — based on CSS file mtime,
+    # so browsers refetch whenever the stylesheet actually changes
+    css_path = os.path.join(app.root_path, "static", "css", "mobile-styles.css")
+    app.config["STATIC_VERSION"] = str(int(os.path.getmtime(css_path))) if os.path.exists(css_path) else "1"
 
     log_dir = os.path.join(app.instance_path, "logs") if app.instance_path else "logs"
     setup_logging(log_dir)

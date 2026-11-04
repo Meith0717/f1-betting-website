@@ -13,7 +13,12 @@
   <div class="card mb-16">
     <div class="card-header">
       <h3 class="card-title"><span class="race-round-badge">{{ race_data.race_info.round }}</span> {{ race_data.race_info.name }}</h3>
-      <span class="text-muted text-small">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else race_data.race_info.date|date_fmt }}</span>
+      <div class="race-meta">
+        <span class="text-muted text-small">{{ icons.icon('calendar') }} {{ race_data.race_info.sessions[-1].date|date_fmt if race_data.race_info.sessions else race_data.race_info.date|date_fmt }}</span>
+        <a href="{{ url_for('betting.race_bet_details', race_id=race_id) }}" class="btn btn-secondary btn-small">
+          {{ icons.icon('user') }} Details ({{ race_data.bet_count }})
+        </a>
+      </div>
     </div>
     <div class="card-content">
       {% for bet in race_data.bets %}

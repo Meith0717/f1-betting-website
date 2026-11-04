@@ -192,6 +192,7 @@ def betting_history():
 
         races_with_bets[race_id] = {
             "race_info": race_info,
+            "bet_count": len(resolved),
             "bets": [
                 {
                     "username": u,

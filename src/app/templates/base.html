@@ -19,7 +19,7 @@
     
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/mobile-styles.css') }}"
+      href="{{ url_for('static', filename='css/mobile-styles.css', v=config['STATIC_VERSION']) }}"
     />
     
     <!-- PWA Install Prompt -->
@@ -184,7 +184,7 @@
         {{ icons.icon('calendar') }}<span>Races</span>
       </a>
       <a href="{{ url_for('betting.betting_dashboard') }}" class="tab-bar-item {% if request.endpoint.startswith('betting.') %}active{% endif %}">
-        {{ icons.icon('money') }}<span>Bets</span>
+        {{ icons.icon('money') }}<span>My Bets</span>
       </a>
       <a href="{{ url_for('main.profile') }}" class="tab-bar-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
         {{ icons.icon('user') }}<span>Profile</span>

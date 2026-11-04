@@ -66,6 +66,6 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css', v=config['STATIC_VERSION']) }}" />
 
 {% endblock %}

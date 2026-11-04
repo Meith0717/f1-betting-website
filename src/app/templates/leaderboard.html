@@ -18,7 +18,7 @@
     <div class="card-content">
       <div class="mobile-leaderboard">
         {% for name, user_data in sorted_users %}
-        <div class="leaderboard-item {% if name == username %}current-user{% endif %}">
+        <div class="leaderboard-item rank-{{ loop.index }} {% if name == username %}current-user{% endif %}">
           <div class="leaderboard-rank">
             <span class="rank-number">{{ loop.index }}</span>
             {% if loop.index <= 3 %}

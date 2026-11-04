@@ -166,10 +166,27 @@ class UserService:
             self.save_all(users)
         return users
 
+    @staticmethod
+    def _reached_score_at(user_data: dict) -> str:
+        """ISO timestamp when the user first reached their current score.
+
+        Tie-break rule: equal scores -> the one who reached the score
+        earlier ranks higher. Falls back to created_at, then empty string.
+        """
+        score = user_data.get("score", 0)
+        history = user_data.get("score_history", [])
+        hits = [h["timestamp"] for h in history if h.get("total") == score and h.get("timestamp")]
+        if hits:
+            return min(hits)
+        return user_data.get("created_at", "")
+
     def get_leaderboard(self) -> list:
-        """Return users sorted by score descending as (username, user_data) tuples."""
+        """Users sorted by score desc; ties broken by who reached the score first."""
         users = self.load_all()
-        return sorted(users.items(), key=lambda x: x[1].get("score", 0), reverse=True)
+        return sorted(
+            users.items(),
+            key=lambda x: (-x[1].get("score", 0), self._reached_score_at(x[1])),
+        )
 
     def get_rank(self, username: str) -> Optional[int]:
         """Get a user's 1-based rank on the leaderboard."""

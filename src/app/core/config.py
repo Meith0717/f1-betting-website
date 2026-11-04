@@ -56,6 +56,28 @@ def vapid_keys() -> Tuple[Optional[str], Optional[str], str]:
     return vapid_public_key(), vapid_private_key(), vapid_claim_email()
 
 
+# -- Flask ----------------------------------------------------------------
+
+def secret_key() -> str:
+    """Persistent Flask SECRET_KEY — env var, then a generated file in instance/."""
+    key = _get("SECRET_KEY")
+    if key:
+        return key
+    key_file = os.path.join(_PROJECT_ROOT, "instance", ".secret_key")
+    if os.path.exists(key_file):
+        with open(key_file) as f:
+            key = f.read().strip()
+        if key:
+            return key
+    import secrets
+    key = secrets.token_hex(32)
+    os.makedirs(os.path.dirname(key_file), exist_ok=True)
+    with open(key_file, "w") as f:
+        f.write(key)
+    os.chmod(key_file, 0o600)
+    return key
+
+
 # -- Registration ------------------------------------------------------------
 
 def registration_password() -> str:

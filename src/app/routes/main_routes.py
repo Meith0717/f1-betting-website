@@ -137,6 +137,39 @@ def change_password():
     return render_template("user/change_password.html", username=session["username"])
 
 
+@main_bp.route("/profile/delete", methods=["GET", "POST"])
+@login_required
+def delete_account():
+    """Delete-account page (GET) and handler (POST — requires password, not last admin)."""
+    username = session["username"]
+
+    if request.method == "GET":
+        return render_template(
+            "user/delete_account.html",
+            username=username,
+            is_last_admin=user_service.is_admin(username) and user_service.count_admins() <= 1,
+        )
+
+    password = request.form.get("password", "")
+
+    if not user_service.verify_password(user_service.get(username)["password"], password):
+        flash("Incorrect password — account not deleted", "error")
+        return redirect(url_for("main.profile"))
+
+    if user_service.is_admin(username) and user_service.count_admins() <= 1:
+        flash("Cannot delete the last admin account", "error")
+        return redirect(url_for("main.profile"))
+
+    from ..push_manager import push_manager
+    push_manager.remove_all_subscriptions(username)
+    bet_service.remove_user_bets(username)
+    user_service.delete(username)
+    session.pop("username", None)
+    session.pop("is_admin", None)
+    flash("Your account has been deleted. Goodbye!", "info")
+    return redirect(url_for("main.index"))
+
+
 @main_bp.route("/races")
 @login_required
 def races():
