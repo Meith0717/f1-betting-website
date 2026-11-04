@@ -58,11 +58,15 @@ def race_bet_details(race_id):
         flash("No bets found for this race", "error")
         return redirect(url_for("betting.betting_dashboard"))
 
+    back = request.args.get("back")
+    back_url = url_for("main.leaderboard") if back == "leaderboard" else url_for("betting.betting_history")
+
     return render_template(
         "betting/race_detail.html",
         username=username,
         race_data=race_data,
         race_id=race_id,
+        back_url=back_url,
         is_admin=user_service.is_admin(username),
         driver_teams=race_data_manager.get_driver_teams(),
     )

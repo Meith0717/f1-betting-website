@@ -59,7 +59,7 @@
         </div>
       </div>
       {% endfor %}
-      <a href="{{ url_for('betting.race_bet_details', race_id=latest_race_id) }}" class="btn btn-secondary btn-small mt-2">
+      <a href="{{ url_for('betting.race_bet_details', race_id=latest_race_id, back='leaderboard') }}" class="btn btn-secondary btn-small mt-2">
         {{ icons.icon('user') }} Details ({{ latest_race.bet_count }})
       </a>
     </div>

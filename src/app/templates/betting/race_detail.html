@@ -3,7 +3,6 @@
 {% block content %}
 
 <div class="container">
-  {% set back_url = url_for('betting.betting_history') %}
   {% set title = 'R' ~ race_data.race_info.round ~ ' — ' ~ race_data.race_info.name %}
   {% set icon = 'flag' %}
   {% include '_page_header.html' %}
