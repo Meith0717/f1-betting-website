@@ -10,10 +10,10 @@ import threading
 from datetime import datetime, timedelta
 from typing import Callable, Dict, Optional
 
-from .core.logger import get_logger
+from .core.logger import get_event_logger
 from .timezone_utils import timezone_utils
 
-logger = get_logger(__name__)
+logger = get_event_logger()
 
 
 class EventManager:
@@ -25,6 +25,19 @@ class EventManager:
         self._thread: Optional[threading.Thread] = None
         self._events: Dict[str, Dict] = {}
         self._lock = threading.Lock()
+
+    def list_events(self) -> list:
+        """Snapshot of pending events as dicts, sorted by trigger time."""
+        with self._lock:
+            items = sorted(self._events.items(), key=lambda kv: kv[1]["trigger_time"])
+        return [
+            {
+                "id": event_id,
+                "trigger_time": ev["trigger_time"].isoformat(),
+                "data": ev.get("data", {}),
+            }
+            for event_id, ev in items
+        ]
 
     def schedule_event(
         self,
@@ -46,7 +59,8 @@ class EventManager:
                 "callback": callback,
                 "data": data or {},
             }
-            return True
+        logger.info("Scheduled %s at %s", event_id, trigger_time.isoformat())
+        return True
 
     def schedule_race_notifications(self, race: Dict) -> None:
         """Schedule qualifying/race/1h-before notifications for a race."""
@@ -102,17 +116,6 @@ class EventManager:
                 self.schedule_event(
                     f"resolve_attempt_{race_id}", resolve_at, self._resolve_attempt, {"race_id": race_id}
                 )
-
-    def schedule_all_race_notifications(self) -> int:
-        """Schedule notifications for all non-canceled races. Returns race count."""
-        from .race_data_manager import race_data_manager
-
-        count = 0
-        for race in race_data_manager.get_all_races():
-            if not race.get("canceled"):
-                self.schedule_race_notifications(race)
-                count += 1
-        return count
 
     # -- Recurring maintenance job (daily at 00:00 and 12:00 server time) ---
 
@@ -311,7 +314,7 @@ class EventManager:
         if race_data_manager.update_drivers_from_api():
             logger.info("Drivers refreshed from F1 API")
             resolution_service.refresh_driver_teams()
-        self.schedule_all_race_notifications()
+        # Notification events are (re)created by the maintenance job's 24h scan
 
     def _weekly_tick(self, event_id: str, data: Dict) -> None:
         try:
@@ -340,6 +343,7 @@ class EventManager:
                     due.append((event_id, event))
 
         for event_id, event in due:
+            logger.info("Firing %s (trigger %s)", event_id, event["trigger_time"].isoformat())
             try:
                 event["callback"](event_id, event["data"])
             except Exception as e:

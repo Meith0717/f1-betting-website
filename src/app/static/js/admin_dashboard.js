@@ -6,6 +6,13 @@ function toggleLogWrap() {
   }
 }
 
+function toggleEventLogWrap() {
+  const logContainer = document.getElementById('eventLogContainer');
+  if (logContainer) {
+    logContainer.classList.toggle('log-wrap');
+  }
+}
+
 // Mobile menu toggle for admin dashboard
 document.addEventListener('DOMContentLoaded', function() {
   // Add any admin-specific mobile enhancements here

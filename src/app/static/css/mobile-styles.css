@@ -698,7 +698,13 @@ select.form-control {
 .action-cell { display: flex; gap: 6px; flex-wrap: wrap; }
 .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .log-container { background: var(--bg); border-radius: var(--radius); padding: 12px; max-height: 300px; overflow-y: auto; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; }
-.log-content { white-space: pre-wrap; word-break: break-all; color: var(--text-secondary); line-height: 1.6; }
+.log-content { white-space: pre; overflow-x: auto; color: var(--text-secondary); line-height: 1.6; }
+.log-container.log-wrap .log-content { white-space: pre-wrap; word-break: break-all; }
+
+/* Active Events card (admin dashboard) */
+.event-type-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px 10px; font-size: 12px; font-weight: 600; color: var(--text); }
+.event-when { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--accent); }
+.event-id { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 50%; }
 .log-controls { display: flex; gap: 8px; margin-bottom: 10px; }
 .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 

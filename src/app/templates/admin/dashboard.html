@@ -173,6 +173,52 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- Event Logs -->
+  <div class="card admin-section">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('clock') }} Event Logs</h2>
+      <div class="log-controls">
+        <button onclick="toggleEventLogWrap()" class="btn btn-secondary btn-small">{{ icons.icon('list') }} Wrap</button>
+      </div>
+    </div>
+    <div class="card-content">
+      {% if event_log_file_exists %}
+      <div class="log-container" id="eventLogContainer">
+        <pre class="log-content">{{ event_log_entries|join('') }}</pre>
+      </div>
+      {% else %}
+      <p class="text-muted text-small text-center p-32">No event log file found yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Active Events -->
+  <div class="card admin-section">
+    <div class="card-header">
+      <h2 class="card-title">{{ icons.icon('clock') }} Active Events <span class="sessions-count">{{ active_events|length }}</span></h2>
+    </div>
+    <div class="card-content">
+      {% if active_events %}
+      <div class="mobile-race-list">
+        {% for e in active_events %}
+        <div class="mobile-race-card event-card">
+          <div class="mobile-race-header">
+            <span class="event-type-badge">{{ icons.icon(e.icon) }} {{ e.label }}</span>
+            <span class="event-when">{{ e.relative }}</span>
+          </div>
+          <div class="race-meta-line">
+            <span>{{ icons.icon('clock') }} {{ e.trigger_local }}</span>
+            <span class="event-id">{{ e.id }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted text-small text-center p-32">No pending events.</p>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/admin_dashboard.js', v=config['STATIC_VERSION']) }}"></script>

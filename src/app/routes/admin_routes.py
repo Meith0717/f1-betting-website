@@ -4,21 +4,22 @@ from flask import (
 )
 from ..auth_decorators import admin_required
 from ..core import config
-from ..core.logger import get_logger, get_log_file_path
+from ..core.logger import get_logger, get_log_file_path, get_event_log_file_path
 from ..race_data_manager import race_data_manager
+from ..event_manager import event_manager
 from ..push_manager import push_manager
 from ..services import bet_service, resolution_service
 from ..services.user_service import user_service
 import os
 import secrets
+from datetime import datetime, timedelta
 
 logger = get_logger(__name__)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-def _read_log_entries(max_lines=50):
-    path = get_log_file_path()
+def _read_log_entries(path, max_lines=50):
     if not path or not os.path.exists(path):
         return [], False
     try:
@@ -30,6 +31,59 @@ def _read_log_entries(max_lines=50):
         return [f"Error reading log file: {e}"], True
 
 
+_EVENT_LABELS = [
+    ("race_1h_before", "1h before race", "bell"),
+    ("qualifying_start", "Qualifying start", "flag"),
+    ("race_start", "Race start", "flag"),
+    ("resolve_attempt", "Resolve attempt", "check"),
+    ("weekend_overview", "Weekend overview", "calendar"),
+    ("maintenance_job", "Maintenance job", "gear"),
+    ("weekly_refresh", "Weekly refresh", "gear"),
+]
+
+
+def _relative(delta: timedelta) -> str:
+    total = int(delta.total_seconds())
+    if total <= 0:
+        return "now"
+    days, rem = divmod(total, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes = rem // 60
+    if days:
+        return f"in {days}d {hours}h"
+    if hours:
+        return f"in {hours}h {minutes}min"
+    return f"in {minutes}min"
+
+
+def _event_display_entries():
+    """Pending events enriched for mobile display: label, local time, relative."""
+    from ..timezone_utils import timezone_utils
+
+    now = timezone_utils.utc_now()
+    entries = []
+    for e in event_manager.list_events():
+        eid = e["id"]
+        label, icon = "Event", "clock"
+        for prefix, lbl, ic in _EVENT_LABELS:
+            if eid.startswith(prefix + "_"):
+                label, icon = lbl, ic
+                break
+        trig = datetime.fromisoformat(e["trigger_time"])
+        entries.append(
+            {
+                "id": eid,
+                "label": label,
+                "icon": icon,
+                "trigger_local": trig.astimezone(timezone_utils.local_timezone).strftime(
+                    "%a %d.%m %H:%M"
+                ),
+                "relative": _relative(trig - now),
+            }
+        )
+    return entries
+
+
 @admin_bp.route("/")
 @admin_required
 def admin_dashboard():
@@ -37,7 +91,8 @@ def admin_dashboard():
     logger.info("Admin dashboard accessed")
 
     users = user_service.load_all()
-    log_entries, log_exists = _read_log_entries()
+    log_entries, log_exists = _read_log_entries(get_log_file_path())
+    event_log_entries, event_log_exists = _read_log_entries(get_event_log_file_path())
 
     return render_template(
         "admin/dashboard.html",
@@ -49,6 +104,9 @@ def admin_dashboard():
         canceled_race_ids=race_data_manager.get_canceled_race_ids(),
         log_entries=log_entries,
         log_file_exists=log_exists,
+        event_log_entries=event_log_entries,
+        event_log_file_exists=event_log_exists,
+        active_events=_event_display_entries(),
     )
 
 

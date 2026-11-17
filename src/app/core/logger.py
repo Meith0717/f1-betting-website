@@ -18,6 +18,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Optional
 
 _LOG_FILE_PATH: Optional[str] = None
+_EVENT_LOG_FILE_PATH: Optional[str] = None
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -85,10 +86,56 @@ def setup_logging(log_dir: str, level: str = None) -> str:
     console_handler.addFilter(ansi_filter)
     root.addHandler(console_handler)
 
+    setup_event_logging(log_dir, level)
+
     get_logger(__name__).info("Logging configured — level=%s, file=%s", logging.getLevelName(log_level), log_file)
     return log_file
+
+
+def setup_event_logging(log_dir: str, level: str = None) -> str:
+    """
+    Configure the dedicated "events" logger with its own rotating file
+    (events.log). It does not propagate to root, so event activity is
+    kept out of app.log. Idempotent — safe to call multiple times.
+
+    Returns:
+        The absolute path of the events log file.
+    """
+    global _EVENT_LOG_FILE_PATH
+
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "events.log")
+    _EVENT_LOG_FILE_PATH = log_file
+
+    log_level = getattr(logging, (level or os.environ.get("LOG_LEVEL", "INFO")).upper(), logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+    event_logger = logging.getLogger("events")
+    event_logger.setLevel(log_level)
+    event_logger.propagate = False  # keep events out of app.log
+
+    for h in event_logger.handlers[:]:
+        event_logger.removeHandler(h)
+        h.close()
+
+    handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
+    handler.setLevel(log_level)
+    handler.setFormatter(formatter)
+    handler.addFilter(_AnsiStripFilter())
+    event_logger.addHandler(handler)
+    return log_file
+
+
+def get_event_logger() -> logging.Logger:
+    """Logger for event scheduling/firing — writes to events.log."""
+    return logging.getLogger("events")
 
 
 def get_log_file_path() -> Optional[str]:
     """Return the log file path set by setup_logging(), or None if not configured."""
     return _LOG_FILE_PATH
+
+
+def get_event_log_file_path() -> Optional[str]:
+    """Return the events log file path set by setup_event_logging(), or None."""
+    return _EVENT_LOG_FILE_PATH
