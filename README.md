@@ -11,13 +11,13 @@ A **private Formula 1 prediction game** built with **Flask**: users place bets o
 | Category | Description |
 |----------|-------------|
 | **User Authentication** | Login/registration with PBKDF2 password hashing, optional "Remember me" (30-day session), invite-only registration password, user & admin roles, self-service account deletion. |
-| **Race Management** | Full F1 season schedule with session timings, fetched live from the Jolpica API; race cancellation support. |
-| **Betting System** | Bet on the next race's podium (top 3) + fastest lap. Bets close automatically when the race starts. Privacy-first: "My Bets" shows only your own bets; per-race details and full history are one click away. |
+| **Race Management** | Full F1 season schedule with session timings, fetched live from the Jolpica API; race cancellation support; automatic weekly schedule/driver refresh (Mondays 00:00 server time) plus a 12h maintenance job (00:00/12:00). |
+| **Betting System** | Bet on the next race's podium (top 3) + fastest lap. Bets close automatically 2 minutes before the race starts. Privacy-first: "My Bets" shows only your own bets; per-race details and full history are one click away. |
 | **Scoring System** | Up to 8 points per race: +1 per correct driver, +1 per correct team (per position), +1 fastest lap, +1 perfect-podium bonus. Ties broken by who reached the score first. |
 | **Leaderboard** | Ranked standings with podium highlighting (gold/silver/bronze) + latest race's bets. |
-| **Admin Dashboard** | Stats overview, user management (promote/demote/delete, test notification), race cancel/reactivate, manual & API race resolution, data updates, point reset, log viewer. |
-| **Web Push Notifications** | VAPID-based alerts for qualifying, race start, and 1-hour betting reminders; opt-in toggle in the profile; stale subscriptions auto-removed. Requires HTTPS (localhost works for dev). |
-| **Live Countdowns** | Countdown timers for the next session and the betting deadline. |
+| **Admin Dashboard** | Stats overview, user management (promote/demote/delete, test notification), race cancel/reactivate, one-click API race resolution, data updates, point reset, links to app/event logs (open in a new tab) and a live "Active Events" list. |
+| **Web Push Notifications** | VAPID-based alerts for qualifying, race start, 1-hour betting reminder, race-weekend overview (09:00 on FP1 day) and results availability; opt-in toggle in the profile; stale subscriptions auto-removed. Requires HTTPS (localhost works for dev). |
+| **Live Countdowns** | Countdown timers for the next session and the betting deadline; session times shown in the visitor's browser timezone. |
 | **Progressive Web App (PWA)** | Installable on mobile (iOS/Android) for an app-like experience. |
 | **Modern UI** | Dark, mobile-first design system: bottom tab bar on mobile, SVG icon set, collapsible race/session lists, compact bet rows, toast-style flash messages. |
 
@@ -39,6 +39,7 @@ docker compose up -d --build     # builds and starts on port 8080
 
 - Data (`src/app/data/`) and runtime state (`src/instance/` — logs + secret key) are Docker volumes (`f1-data`, `f1-instance`) and persist across restarts.
 - VAPID keys are read from `.env` at the repo root (copied into the image at build time). Override with `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` environment variables in `docker-compose.yml` if preferred.
+- `APP_TIMEZONE` in `docker-compose.yml` sets the server timezone used for the maintenance-job schedule (00:00/12:00, Monday refresh) and the weekend-overview timing. Session times shown to users are rendered in each browser's own timezone.
 - Put the container behind a **reverse proxy with HTTPS** — required for push notifications. Then open `https://your-host/`.
 
 ### Local testing / debugging only — `src/build.sh`
@@ -68,12 +69,12 @@ chmod +x build.sh
 │   ├── requirements.txt          # + requirements-dev.txt (pytest)
 │   ├── app/
 │   │   ├── __init__.py           # app factory, blueprints, Jinja filters, static cache-busting
-│   │   ├── core/                 # config, JsonStore (atomic JSON + backup), logger, ScoringEngine
+│   │   ├── core/                 # config (incl. APP_TIMEZONE), JsonStore (atomic JSON + backup), logger (app.log + events.log), ScoringEngine
 │   │   ├── services/             # bet_service, user_service, resolution_service, notification_service, view_models
 │   │   ├── routes/               # main, auth, betting, admin, notifications, system (blueprints)
 │   │   ├── race_data_manager.py  # races/drivers/cancellations + Jolpica API client
 │   │   ├── push_manager.py       # Web Push subscriptions & sending
-│   │   ├── event_manager.py      # scheduled race notifications (background thread)
+│   │   ├── event_manager.py      # background event scheduler: race notifications, resolve attempts, 12h maintenance job, weekly refresh
 │   │   ├── timezone_utils.py, auth_decorators.py
 │   │   ├── data/                 # races.json, users.json, bets.json, drivers.json, race_results.json, ... (volume)
 │   │   ├── static/               # css/ (design system), js/, icons/, sw.js, manifest.json
@@ -88,14 +89,14 @@ chmod +x build.sh
 
 ### User Roles
 - **Regular users**: see their rank/score on the home page, bet on the next race, manage notifications in the profile, delete their own account (password-confirmed, purges all their data).
-- **Admins**: everything above plus the Admin Dashboard (from the profile page): user management, race resolution (manual or via API), data updates, log viewer.
+- **Admins**: everything above plus the Admin Dashboard (from the profile page): user management, race cancel/reactivate, one-click API race resolution, data updates, point reset, logs (app/event, opened in a new tab) and the active-events list.
 
 ### Betting Rules
-- Only the **next upcoming race** is open for betting; bets close when the race starts.
+- Only the **next upcoming race** is open for betting; bets close automatically **2 minutes before** the race starts.
 - Predict the **top 3** and the **fastest lap** driver.
 - Scoring (max 8 pts/race): +1 correct driver per position, +1 correct team per position, +1 fastest lap, +1 perfect-podium bonus.
 - Equal total scores: the player who reached the score first ranks higher.
-- Race results are resolved automatically from the Jolpica API (or manually by an admin); points and leaderboard update instantly.
+- Race results are resolved **automatically** from the Jolpica API about 3 hours after the race (resolve-attempt event, retried by the 12h maintenance job); points and leaderboard update instantly. Admins can trigger an API resolve manually as a fallback.
 
 ---
 
@@ -128,11 +129,11 @@ python -m pytest tests/    # 20 tests; singleton stores are redirected to temp f
 ### Code Style
 - **PEP 8**, Flask blueprints per feature, service layer (`app/services/`) free of Flask imports
 - Pure scoring engine in `app/core/scoring.py`; data shaping in `services/view_models.py`
-- One logging pattern: module-level `get_logger(__name__)`, root logger configured once (`core/logger.py`), ANSI codes stripped from files
-- Unified logging level via `LOG_LEVEL` env var (default INFO); rotating log at `instance/logs/app.log`
+- One logging pattern: module-level `get_logger(__name__)`, root logger configured once (`core/logger.py`), ANSI codes stripped from files; the event manager uses a dedicated `events` logger
+- Unified logging level via `LOG_LEVEL` env var (default INFO); rotating logs at `instance/logs/app.log` and `instance/logs/events.log`
 
 ### External Data
-Race schedule, drivers and results come from the free, open-source **Jolpica F1 API** (`api.jolpi.ca`, Ergast-compatible). Update via Admin → "Update Races" / "Update Drivers", or resolve a race via API from the betting pages.
+Race schedule, drivers and results come from the free, open-source **Jolpica F1 API** (`api.jolpi.ca`, Ergast-compatible). The schedule and drivers refresh automatically once a week (Mondays 00:00 server time); admins can also trigger "Update Races" / "Update Drivers" manually, and resolve a race via API from the betting pages.
 
 ---
 
@@ -149,6 +150,7 @@ Race schedule, drivers and results come from the free, open-source **Jolpica F1 
 | GET/POST | `/betting/place/<race_id>`, `/betting/edit/<race_id>`, `/betting/cancel/<race_id>` | Bet management | login |
 | GET | `/profile`, `/profile/delete` | Profile, notifications toggle, account deletion | login |
 | GET | `/admin/` | Admin dashboard | admin |
+| GET | `/admin/logs/<name>` | Raw log file (`app`/`events`) as text/plain, opens in a new tab | admin |
 | GET | `/help`, `/legal-notice` | Help & legal notice | public |
 | GET | `/api/vapid-public-key` | VAPID public key | public |
 | POST | `/api/save-subscription`, `/api/remove-subscription`, `/api/remove-all-subscriptions` | Push subscription management | login |
@@ -163,7 +165,7 @@ Race schedule, drivers and results come from the free, open-source **Jolpica F1 
 1. VAPID keys are configured in `.env` (auto-generated by `build.sh` or `generate_vapid_keys.py`).
 2. The user enables notifications via the toggle in **Profile** and approves the browser prompt.
 3. The subscription is stored server-side per username; the service worker (`/sw.js`) displays alerts.
-4. The in-process event manager schedules qualifying/race-start/1-hour reminders for every race.
+4. The in-process event manager fires notifications at the exact session times: qualifying start, race start, 1-hour betting reminder, race-weekend overview (09:00 on FP1 day) and results-available (after the automatic resolve attempt). A 12h maintenance job (00:00/12:00 server time) keeps the next 24h of events scheduled and handles bet closing/resolution; a weekly job refreshes schedule data.
 5. Stale subscriptions (expired or key-mismatched, HTTP 400/404/410) are removed automatically.
 
 **HTTPS is required** in production (localhost works for development). Supported: Chrome, Firefox, Safari (macOS 10.13+/iOS 11.3+), Edge.
@@ -192,7 +194,7 @@ Icons: 72–512px PNGs + apple-touch-icon in `src/app/static/icons/`; manifest a
 
 ## Support
 - In-app **Legal Notice** (`/legal-notice`) — terms, privacy (GDPR), scoring, AI/vibe-coding disclosure
-- Logs: `instance/logs/app.log` (viewable in Admin → Logs)
+- Logs: `instance/logs/app.log` and `instance/logs/events.log` (Admin → Logs opens each in a new tab)
 - Issues: [GitHub repository](https://github.com/Meith0717/f1-betting-website)
 
 ---
