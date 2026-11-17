@@ -120,6 +120,19 @@ class EventManager:
     # -- Recurring maintenance job (daily at 00:00 and 12:00 server time) ---
 
     @staticmethod
+    def _resolved_recently(resolved_at: Optional[str], hours: int = 24) -> bool:
+        """True if the ISO timestamp is within the last `hours` hours."""
+        if not resolved_at:
+            return False
+        try:
+            dt = datetime.fromisoformat(resolved_at)
+        except ValueError:
+            return False
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone_utils.utc_timezone)
+        return timezone_utils.utc_now() - dt <= timedelta(hours=hours)
+
+    @staticmethod
     def _localize(tz, naive: datetime) -> datetime:
         if hasattr(tz, "localize"):  # pytz
             return tz.localize(naive)
@@ -171,17 +184,19 @@ class EventManager:
         for race_id, entry in data.get("race_bets", {}).items():
             if entry.get("status") == "closed":
                 self.schedule_resolve_attempt(race_id)
-            # 3. Announce results once per race
+            # 3. Announce results once per race — only if resolved recently, so a
+            #    deploy never re-notifies every historical race
             if entry.get("status") == "resolved" and not entry.get("results_notification_sent"):
                 race = race_data_manager.get_race_by_id(race_id)
-                notification_service.send_race_notification(
-                    {
-                        "race_id": race_id,
-                        "race_name": race.get("name", race_id) if race else race_id,
-                        "session_type": "Results",
-                        "offset": "results_ready",
-                    }
-                )
+                if self._resolved_recently(entry.get("resolved_at")):
+                    notification_service.send_race_notification(
+                        {
+                            "race_id": race_id,
+                            "race_name": race.get("name", race_id) if race else race_id,
+                            "session_type": "Results",
+                            "offset": "results_ready",
+                        }
+                    )
                 entry["results_notification_sent"] = True
                 changed = True
         if changed:
@@ -253,14 +268,17 @@ class EventManager:
         if resolution_service.resolve_from_api(race_id):
             logger.info("Race %s resolved via resolve attempt", race_id)
             race = race_data_manager.get_race_by_id(race_id)
-            notification_service.send_race_notification(
-                {
-                    "race_id": race_id,
-                    "race_name": race.get("name", race_id) if race else race_id,
-                    "session_type": "Results",
-                    "offset": "results_ready",
-                }
-            )
+            # Only announce recent races; old backfilled resolutions stay silent
+            race_dt = race_data_manager.get_race_datetime(race) if race else None
+            if race_dt and timezone_utils.utc_now() - race_dt <= timedelta(hours=24):
+                notification_service.send_race_notification(
+                    {
+                        "race_id": race_id,
+                        "race_name": race.get("name", race_id) if race else race_id,
+                        "session_type": "Results",
+                        "offset": "results_ready",
+                    }
+                )
             bdata = bet_service.load_all()
             entry = bdata.get("race_bets", {}).get(race_id)
             if entry is not None:
