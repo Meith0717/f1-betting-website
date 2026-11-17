@@ -23,4 +23,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     el.textContent = dd + "." + mm;
   });
+
+  // Race weekend date range, rendered in the browser's timezone
+  // (same formatting as the server-side date_range filter)
+  document.querySelectorAll(".local-date-range").forEach(function (el) {
+    const start = new Date(el.dataset.startIso);
+    const end = new Date(el.dataset.endIso);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
+    const day = (d) => String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0");
+    const full = (d) => day(d) + "." + d.getFullYear();
+    if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth()) {
+      el.textContent = day(start) + " - " + full(end);
+    } else {
+      el.textContent = full(start) + " - " + full(end);
+    }
+  });
 });

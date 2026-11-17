@@ -31,7 +31,7 @@
             <span>{{ icons.icon('globe') }} {{ race.country }}{% if race.city %}, {{ race.city }}{% endif %}</span>
             <span>{{ icons.icon('calendar') }}
               {% if race.sessions and race.sessions|length >= 2 and race.sessions[0].date and race.sessions[-1].date %}
-              {{ race.sessions[0].date|date_range(race.sessions[-1].date) }}
+              <span class="local-date-range" data-start-iso="{{ race.sessions[0].utc_iso|default('', true) }}" data-end-iso="{{ race.sessions[-1].utc_iso|default('', true) }}">{{ race.sessions[0].date|date_range(race.sessions[-1].date) }}</span>
               {% else %}
               {{ race.date|date_fmt }}
               {% endif %}
@@ -89,7 +89,7 @@
             <span>{{ icons.icon('globe') }} {{ race.country }}</span>
             <span>{{ icons.icon('calendar') }}
               {% if race.sessions and race.sessions|length >= 2 and race.sessions[0].date and race.sessions[-1].date %}
-              {{ race.sessions[0].date|date_range(race.sessions[-1].date) }}
+              <span class="local-date-range" data-start-iso="{{ race.sessions[0].utc_iso|default('', true) }}" data-end-iso="{{ race.sessions[-1].utc_iso|default('', true) }}">{{ race.sessions[0].date|date_range(race.sessions[-1].date) }}</span>
               {% else %}
               {{ race.date|date_fmt }}
               {% endif %}
