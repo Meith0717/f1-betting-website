@@ -42,6 +42,12 @@ class NotificationService:
             return f"{session_type} Starting Now", f"{race_name} race is starting NOW!"
         if offset == "1h_before":
             return f"Last Chance to Bet - {race_name}", "Race starts in 1 hour. Place your bets now before it's too late!"
+        if offset == "results_ready":
+            return f"Results Available - {race_name}", f"Official results for {race_name} are in — check your points on the leaderboard!"
+        if offset == "weekend_overview":
+            schedule = data.get("schedule", "")
+            body = f"Race weekend schedule: {schedule}" if schedule else f"{race_name} race weekend starts with FP1."
+            return f"Race Weekend - {race_name}", body
         return f"F1 Notification: {race_name}", f"{session_type} event for {race_name}"
 
     def send_race_notification(self, data: Dict) -> bool:

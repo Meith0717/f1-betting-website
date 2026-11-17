@@ -96,6 +96,12 @@ class EventManager:
                         "offset": "1h_before",
                     },
                 )
+            # Resolve attempt a few hours after the race (results are published by then)
+            resolve_at = race_data_manager.get_session_datetime(race_session) + timedelta(hours=3)
+            if resolve_at > now:
+                self.schedule_event(
+                    f"resolve_attempt_{race_id}", resolve_at, self._resolve_attempt, {"race_id": race_id}
+                )
 
     def schedule_all_race_notifications(self) -> int:
         """Schedule notifications for all non-canceled races. Returns race count."""
@@ -107,6 +113,222 @@ class EventManager:
                 self.schedule_race_notifications(race)
                 count += 1
         return count
+
+    # -- Recurring maintenance job (daily at 00:00 and 12:00 server time) ---
+
+    @staticmethod
+    def _localize(tz, naive: datetime) -> datetime:
+        if hasattr(tz, "localize"):  # pytz
+            return tz.localize(naive)
+        return naive.replace(tzinfo=tz)  # zoneinfo
+
+    def next_maintenance_run(self) -> datetime:
+        """Next 00:00 or 12:00 in the server's local timezone, as UTC-aware."""
+        tz = timezone_utils.local_timezone
+        naive = timezone_utils.utc_now().astimezone(tz).replace(tzinfo=None)
+        for hour in (0, 12):
+            candidate = naive.replace(hour=hour, minute=0, second=0, microsecond=0)
+            if candidate > naive:
+                return self._localize(tz, candidate).astimezone(timezone_utils.utc_timezone)
+        next_day = (naive + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        return self._localize(tz, next_day).astimezone(timezone_utils.utc_timezone)
+
+    def run_maintenance_job(self) -> None:
+        """Housekeeping: notification events for today's sessions, then resolve
+        closed-but-unresolved races via the F1 API and announce results."""
+        from .race_data_manager import race_data_manager
+        from .services import bet_service
+        from .services.resolution_service import resolution_service
+        from .services.notification_service import notification_service
+
+        logger.info("Running maintenance job")
+        now = timezone_utils.utc_now()
+        window_end = now + timedelta(hours=24)
+
+        # 1. Notification events for races with a session in the next 24h,
+        #    plus a race-weekend overview when FP1 is in that window
+        for race in race_data_manager.get_all_races():
+            if race.get("canceled"):
+                continue
+            upcoming = [
+                s for s in race.get("sessions", [])
+                if now < race_data_manager.get_session_datetime(s) <= window_end
+            ]
+            if upcoming:
+                self.schedule_race_notifications(race)
+                fp1 = next((s for s in upcoming if s.get("type") == "FP1"), None)
+                if fp1:
+                    self._schedule_weekend_overview(race, fp1)
+
+        # 2. Close started races, then schedule an API resolve attempt for
+        #    each closed-but-unresolved race
+        bet_service.check_and_close_expired()
+        data = bet_service.load_all()
+        changed = False
+        for race_id, entry in data.get("race_bets", {}).items():
+            if entry.get("status") == "closed":
+                self.schedule_resolve_attempt(race_id)
+            # 3. Announce results once per race
+            if entry.get("status") == "resolved" and not entry.get("results_notification_sent"):
+                race = race_data_manager.get_race_by_id(race_id)
+                notification_service.send_race_notification(
+                    {
+                        "race_id": race_id,
+                        "race_name": race.get("name", race_id) if race else race_id,
+                        "session_type": "Results",
+                        "offset": "results_ready",
+                    }
+                )
+                entry["results_notification_sent"] = True
+                changed = True
+        if changed:
+            bet_service.save_all(data)
+
+    def _schedule_weekend_overview(self, race: Dict, fp1_session: Dict) -> None:
+        """Schedule a race-weekend overview notification at 09:00 server-local
+        on the FP1 day (or shortly after, if that time has already passed)."""
+        from .race_data_manager import race_data_manager
+        from .services.notification_service import notification_service
+
+        now = timezone_utils.utc_now()
+        tz = timezone_utils.local_timezone
+        fp1_local = race_data_manager.get_session_datetime(fp1_session).astimezone(tz)
+        trigger = self._localize(
+            tz, fp1_local.replace(tzinfo=None).replace(hour=9, minute=0, second=0, microsecond=0)
+        ).astimezone(timezone_utils.utc_timezone)
+        if trigger <= now:
+            trigger = now + timedelta(minutes=5)
+
+        lines = []
+        for s in sorted(race.get("sessions", []), key=race_data_manager.get_session_datetime):
+            dt = race_data_manager.get_session_datetime(s)
+            if dt > now:
+                local = dt.astimezone(timezone_utils.local_timezone)
+                lines.append(f"{s.get('type')} {local.strftime('%a %H:%M')}")
+
+        self.schedule_event(
+            f"weekend_overview_{race.get('id')}",
+            trigger,
+            lambda eid, d: notification_service.send_race_notification(d),
+            {
+                "race_id": race.get("id"),
+                "race_name": race.get("name", race.get("id", "")),
+                "session_type": "Weekend",
+                "offset": "weekend_overview",
+                "schedule": " · ".join(lines),
+            },
+        )
+
+    def schedule_resolve_attempt(self, race_id: str) -> None:
+        """Schedule a one-time API resolve attempt: 3h after race start, or soon
+        if that moment has already passed. Idempotent via the event id."""
+        from .race_data_manager import race_data_manager
+
+        race = race_data_manager.get_race_by_id(race_id)
+        now = timezone_utils.utc_now()
+        trigger = now + timedelta(minutes=5)
+        if race:
+            race_dt = race_data_manager.get_race_datetime(race)
+            if race_dt:
+                candidate = race_dt + timedelta(hours=3)
+                if candidate > now:
+                    trigger = candidate
+        self.schedule_event(
+            f"resolve_attempt_{race_id}", trigger, self._resolve_attempt, {"race_id": race_id}
+        )
+
+    def _resolve_attempt(self, event_id: str, data: Dict) -> None:
+        """Try resolving a closed race via the F1 API; announce results on success."""
+        from .race_data_manager import race_data_manager
+        from .services import bet_service
+        from .services.resolution_service import resolution_service
+        from .services.notification_service import notification_service
+
+        race_id = data.get("race_id")
+        if not race_id:
+            return
+        if resolution_service.resolve_from_api(race_id):
+            logger.info("Race %s resolved via resolve attempt", race_id)
+            race = race_data_manager.get_race_by_id(race_id)
+            notification_service.send_race_notification(
+                {
+                    "race_id": race_id,
+                    "race_name": race.get("name", race_id) if race else race_id,
+                    "session_type": "Results",
+                    "offset": "results_ready",
+                }
+            )
+            bdata = bet_service.load_all()
+            entry = bdata.get("race_bets", {}).get(race_id)
+            if entry is not None:
+                entry["results_notification_sent"] = True
+                bet_service.save_all(bdata)
+
+    def _maintenance_tick(self, event_id: str, data: Dict) -> None:
+        """Fire the maintenance job and schedule the next 00:00/12:00 run."""
+        try:
+            self.run_maintenance_job()
+        except Exception as e:
+            logger.error("Maintenance job failed: %s", e)
+        trigger = self.next_maintenance_run()
+        self.schedule_event(
+            f"maintenance_job_{int(trigger.timestamp())}", trigger, self._maintenance_tick, {}
+        )
+
+    def start_maintenance_job(self) -> None:
+        """Run the maintenance job immediately, then at 00:00/12:00 server time."""
+        self.run_maintenance_job()
+        trigger = self.next_maintenance_run()
+        self.schedule_event(
+            f"maintenance_job_{int(trigger.timestamp())}", trigger, self._maintenance_tick, {}
+        )
+
+    # -- Weekly data refresh (Mondays 00:00 server time) --------------------
+
+    def next_weekly_refresh(self) -> datetime:
+        """Next Monday 00:00 in the server's local timezone, as UTC-aware."""
+        tz = timezone_utils.local_timezone
+        naive = timezone_utils.utc_now().astimezone(tz).replace(tzinfo=None)
+        days_ahead = (0 - naive.weekday()) % 7  # Monday == 0
+        candidate = (naive + timedelta(days=days_ahead)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        if candidate <= naive:
+            candidate = (naive + timedelta(days=7)).replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+        return self._localize(tz, candidate).astimezone(timezone_utils.utc_timezone)
+
+    def run_weekly_refresh(self) -> None:
+        """Refresh race schedule and drivers from the F1 API, then reschedule
+        notifications so schedule changes take effect without a restart."""
+        from .race_data_manager import race_data_manager
+        from .services.resolution_service import resolution_service
+
+        logger.info("Running weekly refresh")
+        if race_data_manager.update_races_from_api():
+            logger.info("Race schedule refreshed from F1 API")
+        if race_data_manager.update_drivers_from_api():
+            logger.info("Drivers refreshed from F1 API")
+            resolution_service.refresh_driver_teams()
+        self.schedule_all_race_notifications()
+
+    def _weekly_tick(self, event_id: str, data: Dict) -> None:
+        try:
+            self.run_weekly_refresh()
+        except Exception as e:
+            logger.error("Weekly refresh failed: %s", e)
+        trigger = self.next_weekly_refresh()
+        self.schedule_event(
+            f"weekly_refresh_{int(trigger.timestamp())}", trigger, self._weekly_tick, {}
+        )
+
+    def start_weekly_refresh(self) -> None:
+        """Schedule the weekly refresh (no immediate run — admin can trigger it)."""
+        trigger = self.next_weekly_refresh()
+        self.schedule_event(
+            f"weekly_refresh_{int(trigger.timestamp())}", trigger, self._weekly_tick, {}
+        )
 
     def _check_events(self) -> None:
         """Trigger all due events and remove them."""

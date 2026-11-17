@@ -77,5 +77,7 @@ def create_app():
 
     event_manager.start()
     event_manager.schedule_all_race_notifications()
+    event_manager.start_maintenance_job()
+    event_manager.start_weekly_refresh()
 
     return app
