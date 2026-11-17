@@ -43,7 +43,6 @@
         <form method="POST" action="{{ url_for('admin.update_drivers') }}" class="action-form">
           <button type="submit" class="btn btn-primary btn-block">{{ icons.icon('driver') }} Update Drivers</button>
         </form>
-        <a href="{{ url_for('admin.resolve_race') }}" class="btn btn-secondary btn-block">{{ icons.icon('target') }} Resolve Race</a>
         <form method="POST" action="{{ url_for('admin.reset_all_points') }}" class="action-form"
               onsubmit="return confirm('Reset ALL user points to 0? This cannot be undone.');">
           <button type="submit" class="btn btn-danger btn-block">{{ icons.icon('trash') }} Reset All Points</button>
@@ -154,42 +153,13 @@
   <!-- Logs -->
   <div class="card admin-section">
     <div class="card-header">
-      <h2 class="card-title">{{ icons.icon('list') }} Application Logs</h2>
-      <div class="log-controls">
-        <button onclick="toggleLogWrap()" class="btn btn-secondary btn-small">{{ icons.icon('list') }} Wrap</button>
-        <form method="POST" action="{{ url_for('admin.clear_logs') }}" class="inline-form">
-          <button type="submit" class="btn btn-danger btn-small"
-                  onclick="return confirm('Clear the log file? This cannot be undone.');">{{ icons.icon('trash') }} Clear</button>
-        </form>
-      </div>
+      <h2 class="card-title">{{ icons.icon('list') }} Logs</h2>
     </div>
     <div class="card-content">
-      {% if log_file_exists %}
-      <div class="log-container" id="logContainer">
-        <pre class="log-content">{{ log_entries|join('') }}</pre>
+      <div class="mobile-admin-actions">
+        <a href="{{ url_for('admin.view_log', name='app') }}" target="_blank" rel="noopener" class="btn btn-secondary btn-block">{{ icons.icon('list') }} App Log</a>
+        <a href="{{ url_for('admin.view_log', name='events') }}" target="_blank" rel="noopener" class="btn btn-secondary btn-block">{{ icons.icon('clock') }} Event Log</a>
       </div>
-      {% else %}
-      <p class="text-muted text-small text-center p-32">No log file found yet.</p>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Event Logs -->
-  <div class="card admin-section">
-    <div class="card-header">
-      <h2 class="card-title">{{ icons.icon('clock') }} Event Logs</h2>
-      <div class="log-controls">
-        <button onclick="toggleEventLogWrap()" class="btn btn-secondary btn-small">{{ icons.icon('list') }} Wrap</button>
-      </div>
-    </div>
-    <div class="card-content">
-      {% if event_log_file_exists %}
-      <div class="log-container" id="eventLogContainer">
-        <pre class="log-content">{{ event_log_entries|join('') }}</pre>
-      </div>
-      {% else %}
-      <p class="text-muted text-small text-center p-32">No event log file found yet.</p>
-      {% endif %}
     </div>
   </div>
 

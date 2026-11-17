@@ -243,30 +243,3 @@ def resolve_race_from_api(race_id):
     return redirect(url_for("betting.betting_dashboard"))
 
 
-@betting_bp.route("/betting/manual-resolve/<race_id>", methods=["GET", "POST"])
-@login_required
-def manual_resolve_race(race_id):
-    """Manually resolve a race (admin only)."""
-    if not user_service.is_admin(session["username"]):
-        flash("Only admins can manually resolve races", "error")
-        return redirect(url_for("betting.betting_dashboard"))
-
-    if request.method == "GET":
-        return render_template(
-            "betting/manual_resolve.html",
-            race_id=race_id,
-            drivers=bet_service.get_available_drivers(),
-        )
-
-    results, fastest_lap = _extract_bet_form()
-
-    if not all(results + [fastest_lap]):
-        flash("Please select all positions and fastest lap", "error")
-        return redirect(url_for("betting.manual_resolve_race", race_id=race_id))
-
-    if resolution_service.resolve_with_results(race_id, results, fastest_lap):
-        flash(f"Race {race_id} resolved successfully with manual results!", "success")
-    else:
-        flash(f"Failed to resolve race {race_id}", "error")
-
-    return redirect(url_for("betting.betting_dashboard"))
