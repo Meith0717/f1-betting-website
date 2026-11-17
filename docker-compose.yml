@@ -14,6 +14,9 @@ services:
       # - VAPID_PRIVATE_KEY=...
       - FLASK_ENV=production
       - LOG_LEVEL=INFO
+      # IANA timezone used to display race/session times (container OS zone is UTC).
+      # Change to your own zone, e.g. Europe/Paris.
+      - APP_TIMEZONE=Europe/Luxembourg
     restart: unless-stopped
 
 volumes:

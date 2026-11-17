@@ -67,8 +67,8 @@
           <div class="mobile-session-item">
             <span class="session-type">{{ session.type }}</span>
             <div class="session-date-time">
-              <span class="session-date">{{ session.date|date_fmt('%d.%m') }}</span>
-              <span>{{ session.time_info.time_only if session.time_info else session.time[:5] }}</span>
+              <span class="session-date local-date" data-utc-iso="{{ session.utc_iso|default('', true) }}">{{ session.date|date_fmt('%d.%m') }}</span>
+              <span class="local-time" data-utc-iso="{{ session.utc_iso|default('', true) }}">{{ session.time_info.time_only if session.time_info else session.time[:5] }}</span>
             </div>
           </div>
           {% endif %}

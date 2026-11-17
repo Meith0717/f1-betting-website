@@ -37,19 +37,13 @@ class RaceDataManager:
             default={"drivers": []},
         )
 
-    # -- Timezone delegation (backward-compat aliases) ----------------------
+    # -- Timezone delegation -------------------------------------------------
 
     def get_race_datetime(self, race: Dict) -> Optional[datetime]:
         return timezone_utils.get_race_datetime(race)
 
     def get_session_datetime(self, session: Dict) -> datetime:
         return timezone_utils.get_session_datetime(session)
-
-    _get_race_datetime = get_race_datetime
-    _get_session_datetime = get_session_datetime
-
-    def convert_utc_to_local(self, date_str: str, time_str: str, tz: str = "UTC") -> Dict:
-        return timezone_utils.convert_utc_to_local(date_str, time_str, tz)
 
     def add_timezone_info_to_race(self, race: Dict) -> Dict:
         return timezone_utils.add_timezone_info_to_race(race)

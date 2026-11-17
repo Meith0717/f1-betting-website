@@ -187,7 +187,7 @@ def races():
 
     for race in race_data_manager.get_all_races():
         race_tz = race_data_manager.add_timezone_info_to_race(race)
-        race_dt = race_data_manager._get_race_datetime(race)
+        race_dt = race_data_manager.get_race_datetime(race)
         if race_dt:
             if not race_dt.tzinfo:
                 race_dt = pytz.UTC.localize(race_dt)

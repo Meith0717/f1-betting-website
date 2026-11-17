@@ -13,13 +13,26 @@ class TimezoneUtils:
 
     def __init__(self):
         self.utc_timezone = pytz.UTC
+        self.local_timezone = self._detect_local_timezone()
+
+    @staticmethod
+    def _detect_local_timezone():
+        """Pick the display timezone: APP_TIMEZONE config, then OS detection."""
+        from .core import config
+
+        configured = config.display_timezone()
+        if configured:
+            try:
+                return pytz.timezone(configured)
+            except Exception:
+                pass
 
         try:
             import tzlocal
 
-            self.local_timezone = tzlocal.get_localzone()
+            return tzlocal.get_localzone()
         except (ImportError, Exception):
-            self.local_timezone = pytz.UTC
+            return pytz.UTC
 
     def utc_now(self) -> datetime:
         """Get current UTC time as timezone-aware datetime."""
@@ -208,6 +221,9 @@ class TimezoneUtils:
                     session["time_info"] = self.convert_utc_to_local(
                         session["date"], session["time"]
                     )
+                    parsed = self.parse_utc_datetime(session["date"], session["time"])
+                    if parsed:
+                        session["utc_iso"] = parsed.isoformat()
 
         return race
 
@@ -226,6 +242,9 @@ class TimezoneUtils:
             session["time_info"] = self.convert_utc_to_local(
                 session["date"], session["time"]
             )
+            parsed = self.parse_utc_datetime(session["date"], session["time"])
+            if parsed:
+                session["utc_iso"] = parsed.isoformat()
         return session
 
     def add_timezone_info_to_races(self, races: List[Dict]) -> List[Dict]:

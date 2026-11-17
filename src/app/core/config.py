@@ -78,6 +78,17 @@ def secret_key() -> str:
     return key
 
 
+# -- Timezone ---------------------------------------------------------------
+
+def display_timezone() -> Optional[str]:
+    """IANA timezone name used to display race times (e.g. 'Europe/Luxembourg').
+
+    Read from the APP_TIMEZONE env var, then the project-root .env file.
+    Returns None if unset — callers then fall back to auto-detection.
+    """
+    return _get("APP_TIMEZONE")
+
+
 # -- Registration ------------------------------------------------------------
 
 def registration_password() -> str:

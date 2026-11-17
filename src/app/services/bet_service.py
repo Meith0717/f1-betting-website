@@ -159,7 +159,7 @@ class BetService:
             entry = data["race_bets"].get(race_id, {})
             if entry.get("status") in ("closed", "resolved"):
                 continue
-            race_dt = self._race_manager._get_race_datetime(race)
+            race_dt = self._race_manager.get_race_datetime(race)
             if race_dt and race_dt <= now:
                 self.close_race(race_id, data)
                 closed += 1
@@ -178,7 +178,7 @@ class BetService:
         race = self._race_manager.get_race_by_id(race_id)
         if not race:
             return True
-        race_dt = self._race_manager._get_race_datetime(race)
+        race_dt = self._race_manager.get_race_datetime(race)
         if not race_dt:
             return True
         buffer = timedelta(minutes=2)
@@ -201,7 +201,7 @@ class BetService:
         if race_id in canceled or race.get("canceled"):
             return False
 
-        race_dt = self._race_manager._get_race_datetime(race)
+        race_dt = self._race_manager.get_race_datetime(race)
         if not race_dt or race_dt <= timezone_utils.utc_now():
             return False
 
@@ -216,7 +216,7 @@ class BetService:
         now = timezone_utils.utc_now()
         upcoming = []
         for r in self._race_manager.get_all_races():
-            r_dt = self._race_manager._get_race_datetime(r)
+            r_dt = self._race_manager.get_race_datetime(r)
             if r_dt and r_dt > now and r.get("id") not in canceled:
                 upcoming.append((r["id"], r_dt))
         upcoming.sort(key=lambda x: x[1])

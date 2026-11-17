@@ -27,6 +27,9 @@
     
     <!-- Push Notifications -->
     <script src="{{ url_for('static', filename='js/push-config.js', v=config['STATIC_VERSION']) }}" defer></script>
+
+    <!-- Browser-local session times -->
+    <script src="{{ url_for('static', filename='js/local-times.js', v=config['STATIC_VERSION']) }}" defer></script>
   </head>
   <body>
     <!-- Service Worker Registration -->
